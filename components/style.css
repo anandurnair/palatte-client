@@ -1,0 +1,23 @@
+.bg{
+    background-color: #ffff;
+}
+.bg2{
+    /* background-color: #00B9AE; */
+    color: #00B9AE;
+    
+}
+.bg3{
+    background-color: #1d2028;
+    /* border: 2px solid #00B9AE;
+    box-shadow: 0px 0px 8px #00b9ad4a; */
+}
+    
+.btn{
+    color:#00B9AE ;
+    border-color: #00B9AE;
+}
+
+
+.bg4{
+    background-color: #20222b;
+}
