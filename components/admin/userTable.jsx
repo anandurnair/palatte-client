@@ -1,5 +1,5 @@
 'use client'
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -8,7 +8,7 @@ import {
   TableRow,
   TableCell,
   Input,
-  Button,
+ 
   DropdownTrigger,
   Dropdown,
   DropdownMenu,
@@ -17,17 +17,40 @@ import {
   User,
   Pagination,
 } from "@nextui-org/react";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure} from "@nextui-org/react";
 
 
 const statusColorMap = {
   active: "success",
-  paused: "danger",
+  blocked: "danger",
   vacation: "warning",
 };
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "role", "status", "actions"];
+
+const INITIAL_VISIBLE_COLUMNS = ["fullname", "username", "email", "phone",'status','actions'];
 
 export default function UserTable() {
+  const [blockEmail,setBlockEmail] = useState()
+  const {isOpen, onOpen, onOpenChange,onClose} = useDisclosure();
+  const msgs = useRef(null);
+  const [block,setBlock]=useState(false)
+  const [users,setUsers] = useState([])
+  useEffect(()=>{
+    const fetchData=async()=>{
+      const res =await fetch('http://localhost:4000/getUsers')
+      const data = await res.json();
+      if (res.ok) {
+        setUsers(data.users)
+       
+      } else {
+        alert( data.error);  
+      }
+    }
+    fetchData()
+   
+  },[block])
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
   const [visibleColumns, setVisibleColumns] = React.useState(new Set(INITIAL_VISIBLE_COLUMNS));
@@ -52,7 +75,7 @@ export default function UserTable() {
 
     if (hasSearchFilter) {
       filteredUsers = filteredUsers.filter((user) =>
-        user.name.toLowerCase().includes(filterValue.toLowerCase()),
+        user.fullname.toLowerCase().includes(filterValue.toLowerCase()),
       );
     }
     if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
@@ -82,6 +105,30 @@ export default function UserTable() {
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
     });
   }, [sortDescriptor, items]);
+
+
+  const handleBlock=async()=>{
+    onClose()
+    const res = await fetch("http://localhost:4000/block-user", {
+      method: "POST",
+      body: JSON.stringify({email:blockEmail}),
+      headers: {
+        "Content-Type": "application/json", 
+      },
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setBlock(prev=>!prev)
+      toast.success(data.message)
+    } else {
+      alert( data.error);  
+    }
+  }
+
+  const handleOpen = (email) => {
+    setBlockEmail(email)
+    onOpen();
+  }
 
   const renderCell = React.useCallback((user, columnKey) => {
     const cellValue = user[columnKey];
@@ -120,9 +167,9 @@ export default function UserTable() {
                 </Button>
               </DropdownTrigger>
               <DropdownMenu>
-                <DropdownItem>View</DropdownItem>
-                <DropdownItem>Edit</DropdownItem>
-                <DropdownItem>Delete</DropdownItem>
+                {/* <DropdownItem>View</DropdownItem> */}
+                <DropdownItem onClick={()=>handleOpen(user.email)}  aria-label="Block data">{ user.isBlocked?"Unblock":'Block'}</DropdownItem>
+                {/* <DropdownItem>Delete</DropdownItem> */}
               </DropdownMenu>
             </Dropdown>
           </div>
@@ -177,7 +224,7 @@ export default function UserTable() {
             onValueChange={onSearchChange}
           />
           <div className="flex gap-3">
-            <Dropdown>
+            {/* <Dropdown>
               <DropdownTrigger className="hidden sm:flex">
                 <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
                   Status
@@ -197,7 +244,7 @@ export default function UserTable() {
                   </DropdownItem>
                 ))}
               </DropdownMenu>
-            </Dropdown>
+            </Dropdown> */}
             <Dropdown>
               <DropdownTrigger className="hidden sm:flex">
                 <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
@@ -219,9 +266,9 @@ export default function UserTable() {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button color="primary" endContent={<PlusIcon />}>
+            {/* <Button color="primary" endContent={<PlusIcon />}>
               Add New
-            </Button>
+            </Button> */}
           </div>
         </div>
         <div className="flex justify-between items-center">
@@ -280,6 +327,30 @@ export default function UserTable() {
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
   return (
+    <>
+        <ToastContainer  toastStyle={{ backgroundColor: "#1d2028" }} position="bottom-right" />
+        <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">Block User</ModalHeader>
+              <ModalBody>
+                <p> 
+                Are you sure you want to block ?
+                </p>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button color="default" onClick={handleBlock}>
+                  Block
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     <Table
       aria-label="Example table with custom cells, pagination and sorting"
       isHeaderSticky
@@ -309,12 +380,14 @@ export default function UserTable() {
       </TableHeader>
       <TableBody emptyContent={"No users found"} items={sortedItems}>
         {(item) => (
-          <TableRow key={item.id}>
+          <TableRow key={item._id}>
             {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
           </TableRow>
         )}
       </TableBody>
     </Table>
+    </>
+    
   );
 }
 
@@ -322,12 +395,11 @@ export default function UserTable() {
 
 const columns = [
     {name: "ID", uid: "id", sortable: true},
-    {name: "NAME", uid: "name", sortable: true},
-    {name: "AGE", uid: "age", sortable: true},
-    {name: "ROLE", uid: "role", sortable: true},
-    {name: "TEAM", uid: "team"},
-    {name: "EMAIL", uid: "email"},
-    {name: "STATUS", uid: "status", sortable: true},
+    {name: "NAME", uid: "fullname", },
+    {name: "USERNAME", uid: "username",},
+    {name: "EMAIL", uid: "email", },
+    {name: "PHONE", uid: "phone"},
+    {name: "STATUS", uid: "status"},
     {name: "ACTIONS", uid: "actions"},
   ];
   
@@ -591,7 +663,7 @@ export const SearchIcon = (props) => (
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth="2"
-    />
+    />    
   </svg>
 );
 export const ChevronDownIcon = ({strokeWidth = 1.5, ...otherProps}) => (

@@ -7,7 +7,7 @@ import "../style.css";
 import Link from "next/link";
 import { useSelector, useDispatch } from "react-redux";
 import { updateUser, signupUser } from "@/redux/user";
-
+import axios from 'axios'
 const OTPform = () => {
   const router = useRouter();
 
@@ -16,48 +16,42 @@ const OTPform = () => {
   const { tempUser } = useSelector((state) => state.user);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log("Otp data : ", OTP);
-    console.log("Working");
-    const res = await fetch("http://localhost:4000/otp", {
-      method: "POST",
-      body: JSON.stringify({ OTP,tempUser }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (res.ok) {
-
-      alert("Verified successfully");
-      console.log('temp user :', tempUser)
-      const userString = JSON.stringify(tempUser);
-
-      localStorage.setItem("currentUser", userString);
-      dispatch(updateUser(tempUser));
-      dispatch(updateUser(null));
-      router.push('/createProfile')
-    } else {
-      const errorMessage = await res.json(); // Extract error message from response
-      alert("Verification failed: " + errorMessage.error);      // router.push("/signup");
+    try {
+      e.preventDefault();
+      console.log("Otp data : ", OTP);
+      console.log("Working");
+      const res = await axios.post("http://localhost:4000/otp", { OTP,tempUser })
+      if (res.status) {
+  
+        alert("Verified successfully");
+        console.log('temp user :', tempUser)
+        const userString = JSON.stringify(tempUser);
+  
+        localStorage.setItem("currentUser", userString);
+        localStorage.setItem('token',JSON.stringify(res.data.token))
+        dispatch(updateUser(tempUser));
+        dispatch(updateUser(null));
+        console.log('Worked');
+        router.push('/createProfile')
+      } else {
+        alert("Verification failed: " + res.data.error);      // router.push("/signup");
+      }
+    } catch (error) {
+      alert(error)
     }
+  
   };
 
   const handleResend=async()=>{
     
 
     console.log("resend OTP : ",tempUser);
-    const res = await fetch("http://localhost:4000/resendOTP", {
-      method: "POST",
-      body: JSON.stringify({tempUser }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (res.ok) {
-      alert("Verified successfully");
-      dispatch(updateUser(tempUser));
-      dispatch(updateUser(null));
-      dispatch();
+    const res = await axios.post("http://localhost:4000/resendOTP",{tempUser })
+    if (res.status ===200) {
+      alert("resended successfully");
+      // dispatch(updateUser(tempUser));
+      // dispatch(updateUser(null));
+      // dispatch();
       // router.push("/home");
     } else {
       alert("verification faild");

@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Input, Button } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
-
+import axios from 'axios'
 import "../style.css";
 import Link from "next/link";
 import { useDispatch } from "react-redux";
@@ -18,27 +18,25 @@ const SignupForm = () => {
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    console.log("Working");
-    console.log(fullname, email, password);
-    const res = await fetch("http://localhost:4000/signupData", {
-      method: "POST", // Set method to POST
-      body: JSON.stringify({ fullname, email, password }), // Add data to the body
-      headers: {
-        "Content-Type": "application/json", // Set content type header
-      },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      console.log(data);
-      dispatch(signupUser(data.user))
-      router.push("/otp");
-    } else {
-      alert("user already exists");
-
-      console.log("error");
+    try {
+      e.preventDefault();
+    
+      console.log("Working");
+      console.log(fullname, email, password);
+      const res = await axios.post("http://localhost:4000/signupData", { fullname, email, password })
+      if (res.status===200) {
+        console.log(res.data);
+        dispatch(signupUser(res.data.user))
+        router.push("/otp");
+      } else {
+        alert("user already exists");
+  
+        console.log("error");
+      }
+    } catch (error) {
+      alert(error)
     }
+  
   };
   return (
     <div className=" w-full h-full flex  py-4 ">
@@ -111,7 +109,7 @@ const SignupForm = () => {
           <p>
             Already have an account ?{" "}
             <Link href="/" className="underline">
-              SignUp
+              Login
             </Link>
           </p>
         </div>

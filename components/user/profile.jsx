@@ -1,10 +1,12 @@
 "use client";
+import {userAPI} from '../user/axiosConfig'
 import React, { useEffect, useState } from "react";
 import { Avatar, Divider, Button, Image } from "@nextui-org/react";
-
+import { useRouter } from 'next/navigation'
+import axios from 'axios'
 const ProfileComponent = () => {
   const [userDetails, setUserDetails] = useState();
-
+  const router = useRouter()
   useEffect(() => {
     fetchUserDetails();
   }, []);
@@ -13,16 +15,16 @@ const ProfileComponent = () => {
     const storedUser = localStorage.getItem("currentUser");
     const user = JSON.parse(storedUser);
 
-    console.log("curent  :", user.email);
-    const res = await fetch(
+    console.log("current  :", user.email);
+    const res = await  userAPI.get(
       `http://localhost:4000/user-details?email=${user.email}`
     );
-    const data = await res.json();
-    if (res.ok) {
-      console.log(data.user);
-      setUserDetails(data.user);
+    if (res.status ===200) {
+      console.log(res.data.user);
+      setUserDetails(res.data.user);
     } else {
-      alert(data.error);
+      console.log("Eror in verififcation")
+      alert(res.data.error);
     }
   };
 
@@ -40,16 +42,17 @@ const ProfileComponent = () => {
         <div className="flex">
           <div className="flex gap-4 items-center">
             <Avatar
-              src="https://i.pravatar.cc/150?u=a04258114e29026708c"
-              className="w-25 h-25 text-large"
+            size='lg'
+              src={userDetails?.profileImg}
+              className="  text-large"
             />
           </div>
           <div className="w-full ml-14">
             <div className="flex w-full h-1/2 items-center justify-between">
-              <h2 className="text-2xl font-semibold">{userDetails?.username}</h2>
+              <h2 className="text-2xl font-semibold">{userDetails?.fullname}</h2>
               <div className="flex gap-4">
                 <Button variant="bordered">Edit Profile</Button>
-                <Button variant="bordered">Change Password</Button>
+                <Button variant="bordered" onClick={()=>router.push('/profile/changePassword')}>Change Password</Button>
               </div>
             </div>
             <div className="w-full h-1/2 flex justify-between items-center font-semibold">
@@ -71,7 +74,7 @@ const ProfileComponent = () => {
           <Divider className="my-4" />
 
           <div className="flex flex-col gap-7">
-            <h2>{userDetails?.fullname}</h2>
+            <h2>{userDetails?.username}</h2>
             <p>{userDetails?.bio}</p>
             <p>{userDetails?.country}</p>
             <p className="font-semibold">Contact :</p>

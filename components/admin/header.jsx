@@ -16,10 +16,15 @@ import {
   DropdownSection,
 } from "@nextui-org/react";
 import { Breadcrumbs, BreadcrumbItem } from "@nextui-org/react";
+import { useRouter } from "next/navigation";
 
 const Header = () => {
+  const router = useRouter()
   const [currentPage, setCurrentPage] = React.useState("song");
-
+  const handleLogout=()=>{
+    localStorage.removeItem('admin')
+    router.push('/admin')
+  }
   return (
     <div className="w-full h-auto main-bg py-4 px-4">
       <Navbar className="flex bg3 rounded-lg">
@@ -47,7 +52,7 @@ const Header = () => {
       <NavbarContent justify="end">
         
         <NavbarItem>
-          <Button  href="#" variant="bordered">
+          <Button  onClick={handleLogout} variant="bordered">
             Logout
           </Button>
         </NavbarItem>

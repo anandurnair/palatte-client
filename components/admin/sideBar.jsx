@@ -2,7 +2,7 @@
 import React from 'react'
 import '../style.css'
 import { Sidebar } from "flowbite-react";
-import { HiArrowSmRight, HiChartPie, HiInbox, HiShoppingBag, HiTable, HiUser, HiViewBoards } from "react-icons/hi";
+import { HiArrowSmRight, HiChartPie, HiInbox, HiShoppingBag, HiTable, HiUser, HiViewBoards,HiBriefcase  } from "react-icons/hi";
 import { Link } from '@nextui-org/react';
 
 const AdminSidebar = () => {
@@ -22,8 +22,8 @@ const AdminSidebar = () => {
             
             User Management
           </Sidebar.Item>
-          <Sidebar.Item href="#" icon={HiShoppingBag}>
-            Products
+          <Sidebar.Item href="#" icon={HiBriefcase }>
+            Services
           </Sidebar.Item>
           
         </Sidebar.ItemGroup>

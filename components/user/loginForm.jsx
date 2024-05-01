@@ -2,33 +2,44 @@
 import React, { useState } from "react";
 import { Input, Button } from "@nextui-org/react";
 import Link from "next/link";
-
+import { useDispatch } from "react-redux";
 import "../style.css";
+import { signupUser } from "@/redux/user";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+import axios from "axios";
 const Login = () => {
+  const router = useRouter();
+  const dispatch = useDispatch();
   const [isVisible, setIsVisible] = React.useState(false);
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    try{
+      e.preventDefault();
 
-    console.log("Working");
-    console.log(email, password);
-    const res = await fetch("http://localhost:4000/loginData", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      console.log(data);
-      dispatch(signupUser(data.user));
-      router.push("/home");
-    } else {
-      const errorMessage = await res.json(); // Extract error message from response
-      alert( errorMessage.error);  
+      console.log("Working");
+      console.log(email, password);
+      const res = await axios.post("http://localhost:4000/loginData", {
+        email,
+        password,
+      });
+      if (res.status === 200) {
+        console.log("Data of user : ", res.data.user);
+        dispatch(signupUser(res.data.user));
+        localStorage.setItem('currentUser',JSON.stringify(res.data.user))
+        localStorage.setItem('token',JSON.stringify(res.data.token))
+        
+        router.push("/home");
+      } else {
+        console.log(res.data)
+        // Extract error message from response
+        alert(res.data.error);
+      }
+    }catch(err){
+      alert("Incorrect Email/password ")
     }
+  
   };
   const toggleVisibility = () => setIsVisible(!isVisible);
   return (
@@ -49,7 +60,7 @@ const Login = () => {
         <h2 className="text-2xl font-extrabold pb-10 tracking-wider">LOGIN</h2>
         <div className="w-2/3 flex flex-col justify-center items-center gap-y-5">
           <Input
-            key=""  
+            key=""
             type="email"
             label="Email"
             labelPlacement="inside"
@@ -79,7 +90,12 @@ const Login = () => {
             }
             type={isVisible ? "text" : "password"}
           />
-          <Button color="" className="w-full h-12 lg btn" variant="bordered">
+          <Button
+            color=""
+            onClick={handleSubmit}
+            className="w-full h-12 lg btn"
+            variant="bordered"
+          >
             LOGIN
           </Button>
           <p>
