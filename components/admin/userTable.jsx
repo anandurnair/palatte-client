@@ -245,7 +245,7 @@ export default function UserTable() {
                 ))}
               </DropdownMenu>
             </Dropdown> */}
-            <Dropdown>
+            {/* <Dropdown>
               <DropdownTrigger className="hidden sm:flex">
                 <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
                   Columns
@@ -265,7 +265,7 @@ export default function UserTable() {
                   </DropdownItem>
                 ))}
               </DropdownMenu>
-            </Dropdown>
+            </Dropdown> */}
             {/* <Button color="primary" endContent={<PlusIcon />}>
               Add New
             </Button> */}

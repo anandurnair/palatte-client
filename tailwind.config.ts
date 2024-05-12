@@ -52,7 +52,7 @@ const config: Config = {
       "purple-dark": {
         extend: "dark", // <- inherit default values from dark theme
         colors: {
-          background:"#101219",
+          background:"#131312",
           foreground: "#fff",
           primary: {
             50: "#3B096C",

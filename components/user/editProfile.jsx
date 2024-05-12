@@ -1,16 +1,7 @@
 "use client";
-import React, { useEffect,useCallback, useRef, useState } from "react";
-import ReactCrop from "react-image-crop";
-import "react-image-crop/dist/ReactCrop.css";
-import Cropper from "react-easy-crop";
-import axiosInstance from "../user/axiosConfig";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import ProtectedRoute from "../../components/user/ProtectedRoute";
-import CropModal from './cropModal'
-import getCroppedImg from '../../helpers/croppedImage'
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
-import{
+import {
   Input,
   RadioGroup,
   Radio,
@@ -18,36 +9,35 @@ import{
   Textarea,
   Listbox,
   ListboxItem,
-  Image, // Corrected import
+  Image,
+  Avatar, // Corrected import
 } from "@nextui-org/react";
 import "../style.css";
 import { useRouter } from "next/navigation";
-import { useDispatch, useSelector } from "react-redux";
-import {updateUser} from '../../redux/reducers/user'
-const CreateProfileForm = () => {
+import axiosInstance from "../user/axiosConfig";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import CropModal from "./cropModal";
+import getCroppedImg from "../../helpers/croppedImage";
+import { useSelector } from "react-redux";
+
+const EditProfile = () => {
   const inputRef = useRef(null);
-  const dispatch = useDispatch()
+
   const router = useRouter();
-  const [selectedKeys, setSelectedKeys] = useState(new Set([]));
-  const [fullname, setFullname] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [place, setPlace] = useState("");
-  const [username, setUsername] = useState("");
-  const [bio, setBio] = useState("");
-  const [isFreelance, setFreelance] = useState("no");
+  const user = useSelector(state => state.user.currentUser);
+
+  const [fullname, setFullname] = useState(user.fullname);
+  const [username, setUsername] = useState(user.username);
+  const [phone, setPhone] = useState(user.phone);
+  const [bio, setBio] = useState(user.bio);
+  const [place, setPlace] = useState(user.country);
   const [image, setImage] = useState();
-  const [crop, setCrop] = useState({ x: 0, y: 0, width: 100, height: 100 }); 
-  const  [croppedImage, setCroppedImage] = useState();
+  const [crop, setCrop] = useState({ x: 0, y: 0, width: 100, height: 100 }); // Initial crop with default values
+  const [croppedImage, setCroppedImage] = useState(user.profileImg);
   const [preview, setPreview] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
-  const [phoneErr,setPhoneErr] = useState('')
-  const user = useSelector(state => state.user.tempUser)
-  useEffect(() => {
-    setFullname(user?.fullname);
-    setEmail(user?.email);
-  }, [user]);
 
   // const handleProfilePhoto = (e) => {
   //   const file = e.target.files[0];
@@ -65,6 +55,7 @@ const CreateProfileForm = () => {
   //     setPreviewSource(reader.result);
   //   };
   // };
+
   const onCropChange = (crop, croppedAreaPixels) => {
     setCrop(crop);
     setCroppedAreaPixels(croppedAreaPixels);
@@ -101,49 +92,46 @@ const CreateProfileForm = () => {
     e.preventDefault();
     try {
       if (croppedAreaPixels && image) {
-        const croppedImageBase64 = await getCroppedImg(image, croppedAreaPixels);
+        const croppedImageBase64 = await getCroppedImg(
+          image,
+          croppedAreaPixels
+        );
         setCroppedImage(croppedImageBase64);
         setShowModal(false);
         setPreview(false);
       }
     } catch (error) {
-      console.error('Error cropping image:', error);
+      console.error("Error cropping image:", error);
     }
   };
-
-
-  const handleSubmit = async (e) => {
-    if(phoneErr || fullname == '' || username == '' || bio ==='' || place === '' || croppedImage == undefined){
-      toast.error('Fill the form')
-      return
-    }
+  const handleSubmit = async () => {
     if (croppedAreaPixels && image) {
       const croppedImageBase64 = await getCroppedImg(image, croppedAreaPixels);
       setShowModal(false);
       setPreview(false);
   
+      // Call the function to convert blob URL to Base64 Data URI
       blobUrlToBase64(croppedImageBase64, function (base64Data) {
         setCroppedImage(base64Data);
         console.log("img", base64Data);
   
         // Data posting logic
         const data = {
-          profilePic: base64Data, // Use base64Data here
-          email,
+          profilePic: base64Data,
+          email: user.email,
           fullname,
           username,
           bio,
           phone,
           country: place,
-          isFreelance,
-          selectedKeys: [...selectedKeys],
         };
   
-        postToDatabase(data); 
+        postToDatabase(data); // Call function to post data to database
       });
     }
+   
+   
   };
-  
   function blobUrlToBase64(blobUrl, callback) {
     var xhr = new XMLHttpRequest();
     xhr.onload = function () {
@@ -157,66 +145,60 @@ const CreateProfileForm = () => {
     xhr.responseType = "blob";
     xhr.send();
   }
-  
+
   async function postToDatabase(data) {
     try {
       const res = await axiosInstance.post(
-        "http://localhost:4000/create-profile",
+        "http://localhost:4000/edit-profile",
         data
       );
-  
+
       if (res.status === 200) {
-        dispatch(updateUser(res.data.updatedUser))
+        localStorage.setItem(
+          "currentUser",
+          JSON.stringify(res.data?.updatedUser)
+        );
         toast.success(res.data.message);
-        console.log("New user", res.data.updatedUser);
-        router.push("/home");
+        router.push("/profile");
       } else {
         toast.error(res.data.error);
       }
     } catch (error) {
-      toast.error("Error in profile creation");
+      toast.error("Error in Updating");
     }
   }
 
-  function validatePhoneNumber(phoneNumber) {
-    var phoneRegex = /^\d{10}$/; 
-    if (phoneRegex.test(phoneNumber)) {
-        return true; 
-    } else {
-        return false;
-    }
-}
-  const hanldePhone =(e)=>{
-    if(validatePhoneNumber(e.target.value)){
-        setPhone(e.target.value);
-        setPhoneErr(false)
-    }else{
-      setPhoneErr(true)
-    }
-  }
 
+  const handleCancel = () => {
+    router.push("/profile");
+  };
   return (
     <ProtectedRoute>
       <ToastContainer
         toastStyle={{ backgroundColor: "#1d2028" }}
         position="bottom-right"
       />
-      <div className="w-full h-auto flex justify-center items-center p-5">
-        <div className="w-2/5 h-auto  rounded-md bg-semi shadow-lg flex flex-col justify-center items-center p-10">
-          <div className="h-full w-full flex flex-col items-center px-16 gap-y-6">
-            <h2 className="text-2xl font-bold">Create Profile</h2>
 
-            <input
-              ref={inputRef}
-              onChange={handleFileChange}
+      <div className="w-full h-auto flex justify-center items-center p-5">
+        <div className="w-3/5 h-auto bg rounded-md bg-semi shadow-lg flex flex-col justify-center items-center p-10">
+          <div className="h-full w-full flex flex-col items-center px-16 gap-y-6">
+            <h2 className="text-2xl font-bold pt-16">Edit Profile</h2>
+            <Avatar src={croppedImage} className="rounded-full w-20 h-20" />
+            <Input
+            ref={inputRef}
+            onChange={handleFileChange}
+            type="file"
+              size="sm"
+              name="image"
+              className="w-full"
               onClick={() => setPreview(true)}
-              accept="image/*"
-              className=" my-2 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-              type="file"
+
             />
-             <div className='bg-blue-400 w-32 h-32 border rounded-full'>
-                  <img src={croppedImage?croppedImage:"https://upload.wikimedia.org/wikipedia/commons/b/b5/Windows_10_Default_Profile_Picture.svg"} alt="Cropped" className='rounded-full' />
-                </div>
+            {/* {previewSource && (
+              <ReactCrop crop={crop} onChange={(c) => setCrop(c)}>
+                <img src={previewSource} />
+              </ReactCrop>
+            )} */}
 
             <Input
               type="text"
@@ -225,47 +207,46 @@ const CreateProfileForm = () => {
               labelPlacement="inside"
               variant="bordered"
               size="sm"
-              onChange={(e) => {
-                setFullname(e.target.value)
-                console.log('Croped image : ',croppedImage)
-              }}
               className="w-full"
+              onChange={(e) => setFullname(e.target.value)}
             />
             <Input
               type="text"
               label="Username"
+              value={username}
               labelPlacement="inside"
               variant="bordered"
               size="sm"
-              onChange={(e) => setUsername(e.target.value)}
               className="w-full"
+              onChange={(e) => setUsername(e.target.value)}
             />
             <Textarea
+              value={bio}
               variant="bordered"
               label="Add bio"
               onChange={(e) => setBio(e.target.value)}
             />
             <Input
+              value={phone}
               type="number"
               label="Phone"
               labelPlacement="inside"
               variant="bordered"
               size="sm"
-              onChange={hanldePhone}
               className="w-full"
-              isInvalid={phoneErr}
-              errorMessage={ "Invalid phone"}
+              onChange={(e) => setPhone(e.target.value)}
             />
             <Input
+              value={place}
               type="text"
               label="Place"
               labelPlacement="inside"
               variant="bordered"
               size="sm"
-              onChange={(e) => setPlace(e.target.value)}
               className="w-full"
+              onChange={(e) => setPlace(e.target.value)}
             />
-            <RadioGroup
+            {/* <RadioGroup
               label="Do you want to offer your services as a freelancer?"
               orientation="horizontal"
             >
@@ -307,11 +288,15 @@ const CreateProfileForm = () => {
                   Selected value: {Array.from(selectedKeys).join(", ")}
                 </p>
               </div>
-            )}
-
-            <Button className="w-full" onClick={handleSubmit}>
-              Create
-            </Button>
+            )} */}
+            <div className="w-full flex gap-x-4">
+              <Button className="w-1/2" onClick={handleCancel}>
+                Cancel
+              </Button>
+              <Button className="w-1/2" onClick={handleSubmit}>
+                Edit
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -330,10 +315,4 @@ const CreateProfileForm = () => {
   );
 };
 
-export default CreateProfileForm;
-
-const ListboxWrapper = ({ children }) => (
-  <div className="w-full border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100">
-    {children}
-  </div>
-);
+export default EditProfile;

@@ -10,6 +10,9 @@ const userSlice = createSlice({
   name: "user",
   initialState: INITIAL_STATE,
   reducers: {
+    logout : (state,action)=>{
+      state.currentUser = null;
+    },
     updateUser: (state, action) => {
       state.currentUser = action.payload;
       console.log("currentUser : ", state.currentUser);
@@ -21,5 +24,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { updateUser ,signupUser} = userSlice.actions;
+export const { updateUser ,signupUser,logout} = userSlice.actions;
 export default userSlice.reducer;

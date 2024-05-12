@@ -17,6 +17,7 @@ export default function RootLayout({
 }>) {
   return (
       <html lang="en">
+        <head><link rel="shortcut icon" href="https://img.freepik.com/premium-vector/black-white-logo-with-letter-p-it_853558-5013.jpg" /></head>
         <body className={inter.className}>
           <Providers>{children}</Providers>
         </body>

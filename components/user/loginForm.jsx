@@ -2,48 +2,65 @@
 import React, { useState } from "react";
 import { Input, Button } from "@nextui-org/react";
 import Link from "next/link";
-import { useDispatch } from "react-redux";
+
 import "../style.css";
-import { signupUser } from "@/redux/user";
+import { signupUser, updateUser } from "@/redux/reducers/user";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useDispatch } from "react-redux";
+
 const Login = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const [isVisible, setIsVisible] = React.useState(false);
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
+  const [email, setEmail] = useState("");
+  const [emailErr, setEmailErr] = useState(false);
+  const [password, setPassword] = useState("");
+  const [passwordErr, setPasswordErr] = useState(false);
   const handleSubmit = async (e) => {
-    try{
-      e.preventDefault();
-
-      console.log("Working");
-      console.log(email, password);
+    if(emailErr || passwordErr){
+      return
+    }
+    try {
       const res = await axios.post("http://localhost:4000/loginData", {
         email,
         password,
       });
       if (res.status === 200) {
         console.log("Data of user : ", res.data.user);
-        dispatch(signupUser(res.data.user));
-        localStorage.setItem('currentUser',JSON.stringify(res.data.user))
-        localStorage.setItem('token',JSON.stringify(res.data.token))
-        
+        dispatch(updateUser(res.data.user));
+        toast.success('Login successfully')
+        localStorage.setItem("token", JSON.stringify(res.data.token));
+
         router.push("/home");
       } else {
-        console.log(res.data)
-        // Extract error message from response
-        alert(res.data.error);
+        toast.error(res.data.error);
       }
-    }catch(err){
-      alert("Incorrect Email/password ")
+    } catch (err) {
+      console.log(err)
+      toast.error("Invalid User");
     }
+  };
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    setEmailErr(e.target.value.length < 3); 
+  };
   
+  // Handle password input change
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+    setPasswordErr(e.target.value.length < 4); // Set password error based on length
   };
   const toggleVisibility = () => setIsVisible(!isVisible);
   return (
     <div className=" w-full h-full flex py-4 ">
+      <ToastContainer
+        toastStyle={{ backgroundColor: "#1d2028" }}
+        position="bottom-center"
+      />
+
       <div className=" w-1/2 h-full flex justify-center items-center pl-32">
         <div className="w-full flex flex-col items-center p-28  gap-y-5 ">
           <h1 className="text-3xl font-extrabold tracking-wide">
@@ -56,7 +73,7 @@ const Login = () => {
           </p>
         </div>
       </div>
-      <div className="w-2/5 h-full bg rounded-md bg3 shadow-lg flex flex-col justify-center items-center ml-32">
+      <div className="w-2/5 h-full bg rounded-md bg-semi shadow-lg flex flex-col justify-center items-center ml-32">
         <h2 className="text-2xl font-extrabold pb-10 tracking-wider">LOGIN</h2>
         <div className="w-2/3 flex flex-col justify-center items-center gap-y-5">
           <Input
@@ -65,8 +82,10 @@ const Login = () => {
             label="Email"
             labelPlacement="inside"
             variant="underlined"
+            isInvalid={emailErr}
+            errorMessage="Please enter a valid email"
             size="lg"
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={handleEmailChange}
           />
 
           <Input
@@ -74,7 +93,9 @@ const Login = () => {
             labelPlacement="inside"
             size="lg"
             variant="underlined"
-            onChange={(e) => setPassword(e.target.value)}
+            isInvalid={passwordErr}
+            errorMessage="Please enter a valid password"
+            onChange={handlePasswordChange}
             endContent={
               <button
                 className="focus:outline-none"
@@ -91,6 +112,7 @@ const Login = () => {
             type={isVisible ? "text" : "password"}
           />
           <Button
+          
             color=""
             onClick={handleSubmit}
             className="w-full h-12 lg btn"

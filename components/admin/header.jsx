@@ -27,8 +27,8 @@ const Header = () => {
   }
   return (
     <div className="w-full h-auto main-bg py-4 px-4">
-      <Navbar className="flex bg3 rounded-lg">
-      <NavbarBrand>
+      <Navbar className="flex bg3 rounded-lg max-w-full">
+      <NavbarBrand className="max-w-full">
        
         <p className="font-bold text-inherit">Admin Panel</p>
       </NavbarBrand>

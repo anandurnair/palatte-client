@@ -6,14 +6,16 @@ import { useRouter } from "next/navigation";
 import "../style.css";
 import Link from "next/link";
 import { useSelector, useDispatch } from "react-redux";
-import { updateUser, signupUser } from "@/redux/user";
+import { updateUser, signupUser } from "@/redux/reducers/user";
 import axios from 'axios'
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const OTPform = () => {
   const router = useRouter();
 
   const dispatch = useDispatch();
   const [OTP, setOTP] = useState("");
-  const { tempUser } = useSelector((state) => state.user);
+  const tempUser = useSelector(state=>state.user.tempUser);
 
   const handleSubmit = async (e) => {
     try {
@@ -23,21 +25,17 @@ const OTPform = () => {
       const res = await axios.post("http://localhost:4000/otp", { OTP,tempUser })
       if (res.status) {
   
-        alert("Verified successfully");
-        console.log('temp user :', tempUser)
-        const userString = JSON.stringify(tempUser);
+        toast.success("Verified successfully");
   
-        localStorage.setItem("currentUser", userString);
         localStorage.setItem('token',JSON.stringify(res.data.token))
-        dispatch(updateUser(tempUser));
-        dispatch(updateUser(null));
+        dispatch(updateUser(res.data.user));
         console.log('Worked');
         router.push('/createProfile')
       } else {
-        alert("Verification failed: " + res.data.error);      // router.push("/signup");
+        toast.error("Verification failed: " + res.data.error);      // router.push("/signup");
       }
     } catch (error) {
-      alert(error)
+      toast.error("OTP verification failed")
     }
   
   };
@@ -61,6 +59,10 @@ const OTPform = () => {
   }
   return (
     <div className=" w-full h-full flex  py-4 ">
+       <ToastContainer
+        toastStyle={{ backgroundColor: "#1d2028" }}
+        position="bottom-center"
+      />
       <div className=" w-1/2 h-full flex justify-center items-center pl-32">
         <div className="w-full flex flex-col items-center p-28  gap-y-5 ">
           <h1 className="text-3xl font-extrabold tracking-wide">
@@ -73,7 +75,7 @@ const OTPform = () => {
           </p>
         </div>
       </div>
-      <div className="w-2/5 h-full bg rounded-md bg3 shadow-lg flex flex-col justify-center items-center ml-32">
+      <div className="w-2/5 h-full bg rounded-md bg-semi shadow-lg flex flex-col justify-center items-center ml-32">
         <h2 className="text-2xl font-extrabold pb-10 tracking-wider">
           {" "}
           VERIFY OTP
@@ -92,7 +94,7 @@ const OTPform = () => {
               backgroundColor: "#111",
             }}
           />
-          <ResendOTP onResendClick={handleResend} maxTime={60} />
+          <ResendOTP onResendClick={handleResend} maxTime={60} className='gap-20' />
 
           <Button
             color=""
