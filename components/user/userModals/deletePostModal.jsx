@@ -30,7 +30,7 @@ const DeletePostModal = ({ postId }) => {
       try {
         await axiosInstance.delete(`${url}/delete-post?postId=${postId}`);
         toast.success("Post deleted");
-        router.push("/profile/#myPosts");
+        // router.push("/profile/#myPosts");
       } catch (error) {
         console.error(error);
         toast.error(error);

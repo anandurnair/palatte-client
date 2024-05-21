@@ -6,13 +6,12 @@ import { Area } from 'react-easy-crop';
  * @returns Promise that resolves with the cropped image as a base64 string.
  */
 const getCroppedImg = async (imageFile, cropArea) => {
-    console.log('working cropped')
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(imageFile);
     reader.onload = (event) => {
       const image = new Image();
-      image.src = event.target?.result ;
+      image.src = event.target?.result;
       image.onload = () => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
@@ -46,11 +45,16 @@ const getCroppedImg = async (imageFile, cropArea) => {
               reject(new Error('Failed to crop image'));
               return;
             }
-            console.log("blobbb",blob);
             
-            console.log("croppp",URL.createObjectURL(blob));
-            
-            resolve(URL.createObjectURL(blob));
+            const base64Reader = new FileReader();
+            base64Reader.readAsDataURL(blob);
+            base64Reader.onloadend = () => {
+              const base64data = base64Reader.result;
+              resolve(base64data);
+            };
+            base64Reader.onerror = (error) => {
+              reject(error);
+            };
           },
           'image/jpeg',
           1 // quality

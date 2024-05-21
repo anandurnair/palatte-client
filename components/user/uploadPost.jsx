@@ -43,34 +43,8 @@ const UploadPost = () => {
   const [isVideo, setIsVideo] = useState(false);
   const [selected, setSelected] = useState("");
 
-  
-  function blobUrlToBase64(blobUrl, callback) {
-    var xhr = new XMLHttpRequest();
-    xhr.onload = function () {
-      var reader = new FileReader();
-      reader.onloadend = function () {
-        callback(reader.result);
-      };
-      reader.readAsDataURL(xhr.response);
-    };
-    xhr.open("GET", blobUrl);
-    xhr.responseType = "blob";
-    xhr.send();
-  }
-
-  const convertToBase64 = (blobUrl) => {
-    return new Promise((resolve, reject) => {
-      blobUrlToBase64(blobUrl, (result) => {
-        if (result) {
-          resolve(result);
-        } else {
-          reject(new Error("Conversion to base64 failed"));
-        }
-      });
-    });
-  };
-
   const handleSubmit = async () => {
+    console.log(croppedImages);
     try {
       if (isVideo) {
         const base64Data = await convertToBase64(video);
@@ -84,10 +58,9 @@ const UploadPost = () => {
         return;
       }
 
-      const base64Images = await Promise.all(images.map(convertToBase64));
       const data = {
         userId: user._id,
-        images: base64Images,
+        images: croppedImages,
         caption,
       };
 
@@ -194,8 +167,7 @@ const UploadPost = () => {
     onClose();
   };
 
- 
-
+  
 
   return (
     <>
