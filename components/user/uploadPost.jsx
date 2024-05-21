@@ -43,15 +43,32 @@ const UploadPost = ({setUpdatePosts}) => {
   const [isVideo, setIsVideo] = useState(false);
   const [selected, setSelected] = useState("");
 
- 
-const convertToBase64 = async (videoBlob) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = reject;
-    reader.onloadend = () => resolve(reader.result);
-    reader.readAsDataURL(videoBlob);
-  });
-};
+  function blobUrlToBase64(blobUrl, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+      var reader = new FileReader();
+      reader.onloadend = function () {
+        callback(reader.result);
+      };
+      reader.readAsDataURL(xhr.response);
+    };
+    xhr.open("GET", blobUrl);
+    xhr.responseType = "blob";
+    xhr.send();
+  }
+  const convertToBase64 = (blobUrl) => {
+    return new Promise((resolve, reject) => {
+      blobUrlToBase64(blobUrl, (result) => {
+        if (result) {
+          resolve(result);
+        } else {
+          reject(new Error("Conversion to base64 failed"));
+        }
+      });
+    });
+  };
+
+
   const handleSubmit = async () => {
     try {
       if (isVideo) {
