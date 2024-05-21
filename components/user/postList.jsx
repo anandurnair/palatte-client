@@ -38,7 +38,7 @@ const isVideo = (url) => {
 
 
 
-const PostList = () => {
+const PostList = ({updatePosts,setUpdatePosts}) => {
   const router = useRouter();
   const dispatch = useDispatch();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -98,7 +98,7 @@ const PostList = () => {
       fetchPosts();
       fetchUserDetails()
     }
-  }, [update]); 
+  }, [update,updatePosts]); 
 
   const initializeLikesState = (posts) => {
     const initialLikes = {};
@@ -368,7 +368,7 @@ const PostList = () => {
             {modal === "report" && (
               <ReportModal postId={post._id} userId={currentUserId} />
             )}
-            {modal === "delete" && <DeletePostModal postId={post._id} />}
+            {modal === "delete" && <DeletePostModal postId={post._id} setUpdate={setUpdate} />}
             {modal === "save" && <SaveModal setUpdate={setUpdate} postId={post._id}  userId={user._id}/>}
           </Modal>
         </div>

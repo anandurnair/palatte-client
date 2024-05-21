@@ -21,7 +21,7 @@ import {
 } from "@nextui-org/react";
 
 
-const DeletePostModal = ({ postId }) => {
+const DeletePostModal = ({ postId ,setUpdate}) => {
     const url = process.env.NEXT_PUBLIC_API_URL;
   
     const router = useRouter()
@@ -29,7 +29,9 @@ const DeletePostModal = ({ postId }) => {
     const handleDelete = async () => {
       try {
         await axiosInstance.delete(`${url}/delete-post?postId=${postId}`);
+        
         toast.success("Post deleted");
+        setUpdate(prev =>!prev)
         // router.push("/profile/#myPosts");
       } catch (error) {
         console.error(error);

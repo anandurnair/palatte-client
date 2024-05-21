@@ -19,7 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateAllPosts } from "@/redux/reducers/post";
 import SimpleImageSlider from "react-simple-image-slider";
 
-const UploadPost = () => {
+const UploadPost = ({setUpdatePosts}) => {
   const inputRef = useRef(null);
   const dispatch = useDispatch();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
@@ -43,11 +43,21 @@ const UploadPost = () => {
   const [isVideo, setIsVideo] = useState(false);
   const [selected, setSelected] = useState("");
 
+ 
+const convertToBase64 = async (videoBlob) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onloadend = () => resolve(reader.result);
+    reader.readAsDataURL(videoBlob);
+  });
+};
   const handleSubmit = async () => {
-    console.log(croppedImages);
     try {
       if (isVideo) {
+        console.log("it is working",video)
         const base64Data = await convertToBase64(video);
+        console.log('video base64  : ',base64Data)
         const data = {
           userId: user._id,
           images: [base64Data],
@@ -81,6 +91,7 @@ const UploadPost = () => {
         setVideo("");
         setSelected("");
         setIsVideo(false);
+        setUpdatePosts(prev =>!prev)
         toast.success("Uploaded Successfully");
       } else {
         console.log(res.data);
@@ -120,6 +131,7 @@ const UploadPost = () => {
       const videoFile = selectedFiles.find((file) => file.type === "video/mp4");
 
       if (videoFile) {
+        console.log("video file",videoFile)
         const videoURL = URL.createObjectURL(videoFile);
         setVideo(videoURL);
         setIsVideo(true);
