@@ -12,24 +12,31 @@ import {
   HiViewBoards,
   HiBriefcase,
 } from "react-icons/hi";
+import { FaImage  } from "react-icons/fa";
+
 import { Link } from "@nextui-org/react";
+import { useRouter } from "next/navigation";
 
 const AdminSidebar = () => {
+  const router = useRouter()
   return (
     <div className="w-64 h-lvh main-bg px-4 ">
       <div className="w-full h-full bg3 rounded-lg ">
         <Sidebar aria-label="Sidebar with logo branding example" className="dark" theme={ownTheme}>
           <Sidebar.Items className="pt-5">
             <Sidebar.ItemGroup className="">
-              <Sidebar.Item href="/admin/dashboard" icon={HiChartPie}>
+              <Sidebar.Item className='cursor-pointer' onClick={()=>router.push("/admin/dashboard")} icon={HiChartPie}>
                 Dashboard
               </Sidebar.Item>
 
-              <Sidebar.Item href="/admin/userManagement" icon={HiUser}>
+              <Sidebar.Item  className='cursor-pointer' onClick={()=>router.push("/admin/userManagement")} icon={HiUser}>
                 User Management
               </Sidebar.Item>
-              <Sidebar.Item href="/admin/serviceManagement" icon={HiBriefcase}>
+              <Sidebar.Item className='cursor-pointer' onClick={()=>router.push("/admin/serviceManagement")}  icon={HiBriefcase}>
                 Services
+              </Sidebar.Item>
+              <Sidebar.Item className='cursor-pointer' onClick={()=>router.push("/admin/reportedPost")} icon={FaImage }>
+                Reported Post
               </Sidebar.Item>
             </Sidebar.ItemGroup>
           </Sidebar.Items>

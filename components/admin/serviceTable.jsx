@@ -30,6 +30,8 @@ import {
 import axios from "axios";
 
 const statusColorMap = {
+  true : "danger",
+  false:"success",
   active: "success",
   blocked: "danger",
   vacation: "warning",
@@ -150,25 +152,35 @@ export default function ServiceTable() {
   const handleOpen = (email) => {
     onOpen();
   };
-  const handleAdd =async()=>{
-    try{
-        onClose()
-        const res = await axios.post("http://localhost:4000/addService",{serviceName:newService})
-        if(res.status===200){
-            toast.success('Service added')
-        }else{
-            toast.error('Service added failed')
-        }
-    }catch(error){
-        toast.error('Service added failed')
-
+  const handleAdd = async () => {
+    try {
+      onClose();
+      const res = await axios.post("http://localhost:4000/addService", { serviceName: newService });
+      if (res.status === 200) {
+        toast.success('Service added');
+      } else {
+        throw new Error('Unknown error occurred');
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 400 && error.response.data.error === "Service already exists") {
+        toast.error('Service already exists');
+      } else {
+        toast.error('Service added failed');
+      }
     }
   }
+  
+  
   const renderCell = React.useCallback((service, columnKey) => {
     const cellValue = service[columnKey];
 
     switch (columnKey) {
-      
+      case "unlisted":
+        return (
+          <Chip className="capitalize" color={statusColorMap[service.unlisted]} size="sm" variant="flat">
+            {cellValue ? "Not active" : "active"}
+          </Chip>
+        );
       
       case "actions":
         return (
@@ -185,7 +197,7 @@ export default function ServiceTable() {
                   onClick={() => handleOpen()}
                   aria-label="Block data"
                 >
-                  {service.isBlocked ? "Unblock" : "Block"}
+                  {service.unlisted ? "Unblock" : "Block"}
                 </DropdownItem>
                 {/* <DropdownItem>Delete</DropdownItem> */}
               </DropdownMenu>

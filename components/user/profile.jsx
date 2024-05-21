@@ -4,51 +4,58 @@ import React, { useEffect, useState } from "react";
 import { Avatar, Divider, Button, Image } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import ProtectedRoute from "../../components/user/ProtectedRoute";
-
-
+import { Chip } from "@nextui-org/react";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+} from "@nextui-org/react";
+import FollowersModal from '@/components/user/followersModal'
+import FollowingModal from '@/components/user/followingModal'
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, updateUser } from "@/redux/reducers/user";
 const ProfileComponent = () => {
-  const dispatch = useDispatch()
+  const [services, setServices] = useState([]);
+  const dispatch = useDispatch();
   const [userDetails, setUserDetails] = useState();
-  const user = useSelector(state => state.user.currentUser);
-  
+  const user = useSelector((state) => state.user.currentUser);
+  const [showModal,setShowModal] = useState() 
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
   const router = useRouter();
   useEffect(() => {
     fetchUserDetails();
   }, []);
 
-
- 
   const fetchUserDetails = async () => {
-
-
-
     try {
       const res = await axiosInstance.get(
         `http://localhost:4000/user-details?email=${user.email}`
       );
       if (res.status === 200) {
         setUserDetails(res.data.user);
-        dispatch(updateUser(res.data.user))
+        const allServices = res.data.user.services;
+        setServices(allServices);
+        dispatch(updateUser(res.data.user));
       } else {
         console.log("Eror in verififcation");
         alert(res.data.error);
       }
     } catch (error) {
-      dispatch(logout())
-      localStorage.removeItem('token')
-      router.push('/')
+      dispatch(logout());
+      localStorage.removeItem("token");
+      router.push("/");
     }
   };
 
   console.log("user:", userDetails);
   return (
     <ProtectedRoute>
-      
-
-      <div className="w-full h-full mt-64 flex flex-col items-center rounded-lg my-5">
+      <div className="w-full h-auto mt-96 flex flex-col items-center rounded-lg my-5">
         {/* <div className="w-full h-72 bg-slate-500 rounded-lg overflow-hidden">
           <Image
             className="w-screen"
@@ -86,15 +93,15 @@ const ProfileComponent = () => {
               </div>
               <div className="w-full h-1/2 flex justify-between items-center font-semibold">
                 <h2>
-                  Posts <span>20</span>
+                  Posts <span>2</span>
                 </h2>
-                <h2>
-                  Followers <span>30</span>
-                </h2>
+                <Button className="cursor-pointer" variant="" onClick={()=>setShowModal('followers')} onPress={onOpen}>
+                  Followers <span>{userDetails?.followers?.length}</span>
+                </Button>
 
-                <h2>
-                  Following <span>40</span>
-                </h2>
+                <Button variant="" className="cursor-pointer" onClick={()=>setShowModal('following')} onPress={onOpen}>
+                  Following <span>{userDetails?.following.length}</span>
+                </Button>
               </div>
             </div>
           </div>
@@ -105,18 +112,32 @@ const ProfileComponent = () => {
             <div className="flex flex-col gap-7">
               <h2>{userDetails?.fullname}</h2>
               <p>{userDetails?.bio}</p>
-              <p>{userDetails?.country}</p>
-              <p className="font-semibold">Contact :</p>
-              <p>
-                Email - <span>{userDetails?.email}</span>
+              <div className="flex gap-x-3">
+                <p className="font-bold">Services :</p>
+                {services.map((service) => (
+                  <Chip size="lg">{service.serviceName}</Chip>
+                ))}
+              </div>
+              {/* <p className="font-semibold">Contact :</p> */}
+              <p className="flex gap-2">
+                <span className="font-bold">Email</span>
+                <span className="text-gray-400">{userDetails?.email}</span>
               </p>
-              <p>
-                Phone - <span>{userDetails?.phone}</span>{" "}
+              <p className="flex gap-2">
+                <span className="font-bold">Phone</span>
+                <span className="text-gray-400">{userDetails?.phone}</span>
+              </p>
+              <p className="flex gap-2">
+                <span className="font-bold">Place</span>
+                <span className="text-gray-400">{userDetails?.country}</span>
               </p>
             </div>
           </div>
         </div>
       </div>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        {(showModal === "followers") ? <FollowersModal userId={userDetails?._id} /> : <FollowingModal userId={userDetails?._id}/>}
+      </Modal>
     </ProtectedRoute>
   );
 };

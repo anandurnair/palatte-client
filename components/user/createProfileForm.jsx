@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect,useCallback, useRef, useState } from "react";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
@@ -9,6 +10,7 @@ import CropModal from './cropModal'
 import getCroppedImg from '../../helpers/croppedImage'
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 
 import{
   Input,
@@ -25,6 +27,8 @@ import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import {updateUser} from '../../redux/reducers/user'
 const CreateProfileForm = () => {
+  const [isLoading, setIsLoading] = useState(true); // Initially set to true
+
   const inputRef = useRef(null);
   const dispatch = useDispatch()
   const router = useRouter();
@@ -43,10 +47,26 @@ const CreateProfileForm = () => {
   const [showModal, setShowModal] = useState(false);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [phoneErr,setPhoneErr] = useState('')
+  const [services, setServices] = useState([]);
+
   const user = useSelector(state => state.user.tempUser)
   useEffect(() => {
+
+
     setFullname(user?.fullname);
     setEmail(user?.email);
+    
+    const fetchData = async () => {
+      try {
+        const res = await axiosInstance.get("http://localhost:4000/getServices");
+        if (res.status === 200) {
+            setServices(res.data.services);
+        } 
+      } catch (error) {
+        toast.error(error);
+      }
+  };
+  fetchData();
   }, [user]);
 
   // const handleProfilePhoto = (e) => {
@@ -164,17 +184,21 @@ const CreateProfileForm = () => {
         "http://localhost:4000/create-profile",
         data
       );
-  
+    
       if (res.status === 200) {
         dispatch(updateUser(res.data.updatedUser))
         toast.success(res.data.message);
         console.log("New user", res.data.updatedUser);
         router.push("/home");
       } else {
-        toast.error(res.data.error);
+        toast.error(res.data.error || "Unknown error occurred");
       }
     } catch (error) {
-      toast.error("Error in profile creation");
+      if (error.response && error.response.data && error.response.data.error) {
+        toast.error(error.response.data.error);
+      } else {
+        toast.error("Error in profile creation");
+      }
     }
   }
 
@@ -289,7 +313,12 @@ const CreateProfileForm = () => {
                     selectedKeys={selectedKeys}
                     onSelectionChange={setSelectedKeys}
                   >
-                    <ListboxItem key=" Custom artwork commissions">
+                    {services.map((service)=>(
+                      <ListboxItem key={service._id}>
+                    { service.serviceName}
+                    </ListboxItem>
+                    ))}
+                    {/* <ListboxItem key=" Custom artwork commissions">
                       Custom artwork commissions
                     </ListboxItem>
                     <ListboxItem key="Graphic design">
@@ -300,12 +329,12 @@ const CreateProfileForm = () => {
                     </ListboxItem>
                     <ListboxItem key="Crafting tutorials or workshops">
                       Crafting tutorials or workshops
-                    </ListboxItem>
+                    </ListboxItem> */}
                   </Listbox>
                 </ListboxWrapper>
-                <p className="text-small text-default-500">
-                  Selected value: {Array.from(selectedKeys).join(", ")}
-                </p>
+                {/* <p className="text-small text-default-500">
+                  Selected Service: {...selectedKeys}
+                </p> */}
               </div>
             )}
 

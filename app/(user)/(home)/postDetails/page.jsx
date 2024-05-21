@@ -7,7 +7,7 @@ const PostDetailPage = () => {
     const postId = searchParams.get('postId'); 
 
   return (
-    <div className='purple-dark h-full bg-background text-foreground  flex flex-col justify-center overflow-scroll'>
+    <div className='purple-dark h-lvh bg-background text-foreground  flex flex-col justify-center overflow-hidden '>
       <PostDetail postId={postId} />
     </div>
   )

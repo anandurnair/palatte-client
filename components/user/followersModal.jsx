@@ -56,7 +56,7 @@ const FollowersModal = ({userId}) => {
               <h5 className="text-small tracking-tight text-default-400">@{user.username}</h5>
             </div>
           </div>
-          <Button
+          {/* <Button
             className={isFollowed ? "bg-transparent text-foreground border-default-200" : ""}
             radius="full"
             size="sm"
@@ -64,7 +64,7 @@ const FollowersModal = ({userId}) => {
             onPress={() => setIsFollowed(!isFollowed)}
           >
             {isFollowed ? "Unfollow" : "Remove"}
-          </Button>
+          </Button> */}
         </CardHeader>
         
         <CardFooter className="gap-3">

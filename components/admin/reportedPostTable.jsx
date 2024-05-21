@@ -14,9 +14,12 @@ import {
   DropdownMenu,
   DropdownItem,
   Chip,
-  User,
+  Post,
   Pagination,
 } from "@nextui-org/react";
+import {Image} from "@nextui-org/image";
+
+import axios from 'axios'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure} from "@nextui-org/react";
@@ -29,24 +32,30 @@ const statusColorMap = {
 };
 
 
-const INITIAL_VISIBLE_COLUMNS = ["fullname", "username", "email", "phone",'status','actions'];
+const INITIAL_VISIBLE_COLUMNS = ["postImg","username","reason",'status','actions'];
 
-export default function UserTable() {
+export default function ReportedPostTable() {
   const [blockEmail,setBlockEmail] = useState()
   const {isOpen, onOpen, onOpenChange,onClose} = useDisclosure();
   const msgs = useRef(null);
   const [block,setBlock]=useState(false)
-  const [users,setUsers] = useState([])
+  const [posts,setPosts] = useState([])
   useEffect(()=>{
     const fetchData=async()=>{
-      const res =await fetch('http://localhost:4000/getUsers')
-      const data = await res.json();
-      if (res.ok) {
-        setUsers(data.users)
-       
-      } else {
-        alert( data.error);  
+      try {
+        const res =await axios.get('http://localhost:4000/get-all-reportedPosts')
+        if (res.status === 200) {
+          const data = res.data
+          console.log("reported posts : ",data.reportedPosts)
+          setPosts(data.reportedPosts)
+        } else {
+          alert( data.error);  
+        }
+      } catch (error) {
+        console.log(error)
+        toast.error("Error in fetching reported posts")
       }
+     
     }
     fetchData()
    
@@ -71,21 +80,21 @@ export default function UserTable() {
   }, [visibleColumns]);
 
   const filteredItems = React.useMemo(() => {
-    let filteredUsers = [...users];
+    let filteredPosts = [...posts];
 
     if (hasSearchFilter) {
-      filteredUsers = filteredUsers.filter((user) =>
+      filteredPosts = filteredPosts.filter((user) =>
         user.fullname.toLowerCase().includes(filterValue.toLowerCase()),
       );
     }
     if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
-      filteredUsers = filteredUsers.filter((user) =>
+      filteredPosts = filteredPosts.filter((user) =>
         Array.from(statusFilter).includes(user.status),
       );
     }
 
-    return filteredUsers;
-  }, [users, filterValue, statusFilter]);
+    return filteredPosts;
+  }, [posts, filterValue, statusFilter]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -107,42 +116,39 @@ export default function UserTable() {
   }, [sortDescriptor, items]);
 
 
-  const handleBlock=async()=>{
+  const handleDelete=async()=>{
     onClose()
-    const res = await fetch("http://localhost:4000/block-user", {
-      method: "POST",
-      body: JSON.stringify({email:blockEmail}),
-      headers: {
-        "Content-Type": "application/json", 
-      },
-    });
-    const data = await res.json();
-    if (res.ok) {
-      setBlock(prev=>!prev)
-      toast.success(data.message)
-    } else {
-      alert( data.error);  
+    try {
+      const res = await axios.delete(`http://localhost:4000/delete-post?postId=${blockEmail}`);
+      const data = await res.json();
+      if (res.ok) {
+        setBlock(prev=>!prev)
+        toast.success(data.message)
+      } else {
+        alert( data.error);  
+      }
+    } catch (error) {
+      toast.error(error)
     }
+   
   }
 
-  const handleOpen = (email) => {
-    setBlockEmail(email)
+  const handleOpen = (postId) => {
+    setBlockEmail(postId)
     onOpen();
   }
 
-  const renderCell = React.useCallback((user, columnKey) => {
-    const cellValue = user[columnKey];
+  const renderCell = React.useCallback((post, columnKey) => {
+    const cellValue = post[columnKey];
 
     switch (columnKey) {
-      case "name":
+      case "postImg":
         return (
-          <User
-            avatarProps={{radius: "lg", src: user.avatar}}
-            description={user.email}
-            name={cellValue}
-          >
-            {user.email}
-          </User>
+          <Image
+          width={100}
+      alt="NextUI hero Image"
+      src={post.postImg}
+    />
         );
       case "role":
         return (
@@ -153,7 +159,7 @@ export default function UserTable() {
         );
       case "status":
         return (
-          <Chip className="capitalize" color={statusColorMap[user.status]} size="sm" variant="flat">
+          <Chip className="capitalize" color={statusColorMap[post.status]} size="sm" variant="flat">
             {cellValue}
           </Chip>
         );
@@ -168,7 +174,7 @@ export default function UserTable() {
               </DropdownTrigger>
               <DropdownMenu>
                 {/* <DropdownItem>View</DropdownItem> */}
-                <DropdownItem onClick={()=>handleOpen(user.email)}  aria-label="Block data">{ user.isBlocked?"Unblock":'Block'}</DropdownItem>
+                <DropdownItem onClick={()=>handleOpen(post.postId)}  aria-label="Block data">{ post.status === 'active'?"Delete":''}</DropdownItem>
                 {/* <DropdownItem>Delete</DropdownItem> */}
               </DropdownMenu>
             </Dropdown>
@@ -214,7 +220,7 @@ export default function UserTable() {
     return (
       <div className="flex flex-col gap-4">
         <div className="flex justify-between gap-3 items-end">
-          <Input
+          {/* <Input
             isClearable
             className="w-full sm:max-w-[44%]"
             placeholder="Search by name..."
@@ -222,7 +228,7 @@ export default function UserTable() {
             value={filterValue}
             onClear={() => onClear()}
             onValueChange={onSearchChange}
-          />
+          /> */}
           <div className="flex gap-3">
             {/* <Dropdown>
               <DropdownTrigger className="hidden sm:flex">
@@ -272,7 +278,7 @@ export default function UserTable() {
           </div>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">Total {users.length} users</span>
+          <span className="text-default-400 text-small">Total {posts.length} posts</span>
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
             <select
@@ -292,7 +298,7 @@ export default function UserTable() {
     statusFilter,
     visibleColumns,
     onRowsPerPageChange,
-    users.length,
+    posts.length,
     onSearchChange,
     hasSearchFilter,
   ]);
@@ -333,18 +339,18 @@ export default function UserTable() {
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-1">Block User</ModalHeader>
+              <ModalHeader className="flex flex-col gap-1">Delete Post</ModalHeader>
               <ModalBody>
                 <p> 
-                Are you sure you want to block ?
+                Are you sure you want to delete ?
                 </p>
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="light" onPress={onClose}>
                   Cancel
                 </Button>
-                <Button color="default" onClick={handleBlock}>
-                  Block
+                <Button color="default" onClick={handleDelete}>
+                  Delete
                 </Button>
               </ModalFooter>
             </>
@@ -378,9 +384,9 @@ export default function UserTable() {
           </TableColumn>
         )}
       </TableHeader>
-      <TableBody emptyContent={"No users found"} items={sortedItems}>
+      <TableBody emptyContent={"No posts found"} items={sortedItems}>
         {(item) => (
-          <TableRow key={item._id}>
+          <TableRow key={item.postId}>
             {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
           </TableRow>
         )}
@@ -394,11 +400,10 @@ export default function UserTable() {
 
 
 const columns = [
-    {name: "ID", uid: "id", sortable: true},
-    {name: "NAME", uid: "fullname", },
-    {name: "USERNAME", uid: "username",},
-    {name: "EMAIL", uid: "email", },
-    {name: "PHONE", uid: "phone"},
+    {name: "ID", uid: "_id", sortable: true},
+    {name: "POST", uid: "postImg", },
+    {name: "REPORTED USER", uid: "username",},
+    {name: "REASON", uid: "reason", },
     {name: "STATUS", uid: "status"},
     {name: "ACTIONS", uid: "actions"},
   ];
@@ -409,7 +414,7 @@ const columns = [
     {name: "Vacation", uid: "vacation"},
   ];
   
- 
+  
   
 
 export function capitalize(str) {

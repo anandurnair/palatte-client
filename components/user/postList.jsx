@@ -1,5 +1,5 @@
-'use client'
-import React, { useEffect, useState } from "react";
+"use client";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
   Card,
   CardHeader,
@@ -8,14 +8,16 @@ import {
   Divider,
   Image,
 } from "@nextui-org/react";
-import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure} from "@nextui-org/react";
-
-import { FaRegComment, FaRegBookmark, FaBookmark } from "react-icons/fa";
+import { Modal, useDisclosure } from "@nextui-org/react";
 import { ToastContainer, toast } from "react-toastify";
 import axiosInstance from "./axiosConfig";
 import CommentComponent from "../../components/user/commentComponent";
 import { IoMdMore } from "react-icons/io";
 import { BiLike, BiSolidLike } from "react-icons/bi";
+import { FaRegComment, FaRegBookmark, FaBookmark } from "react-icons/fa";
+import DeletePostModal from "@/components/user/userModals/deletePostModal";
+import ReportModal from "./userModals/reportModal";
+import SaveModal from "./userModals/savePostModal";
 import {
   Dropdown,
   DropdownTrigger,
@@ -24,27 +26,45 @@ import {
   Button,
 } from "@nextui-org/react";
 import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
 import { updateUser } from "@/redux/reducers/user";
-import { updateAllPosts } from "@/redux/reducers/post";
+import SimpleImageSlider from "react-simple-image-slider";
+
+
+
+const isVideo = (url) => {
+  return /\.(mp4|webm|ogg)$/i.test(url);
+};
+
+
 
 const PostList = () => {
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const currentUser = useSelector((state) => state.user.currentUser);
+  const currentUserId = currentUser?._id;
   const [posts, setPosts] = useState([]);
   const [likes, setLikes] = useState({});
-  const user = useSelector((state) => state.user.currentUser);
-  const saved = user?.saved.map((post) => post._id);
-  const dispatch = useDispatch();
+  const current = useSelector((state) => state.user.currentUser);
+  const [user,setUser] = useState(current)
+  const savedPosts = useMemo(() => user?.allSaved || [], [user?.allSaved]);
+  const [update,setUpdate]  = useState(false)
+  const [modal, setModal] = useState("");
+  const [modalOpenStates, setModalOpenStates] = useState({});
 
   useEffect(() => {
+
+
     const fetchPosts = async () => {
       try {
-        const res = await axiosInstance.get(
-          "http://localhost:4000/get-all-posts"
-        );
+      
+        const res = await axiosInstance.get("http://localhost:4000/get-all-posts");
         if (res.status === 200) {
           const postsWithBookmarks = res.data.posts.map((post) => ({
             ...post,
-            bookmarked: saved.includes(post._id),
-            likedByUser: post.likes.includes(user._id)
+            bookmarked: savedPosts.includes(post._id),
+            likedByUser: post.likes.includes(user._id),
           }));
           setPosts(postsWithBookmarks);
           initializeLikesState(postsWithBookmarks);
@@ -55,8 +75,31 @@ const PostList = () => {
         handleApiError("Error in fetching posts");
       }
     };
-    fetchPosts();
-  }, []); 
+
+    const fetchUserDetails = async () => {
+      try {
+        const res = await axiosInstance.get(
+          `http://localhost:4000/user-details?email=${user.email}`
+        );
+        if (res.status === 200) {
+        
+          dispatch(updateUser(res.data.user));
+          setUser(res.data.user)
+        } else {
+          console.log("Eror in verififcation");
+          alert(res.data.error);
+        }
+      } catch (error) {
+       alert(error)
+      }
+    }; 
+
+    if (user) {
+      fetchPosts();
+      fetchUserDetails()
+    }
+  }, [update]); 
+
   const initializeLikesState = (posts) => {
     const initialLikes = {};
     posts.forEach((post) => {
@@ -70,35 +113,43 @@ const PostList = () => {
     toast.error(errorMessage);
   };
 
+  const toggleModal = (postId, modalType = "") => {
+    setModal(modalType);
+    setModalOpenStates((prevState) => ({
+      ...prevState,
+      [postId]: !prevState[postId],
+    }));
+  };
+
   const toggleBookmark = async (postId) => {
+    setModal("save");
+    onOpen();
+
     try {
       const postIndex = posts.findIndex((post) => post._id === postId);
       const currentBookmarked = posts[postIndex].bookmarked;
-      const newBookmarked = !currentBookmarked; // Toggle the bookmarked status
+      const newBookmarked = !currentBookmarked;
 
-      // Update the state immediately to reflect UI changes
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
           post._id === postId ? { ...post, bookmarked: newBookmarked } : post
         )
       );
 
-      // Now, based on the current bookmarked status, either save or remove the post
       if (newBookmarked) {
-        await axiosInstance.post("http://localhost:4000/save-Post", {
-          userId: user._id,
-          postId: postId,
-        });
-        toast.success("Post saved");
+        toggleModal(postId, "save");
       } else {
-        await axiosInstance.post("http://localhost:4000/remove-save-Post", {
-          userId: user._id,
-          postId: postId,
-        });
-        toast.success("Post removed from saved");
+        try {
+          await axiosInstance.post("http://localhost:4000/remove-save-post", {
+            userId: user._id,
+            postId: postId,
+          });
+          toast.success("Post removed from saved")
+        } catch (error) {
+          alert(error);
+        }
       }
 
-      // Update the user object after saving or removing the post
       const res = await axiosInstance.get(
         `http://localhost:4000/user-details?email=${user.email}`
       );
@@ -113,7 +164,7 @@ const PostList = () => {
     try {
       const postIndex = posts.findIndex((post) => post._id === postId);
       const currentLiked = likes[postId];
-      const newLiked = !currentLiked; // Toggle the liked status
+      const newLiked = !currentLiked;
 
       setLikes((prevLikes) => ({
         ...prevLikes,
@@ -125,19 +176,17 @@ const PostList = () => {
           userId: user._id,
           postId: postId,
         });
-        toast.success("Post liked");
       } else {
         await axiosInstance.post("http://localhost:4000/unlike-post", {
           userId: user._id,
           postId: postId,
         });
-        toast.success("Post unliked");
       }
 
       const updatedPosts = [...posts];
       updatedPosts[postIndex].likes = newLiked
-        ? updatedPosts[postIndex].likes + 1
-        : updatedPosts[postIndex].likes - 1;
+        ? updatedPosts[postIndex].likes.concat(user._id)
+        : updatedPosts[postIndex].likes.filter((id) => id !== user._id);
       setPosts(updatedPosts);
     } catch (error) {
       console.error(error);
@@ -157,6 +206,10 @@ const PostList = () => {
 
   return (
     <>
+     <ToastContainer containerId='a'
+        toastStyle={{ backgroundColor: "#1d2028" }}
+        position="bottom-right"
+      />
       {posts.map((post) => (
         <div
           key={post._id}
@@ -184,50 +237,102 @@ const PostList = () => {
               <div>
                 <Dropdown>
                   <DropdownTrigger>
-                    <Button isIconOnly  className="" variant="">
+                    <Button isIconOnly className="" variant="">
                       <IoMdMore size={25} />
                     </Button>
                   </DropdownTrigger>
-                  <DropdownMenu aria-label="Static Actions">
-                    <DropdownItem key="new">Report post</DropdownItem>
-                    <DropdownItem key="edit">Unfollow</DropdownItem>
-                    <DropdownItem
-                      key="delete"
-                      className="text-danger"
-                      color="danger"
-                    >
-                      Cancel{" "}
-                    </DropdownItem>
-                  </DropdownMenu>
+                  {currentUserId === post?.userId?._id ? (
+                    <DropdownMenu aria-label="Static Actions">
+                      <DropdownItem
+                        key="new"
+                        onPress={() =>
+                          router.push(`/postDetails?postId=${post._id}`)
+                        }
+                      >
+                        Go to Post
+                      </DropdownItem>
+                      <DropdownItem
+                        key="delete"
+                        className="text-danger"
+                        color="danger"
+                        onPress={() => toggleModal(post._id, "delete")}
+                      >
+                        Delete Post
+                      </DropdownItem>
+                    </DropdownMenu>
+                  ) : (
+                    <DropdownMenu aria-label="Static Actions">
+                      <DropdownItem key="report" onPress={() => toggleModal(post._id, "report")}>
+                        Report post
+                      </DropdownItem>
+                      <DropdownItem
+                        key="new"
+                        onPress={() =>
+                          router.push(`/postDetails?postId=${post._id}`)
+                        }
+                      >
+                        Go to Post
+                      </DropdownItem>
+                      <DropdownItem
+                        key="cancel"
+                        className="text-danger"
+                        color="danger"
+                      >
+                        Cancel
+                      </DropdownItem>
+                    </DropdownMenu>
+                  )}
                 </Dropdown>
               </div>
             </CardHeader>
             <Divider />
             <CardBody className="flex items-center gap-y-5">
-              <Image
-                classNames="w-full flex items-center"
-                alt="Card background"
-                className="object-cover rounded-xl"
-                src={post.images}
-              />
+              {isVideo(post.images)?(
+                <video width="750" height="500"  className="w-full flex items-center object-cover rounded-xl" controls >
+                <source src={post.images} type="video/mp4"/>
+               </video>
+              ):(
+                (post.images.length == 1)?(
+                  <Image
+                  className="w-full flex items-center object-cover rounded-xl"
+                  alt="Card background"
+                  src={post.images[0]}
+                />
+                ):(
+                  <SimpleImageSlider
+                    width={380}
+                    height={280}
+                    images={post.images.map((img) => ({ url: img }))}
+                    showBullets={true}
+                    showNavs={true}
+                  />
+                )
+               
+              )}
+              
               <div className="flex px-2 justify-between w-full">
                 <div className="flex gap-x-5">
                   {likes[post._id] ? (
                     <BiSolidLike
+                      className="cursor-pointer"
                       onClick={() => toggleLike(post._id)}
                       size={25}
                     />
                   ) : (
-                    <BiLike onClick={() => toggleLike(post._id)} size={25} />
+                    <BiLike
+                      className="cursor-pointer"
+                      onClick={() => toggleLike(post._id)}
+                      size={25}
+                    />
                   )}
-                  {post.likes.length}
+                  {post.likes.length} {/* Display likes count */}
                   <FaRegComment
                     className="cursor-pointer"
                     size={25}
                     onClick={() => toggleCommentVisibility(post._id)}
                   />
                 </div>
-                <div>
+                <div className="cursor-pointer">
                   {post.bookmarked ? (
                     <FaBookmark
                       onClick={() => toggleBookmark(post._id)}
@@ -244,7 +349,7 @@ const PostList = () => {
               <div className="w-full">
                 <p className="px-3 flex items-start justify-start">
                   <span className="mr-5 font-semibold">
-                    {post.userId?.username}{" "}
+                    {post.userId?.username}
                   </span>
                   {post?.caption}
                 </p>
@@ -255,8 +360,20 @@ const PostList = () => {
               {post.showComments && <CommentComponent postId={post._id} />}
             </CardFooter>
           </Card>
+          <Modal
+            key={post._id}
+            isOpen={modalOpenStates[post._id] || false} // Ensure default false if undefined
+            onOpenChange={() => toggleModal(post._id)}
+          >
+            {modal === "report" && (
+              <ReportModal postId={post._id} userId={currentUserId} />
+            )}
+            {modal === "delete" && <DeletePostModal postId={post._id} />}
+            {modal === "save" && <SaveModal setUpdate={setUpdate} postId={post._id}  userId={user._id}/>}
+          </Modal>
         </div>
       ))}
+    
     </>
   );
 };

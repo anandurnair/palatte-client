@@ -27,6 +27,7 @@ const Header = () => {
   const [user,setUser] = useState()
   const [profileImg,setProfileImg] = useState()
   const pathname = usePathname()
+  
   const currentUser = useSelector(state => state.user.currentUser);
   console.log("USer : ",currentUser)
   useEffect(()=>{

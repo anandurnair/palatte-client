@@ -4,7 +4,9 @@ import { useEffect } from 'react';
 import axiosInstance from '../user/axiosConfig'
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSelector } from 'react-redux';
 const ProtectedRoute = ({ children }) => {
+  const user = useSelector(state => state.user.currentUser)
     const router = useRouter();
     const pathname = usePathname()
     useEffect(() => {
@@ -16,8 +18,8 @@ const ProtectedRoute = ({ children }) => {
 
     useEffect(()=>{
         const fetchUserDetails = async () => {
-            const storedUser = localStorage.getItem("currentUser");
-            const user = JSON.parse(storedUser);
+
+            
         
         
             try {
@@ -28,7 +30,6 @@ const ProtectedRoute = ({ children }) => {
                 console.log(res.data?.user);
                 if(res.data.user?.isBlocked){
                     localStorage.removeItem('token')
-                    localStorage.removeItem('currentUser')
                     router.push('/')
                 }
               } else {

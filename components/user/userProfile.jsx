@@ -18,18 +18,20 @@ import {
   Button,
   useDisclosure,
 } from "@nextui-org/react";
-import FollowersModal from '@/components/user/followersModal'
-import FollowingModal from '@/components/user/followingModal'
+import FollowersModal from "@/components/user/followersModal";
+import FollowingModal from "@/components/user/followingModal";
 import {
   Dropdown,
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
 } from "@nextui-org/react";
-const UserProfileComponent = ({ userId }) => {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [showModal,setShowModal] = useState() 
+import { useRouter } from "next/navigation";
 
+const UserProfileComponent = ({ userId }) => {
+  const router = useRouter();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [showModal, setShowModal] = useState();
   const [followers, setFollowers] = useState();
   const dispatch = useDispatch();
   const [posts, setPosts] = useState([]);
@@ -80,7 +82,9 @@ const UserProfileComponent = ({ userId }) => {
     }
     setIsFollowed((prev) => !prev);
   };
-
+  const handlePressPost = (postId) => {
+    router.push(`/postDetails?postId=${postId}`);
+  };
   return (
     <ProtectedRoute>
       <ToastContainer
@@ -136,11 +140,21 @@ const UserProfileComponent = ({ userId }) => {
                 <h2>
                   Posts<span> {posts.length}</span>
                 </h2>
-                <Button className="cursor-pointer" variant="" onClick={()=>setShowModal('followers')} onPress={onOpen}>
+                <Button
+                  className="cursor-pointer"
+                  variant=""
+                  onClick={() => setShowModal("followers")}
+                  onPress={onOpen}
+                >
                   Followers <span>{followers}</span>
                 </Button>
 
-                <Button variant="" className="cursor-pointer" onClick={()=>setShowModal('following')} onPress={onOpen}>
+                <Button
+                  variant=""
+                  className="cursor-pointer"
+                  onClick={() => setShowModal("following")}
+                  onPress={onOpen}
+                >
                   Following <span>{userDetails?.following.length}</span>
                 </Button>
               </div>
@@ -176,7 +190,7 @@ const UserProfileComponent = ({ userId }) => {
                 shadow="sm"
                 key={index}
                 isPressable
-                onPress={() => console.log("item pressed")}
+                onPress={() => handlePressPost(item._id)}
               >
                 <CardBody className="overflow-visible p-0">
                   <Image
@@ -194,7 +208,11 @@ const UserProfileComponent = ({ userId }) => {
         </div>
       </div>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-        {(showModal === "followers") ? <FollowersModal userId={userId} /> : <FollowingModal userId={userId}/>}
+        {showModal === "followers" ? (
+          <FollowersModal userId={userId} />
+        ) : (
+          <FollowingModal userId={userId} />
+        )}
       </Modal>
     </ProtectedRoute>
   );

@@ -24,7 +24,7 @@ const HomeSidebar = () => {
        
       <Sidebar aria-label="Sidebar with content separator example" theme={ownTheme} className="overflow-hidden" >
       <Sidebar.Logo onClick={()=>router.push('/home')}  className="pl-10 ">
-        <h2 className="text-2xl"><span className="bg2">P</span>ALATTE</h2>
+        <h2 className="text-2xl cursor-pointer  "><span className="bg2">P</span>ALATTE</h2>
       </Sidebar.Logo>
         <Sidebar.ItemGroup className="flex flex-col gap-y-3 pt-10 cursor-pointer">
           <Sidebar.Item   onClick={()=>router.push('/home')} icon={FaHome} className='bg-5 rounded-lg p-4 shadow-lg text-gray-200 bg-semiDark'>

@@ -1,163 +1,118 @@
-"use client";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+'use client'
+import React, { useCallback, useState, useRef, useEffect } from "react";
 import ProtectedRoute from "../../components/user/ProtectedRoute";
-import {
-  Input,
-  RadioGroup,
-  Radio,
-  Button,
-  Textarea,
-  Listbox,
-  ListboxItem,
-  Image,
-  Avatar, // Corrected import
-} from "@nextui-org/react";
-import "../style.css";
+import { Input, Textarea, Button, Chip, Avatar } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import axiosInstance from "../user/axiosConfig";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CropModal from "./cropModal";
 import getCroppedImg from "../../helpers/croppedImage";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  RadioGroup,
+  Radio,
+  Listbox,
+  ListboxItem,
+  Image, // Corrected import
+} from "@nextui-org/react";
+import { updateUser } from "../../redux/reducers/user";
 
 const EditProfile = () => {
+  const dispatch = useDispatch();
   const inputRef = useRef(null);
-
   const router = useRouter();
-  const user = useSelector(state => state.user.currentUser);
-
-  const [fullname, setFullname] = useState(user.fullname);
-  const [username, setUsername] = useState(user.username);
-  const [phone, setPhone] = useState(user.phone);
-  const [bio, setBio] = useState(user.bio);
-  const [place, setPlace] = useState(user.country);
+  const currentUser = useSelector(state => state.user.currentUser);
+  const [user, setUser] = useState(currentUser); // Moved setUser inside component
+  const [allServices, setAllServices] = useState([]);
+  const [fullname, setFullname] = useState(currentUser?.fullname);
+  const [username, setUsername] = useState(currentUser?.username);
+  const [phone, setPhone] = useState(currentUser?.phone);
+  const [services, setServices] = useState(currentUser?.services);
+  const [selectedKeys, setSelectedKeys] = useState(new Set(services.map(service => service._id))); 
+  const [bio, setBio] = useState(currentUser?.bio);
+  const [place, setPlace] = useState(currentUser?.country);
   const [image, setImage] = useState();
-  const [crop, setCrop] = useState({ x: 0, y: 0, width: 100, height: 100 }); // Initial crop with default values
-  const [croppedImage, setCroppedImage] = useState(user.profileImg);
-  const [preview, setPreview] = useState(true);
+  const [crop, setCrop] = useState({ aspect: 1 / 1 });
+  const [croppedImage, setCroppedImage] = useState(currentUser?.profileImg);
   const [showModal, setShowModal] = useState(false);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
-  // const handleProfilePhoto = (e) => {
-  //   const file = e.target.files[0];
-  //   if (file && file.type.startsWith("image")) {
-  //     previewFile(file);
-  //   } else {
-  //     alert("Please select an image file.");
-  //   }
-  // };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axiosInstance.get("http://localhost:4000/getServices");
+        if (res.status === 200) {
+          setAllServices(res.data.services);
+        } 
+      } catch (error) {
+        toast.error(error);
+      }
+    };
+    fetchData();
+  }, []);
 
-  // const previewFile = (file) => {
-  //   const reader = new FileReader();
-  //   reader.readAsDataURL(file);
-  //   reader.onload = () => {
-  //     setPreviewSource(reader.result);
-  //   };
-  // };
-
-  const onCropChange = (crop, croppedAreaPixels) => {
-    setCrop(crop);
-    setCroppedAreaPixels(croppedAreaPixels);
+  const handleClose = (serviceToRemove) => {
+    setServices(services.filter((service) => service !== serviceToRemove));
+    setSelectedKeys(new Set(services.map(service => service._id)))
   };
-  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+
+  const onCropChange = useCallback((crop, croppedAreaPixels) => {
+    setCrop(crop);
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
   const handleCloseModal = () => {
     setShowModal(false);
     setImage(null);
-    setCrop({ x: 0, y: 0, width: 1, height: 1 });
+    setCrop({ aspect: 1 / 1 });
     setCroppedAreaPixels(null);
-    setPreview(true);
   };
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
       const selectedImage = e.target.files[0];
-      if (
-        selectedImage.type === "image/png" ||
-        selectedImage.type === "image/jpeg"
-      ) {
+      if (selectedImage.type === "image/png" || selectedImage.type === "image/jpeg") {
         setImage(selectedImage);
         setShowModal(true);
       } else {
-        toast.error(
-          "Only PNG and JPEG image files are allowed for the Profile image."
-        );
+        toast.error("Only PNG and JPEG image files are allowed for the Profile image.");
       }
     }
   };
+
   const handleCropImage = async (e) => {
     e.preventDefault();
     try {
       if (croppedAreaPixels && image) {
-        const croppedImageBase64 = await getCroppedImg(
-          image,
-          croppedAreaPixels
-        );
+        const croppedImageBase64 = await getCroppedImg(image, croppedAreaPixels);
         setCroppedImage(croppedImageBase64);
         setShowModal(false);
-        setPreview(false);
       }
     } catch (error) {
       console.error("Error cropping image:", error);
     }
   };
-  const handleSubmit = async () => {
-    if (croppedAreaPixels && image) {
-      const croppedImageBase64 = await getCroppedImg(image, croppedAreaPixels);
-      setShowModal(false);
-      setPreview(false);
-  
-      // Call the function to convert blob URL to Base64 Data URI
-      blobUrlToBase64(croppedImageBase64, function (base64Data) {
-        setCroppedImage(base64Data);
-        console.log("img", base64Data);
-  
-        // Data posting logic
-        const data = {
-          profilePic: base64Data,
-          email: user.email,
-          fullname,
-          username,
-          bio,
-          phone,
-          country: place,
-        };
-  
-        postToDatabase(data); // Call function to post data to database
-      });
-    }
-   
-   
-  };
-  function blobUrlToBase64(blobUrl, callback) {
-    var xhr = new XMLHttpRequest();
-    xhr.onload = function () {
-      var reader = new FileReader();
-      reader.onloadend = function () {
-        callback(reader.result);
-      };
-      reader.readAsDataURL(xhr.response);
-    };
-    xhr.open("GET", blobUrl);
-    xhr.responseType = "blob";
-    xhr.send();
-  }
 
-  async function postToDatabase(data) {
+  const handleSubmit = async () => {
+    const data = {
+      profilePic: croppedImage,
+      email: user.email,
+      fullname,
+      username,
+      bio,
+      phone,
+      country: place,
+      updatedServices: [...selectedKeys],
+    };
+
     try {
-      const res = await axiosInstance.post(
-        "http://localhost:4000/edit-profile",
-        data
-      );
+      const res = await axiosInstance.post("http://localhost:4000/edit-profile", data);
 
       if (res.status === 200) {
-        localStorage.setItem(
-          "currentUser",
-          JSON.stringify(res.data?.updatedUser)
-        );
+        console.log("updated user :",res.data.updatedUser)
+        dispatch(updateUser(res.data.updatedUser))
+        // localStorage.setItem("currentUser", JSON.stringify(res.data?.updatedUser));
         toast.success(res.data.message);
         router.push("/profile");
       } else {
@@ -166,40 +121,25 @@ const EditProfile = () => {
     } catch (error) {
       toast.error("Error in Updating");
     }
-  }
-
-
-  const handleCancel = () => {
-    router.push("/profile");
   };
+
   return (
     <ProtectedRoute>
-      <ToastContainer
-        toastStyle={{ backgroundColor: "#1d2028" }}
-        position="bottom-right"
-      />
-
-      <div className="w-full h-auto flex justify-center items-center p-5">
-        <div className="w-3/5 h-auto bg rounded-md bg-semi shadow-lg flex flex-col justify-center items-center p-10">
-          <div className="h-full w-full flex flex-col items-center px-16 gap-y-6">
+      <ToastContainer toastStyle={{ backgroundColor: "#1d2028" }} position="bottom-right" />
+      <div className="w-full h-auto flex justify-center items-center p-5 ">
+        <div className="mt-36 w-3/5 h-auto bg rounded-md bg-semi shadow-lg flex flex-col justify-center items-center p-10 ">
+          <div className="h-full w-full flex flex-col items-center px-16 gap-y-6 ">
             <h2 className="text-2xl font-bold pt-16">Edit Profile</h2>
             <Avatar src={croppedImage} className="rounded-full w-20 h-20" />
             <Input
-            ref={inputRef}
-            onChange={handleFileChange}
-            type="file"
+              ref={inputRef}
+              onChange={handleFileChange}
+              type="file"
               size="sm"
               name="image"
               className="w-full"
-              onClick={() => setPreview(true)}
-
+              onClick={() => setShowModal(true)}
             />
-            {/* {previewSource && (
-              <ReactCrop crop={crop} onChange={(c) => setCrop(c)}>
-                <img src={previewSource} />
-              </ReactCrop>
-            )} */}
-
             <Input
               type="text"
               value={fullname}
@@ -246,21 +186,17 @@ const EditProfile = () => {
               className="w-full"
               onChange={(e) => setPlace(e.target.value)}
             />
-            {/* <RadioGroup
-              label="Do you want to offer your services as a freelancer?"
-              orientation="horizontal"
-            >
-              <Radio value="yes" onClick={() => setFreelance("yes")}>
-                Yes
-              </Radio>
-              <Radio value="no" onClick={() => setFreelance("no")}>
-                No
-              </Radio>
-            </RadioGroup>
-
-            {isFreelance === "yes" && (
-              <div className="flex flex-col items-center  gap-y-6 w-full">
-                <p>Select a service</p>
+            <div className="flex gap-2">
+              <p>Services : </p>
+              {services.map((service, index) => (
+                <Chip key={index} onClose={() => handleClose(service)} variant="flat">
+                  {service.serviceName}
+                </Chip>
+              ))}
+               
+            </div>
+            <div className="flex flex-col items-center  gap-y-6 w-full">
+                <p>Add service </p>
                 <ListboxWrapper>
                   <Listbox
                     aria-label="Multiple selection example"
@@ -270,32 +206,21 @@ const EditProfile = () => {
                     selectedKeys={selectedKeys}
                     onSelectionChange={setSelectedKeys}
                   >
-                    <ListboxItem key=" Custom artwork commissions">
-                      Custom artwork commissions
+                    {allServices.map((service)=>(
+                      <ListboxItem key={service._id}>
+                    { service.serviceName}
                     </ListboxItem>
-                    <ListboxItem key="Graphic design">
-                      Graphic design
-                    </ListboxItem>
-                    <ListboxItem key="Handmade crafts">
-                      Handmade crafts
-                    </ListboxItem>
-                    <ListboxItem key="Crafting tutorials or workshops">
-                      Crafting tutorials or workshops
-                    </ListboxItem>
+                    ))}
+                   
                   </Listbox>
                 </ListboxWrapper>
-                <p className="text-small text-default-500">
-                  Selected value: {Array.from(selectedKeys).join(", ")}
-                </p>
+                {/* <p className="text-small text-default-500">
+                  Selected Service: {...selectedKeys}
+                </p> */}
               </div>
-            )} */}
             <div className="w-full flex gap-x-4">
-              <Button className="w-1/2" onClick={handleCancel}>
-                Cancel
-              </Button>
-              <Button className="w-1/2" onClick={handleSubmit}>
-                Edit
-              </Button>
+              <Button className="w-1/2" onClick={() => router.push("/profile")}>Cancel</Button>
+              <Button className="w-1/2" onClick={handleSubmit}>Submit</Button>
             </div>
           </div>
         </div>
@@ -306,7 +231,6 @@ const EditProfile = () => {
           crop={crop}
           setCroppedAreaPixels={setCroppedAreaPixels}
           onCropChange={onCropChange}
-          onCropComplete={onCropComplete}
           onClose={handleCloseModal}
           onCropImage={handleCropImage}
         />
@@ -316,3 +240,9 @@ const EditProfile = () => {
 };
 
 export default EditProfile;
+
+const ListboxWrapper = ({ children }) => (
+  <div className="w-full border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100">
+    {children}
+  </div>
+);
