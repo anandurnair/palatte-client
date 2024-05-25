@@ -51,6 +51,8 @@ export default function ServiceTable() {
   const [block, setBlock] = useState(false);
   const [services, setServices] = useState([]);
   const [newService,setNewService] = useState()
+  const [update,setUpdate] = useState(false)
+  const [modal,setModal] = useState('')
   useEffect(() => {
     try {
         const fetchData = async () => {
@@ -68,7 +70,7 @@ export default function ServiceTable() {
         toast.error(error)
     }
    
-  }, [block]);
+  }, [block,update]);
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
   const [visibleColumns, setVisibleColumns] = React.useState(
@@ -130,7 +132,7 @@ export default function ServiceTable() {
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
     });
   }, [sortDescriptor, items]);
-
+  const [currentService, setCurrentService] = useState('')
 //   const handleBlock = async () => {
 //     onClose();
 //     const res = await fetch("http://localhost:4000/blockService", {
@@ -149,7 +151,9 @@ export default function ServiceTable() {
 //     }
 //   };
 
-  const handleOpen = (email) => {
+  const handleModal = (serviceId,name) => {
+    setModal(name)
+    setCurrentService(serviceId)
     onOpen();
   };
   const handleAdd = async () => {
@@ -157,6 +161,7 @@ export default function ServiceTable() {
       onClose();
       const res = await axios.post("http://localhost:4000/addService", { serviceName: newService });
       if (res.status === 200) {
+        setUpdate(prev => !prev)
         toast.success('Service added');
       } else {
         throw new Error('Unknown error occurred');
@@ -193,13 +198,13 @@ export default function ServiceTable() {
               </DropdownTrigger>
               <DropdownMenu>
                 {/* <DropdownItem>View</DropdownItem> */}
-                <DropdownItem
-                  onClick={() => handleOpen()}
+                {/* <DropdownItem
+                  onClick={() => handleModal(service._id,'list')}
                   aria-label="Block data"
                 >
-                  {service.unlisted ? "Unblock" : "Block"}
-                </DropdownItem>
-                {/* <DropdownItem>Delete</DropdownItem> */}
+                  {service.unlisted ? "List" : "Unlist"}
+                </DropdownItem> */}
+                <DropdownItem onClick={()=>handleModal(service._id,'delete')}>Delete</DropdownItem>
               </DropdownMenu>
             </Dropdown>
           </div>
@@ -296,7 +301,7 @@ export default function ServiceTable() {
                 ))}
               </DropdownMenu> */}
             </Dropdown>
-            <Button color="primary" onClick={()=>handleOpen()} endContent={<PlusIcon />}>
+            <Button color="primary" onClick={()=>handleModal('','add')} endContent={<PlusIcon />}>
               Add New
             </Button>
           </div>
@@ -375,34 +380,40 @@ export default function ServiceTable() {
         position="bottom-right"
       />
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+       { modal === 'add' && (
         <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">
-               Add new Service
-              </ModalHeader>
-              <ModalBody>
-                {/* <p>Are you sure you want to block ?</p> */}
-                <Input
-            type="text"
-            label="Enter service name "
-            labelPlacement="inside"
-            variant="underlined"
-            size="lg"
-            onChange={(e) => setNewService(e.target.value)}
-          />
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Cancel
-                </Button>
-                <Button color="default"  onClick={handleAdd}>
-                  Add
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
+        {(onClose) => (
+          <>
+            <ModalHeader className="flex flex-col gap-1">
+             Add new Service
+            </ModalHeader>
+            <ModalBody>
+              {/* <p>Are you sure you want to block ?</p> */}
+              <Input
+          type="text"
+          label="Enter service name "
+          labelPlacement="inside"
+          variant="underlined"
+          size="lg"
+          onChange={(e) => setNewService(e.target.value)}
+        />
+            </ModalBody>
+            <ModalFooter>
+              <Button color="danger" variant="light" onPress={onClose}>
+                Cancel
+              </Button>
+              <Button color="default"  onClick={handleAdd}>
+                Add
+              </Button>
+            </ModalFooter>
+          </>
+        )}
+      </ModalContent>
+       )}
+
+       {modal === 'delete' && (
+        <DeleteModal serviceId={currentService} setUpdate={setUpdate} />
+       )}
       </Modal>
    
       <Table
@@ -550,3 +561,45 @@ export const VerticalDotsIcon = ({ size = 24, width, height, ...props }) => (
     />
   </svg>
 );
+
+
+const DeleteModal =({serviceId,setUpdate})=>{
+
+  const handleDelete=async()=>{
+    console.log('working')
+    try {
+      await axios.delete(`http://localhost:4000/delete-service?serviceId=${serviceId}`);
+      toast.success("post deleted")
+      setUpdate(prev => !prev)
+    } catch (error) {
+      console.log(error)
+      toast.error(error)
+    }
+  return
+  }
+
+  return(
+    <ModalContent>
+    {(onClose) => (
+      <>
+        <ModalHeader className="flex flex-col gap-1">
+Confirm delete        </ModalHeader>
+        <ModalBody>
+          <p>Are you sure you want to delete ?</p>
+          
+        </ModalBody>
+        <ModalFooter>
+          <Button color="danger" variant="light" onPress={onClose}>
+            Cancel
+          </Button>
+          <Button color="default" onPress={onClose} onClick={handleDelete}>
+            delete
+          </Button>
+        </ModalFooter>
+      </>
+    )}
+  </ModalContent>
+  )
+}
+
+

@@ -12,7 +12,7 @@ import {
   HiViewBoards,
   HiBriefcase,
 } from "react-icons/hi";
-import { FaImage  } from "react-icons/fa";
+import { FaImage ,FaComments } from "react-icons/fa";
 
 import { Link } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
@@ -37,6 +37,9 @@ const AdminSidebar = () => {
               </Sidebar.Item>
               <Sidebar.Item className='cursor-pointer' onClick={()=>router.push("/admin/reportedPost")} icon={FaImage }>
                 Reported Post
+              </Sidebar.Item>
+              <Sidebar.Item className='cursor-pointer' onClick={()=>router.push("/admin/reportedComments")} icon={FaComments }>
+                Reported Comments
               </Sidebar.Item>
             </Sidebar.ItemGroup>
           </Sidebar.Items>

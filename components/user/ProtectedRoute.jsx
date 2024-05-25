@@ -33,11 +33,11 @@ const ProtectedRoute = ({ children }) => {
                     router.push('/')
                 }
               } else {
-                console.log("Eror in verififcation");
-                alert(res.data.error);
+                // console.log("Eror in verififcation");
+                // alert(res.data.error);
               }
             } catch (error) {
-              toast.error("Verification Failed");
+              // toast.error("Verification Failed");
             }
           };
           fetchUserDetails()

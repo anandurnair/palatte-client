@@ -18,6 +18,8 @@ import { FaRegComment, FaRegBookmark, FaBookmark } from "react-icons/fa";
 import DeletePostModal from "@/components/user/userModals/deletePostModal";
 import ReportModal from "./userModals/reportModal";
 import SaveModal from "./userModals/savePostModal";
+import EditPostModal from "../../components/user/userModals/editPostModal";
+
 import {
   Dropdown,
   DropdownTrigger,
@@ -48,8 +50,30 @@ const PostList = ({updatePosts,setUpdatePosts}) => {
   const [likes, setLikes] = useState({});
   const current = useSelector((state) => state.user.currentUser);
   const [user,setUser] = useState(current)
-  const savedPosts = useMemo(() => user?.allSaved || [], [user?.allSaved]);
   const [update,setUpdate]  = useState(false)
+  const [updateCommet,setUpdateComment] = useState(false)
+  useEffect(()=>{
+    const fetchUserDetails = async () => {
+      try {
+        const res = await axiosInstance.get(
+          `http://localhost:4000/user-details?email=${user.email}`
+        );
+        if (res.status === 200) {
+        
+          dispatch(updateUser(res.data.user));
+          setUser(res.data.user)
+        } else {
+          console.log("Eror in verififcation");
+          alert(res.data.error);
+        }
+      } catch (error) {
+       alert(error)
+      }
+    }; 
+    fetchUserDetails()
+
+  },[update])
+  const savedPosts = useMemo(() => user?.allSaved || [], [user?.allSaved]);
   const [modal, setModal] = useState("");
   const [modalOpenStates, setModalOpenStates] = useState({});
 
@@ -74,31 +98,16 @@ const PostList = ({updatePosts,setUpdatePosts}) => {
       } catch (error) {
         handleApiError("Error in fetching posts");
       }
+
+
+      
     };
 
-    const fetchUserDetails = async () => {
-      try {
-        const res = await axiosInstance.get(
-          `http://localhost:4000/user-details?email=${user.email}`
-        );
-        if (res.status === 200) {
-        
-          dispatch(updateUser(res.data.user));
-          setUser(res.data.user)
-        } else {
-          console.log("Eror in verififcation");
-          alert(res.data.error);
-        }
-      } catch (error) {
-       alert(error)
-      }
-    }; 
-
+ 
     if (user) {
       fetchPosts();
-      fetchUserDetails()
     }
-  }, [update,updatePosts]); 
+  }, [update,updatePosts,updateCommet]); 
 
   const initializeLikesState = (posts) => {
     const initialLikes = {};
@@ -253,11 +262,24 @@ const PostList = ({updatePosts,setUpdatePosts}) => {
                       </DropdownItem>
                       <DropdownItem
                         key="delete"
-                        className="text-danger"
-                        color="danger"
+                       
+                        onPress={() => toggleModal(post._id, "edit")}
+                      >
+                        Edit Post
+                      </DropdownItem>
+                      <DropdownItem
+                        key="delete"
+                       
                         onPress={() => toggleModal(post._id, "delete")}
                       >
                         Delete Post
+                      </DropdownItem>
+                      <DropdownItem
+                        key="cancel"
+                        className="text-danger"
+                        color="danger"
+                      >
+                        Cancel
                       </DropdownItem>
                     </DropdownMenu>
                   ) : (
@@ -331,6 +353,7 @@ const PostList = ({updatePosts,setUpdatePosts}) => {
                     size={25}
                     onClick={() => toggleCommentVisibility(post._id)}
                   />
+                  {post.commentCount}
                 </div>
                 <div className="cursor-pointer">
                   {post.bookmarked ? (
@@ -357,7 +380,7 @@ const PostList = ({updatePosts,setUpdatePosts}) => {
             </CardBody>
             <Divider />
             <CardFooter>
-              {post.showComments && <CommentComponent postId={post._id} />}
+              {post.showComments && <CommentComponent setUpdateComment={setUpdateComment} postId={post._id} />}
             </CardFooter>
           </Card>
           <Modal
@@ -368,6 +391,13 @@ const PostList = ({updatePosts,setUpdatePosts}) => {
             {modal === "report" && (
               <ReportModal postId={post._id} userId={currentUserId} />
             )}
+            {modal === "edit" && (
+          <EditPostModal
+            key="editModal"
+            postId={post._id}
+            setUpdate={setUpdate}
+          />
+        )}
             {modal === "delete" && <DeletePostModal postId={post._id} setUpdate={setUpdate} />}
             {modal === "save" && <SaveModal setUpdate={setUpdate} postId={post._id}  userId={user._id}/>}
           </Modal>

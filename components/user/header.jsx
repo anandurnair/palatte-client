@@ -49,8 +49,8 @@ const Header = () => {
     router.push("/profile");
   };
   const handleLogout = ()=>{
-    dispatch(logout())
     localStorage.removeItem('token')
+    dispatch(logout())
     router.push('/')
   }
   return (

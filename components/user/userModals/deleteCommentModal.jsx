@@ -21,7 +21,7 @@ import {
 } from "@nextui-org/react";
 
 
-const DeleteCommentModal = ({ commentId ,setUpdate}) => {
+const DeleteCommentModal = ({setUpdateComment, commentId ,setUpdate}) => {
     const url = process.env.NEXT_PUBLIC_API_URL;
   
     const router = useRouter()
@@ -32,6 +32,7 @@ const DeleteCommentModal = ({ commentId ,setUpdate}) => {
         const res = await axiosInstance.delete(`${url}/delete-comment?commentId=${commentId}`);
         if(res.status == 200){
             setUpdate(prev=>!prev)
+            setUpdateComment(prev => !prev)
             toast.success("Comment deleted");
         }
       } catch (error) {

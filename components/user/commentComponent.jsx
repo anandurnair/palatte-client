@@ -27,7 +27,7 @@ import {
 } from "@nextui-org/react";
 import DeleteCommentModal from "../user/userModals/deleteCommentModal";
 
-const CommentComponent = ({ postId }) => {
+const CommentComponent = ({ setUpdateComment, postId }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [commentId, setCommentId] = useState();
   const [newComment, setNewComment] = useState("");
@@ -74,6 +74,8 @@ const CommentComponent = ({ postId }) => {
       );
       if (res.status === 200) {
         toast.success(res.data.message);
+        setUpdateComment(prev => !prev)
+
         setNewComment("");
         setUpdate(!update);
       } else {
@@ -178,7 +180,7 @@ const CommentComponent = ({ postId }) => {
                         <IoMdMore size={25} />
                       </Button>
                     </DropdownTrigger>
-                    {currentUser._id === comment?.userId?._id ? (
+                    {currentUser?._id === comment?.userId?._id ? (
                       <DropdownMenu aria-label="Static Actions">
                         <DropdownItem
                           key="delete"
@@ -289,7 +291,7 @@ const CommentComponent = ({ postId }) => {
                                   <IoMdMore size={25} />
                                 </Button>
                               </DropdownTrigger>
-                              {currentUser._id === reply?.userId?._id ? (
+                              {currentUser?._id === reply?.userId?._id ? (
                                 <DropdownMenu aria-label="Static Actions">
                                   <DropdownItem
                                     key="delete"
@@ -346,7 +348,7 @@ const CommentComponent = ({ postId }) => {
                   userId={currentUser._id}
                 />
               ) : (
-                <DeleteCommentModal setUpdate={setUpdate} commentId={commentId} />
+                <DeleteCommentModal setUpdateComment={setUpdateComment} setUpdate={setUpdate} commentId={commentId} />
               )}
             </Modal>
           </div>

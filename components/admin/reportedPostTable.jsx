@@ -147,7 +147,7 @@ export default function ReportedPostTable() {
           <Image
           width={100}
       alt="NextUI hero Image"
-      src={post.postImg}
+      src={post.postImg[0]}
     />
         );
       case "role":

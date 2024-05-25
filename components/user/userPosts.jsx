@@ -32,7 +32,8 @@ const UserPosts = () => {
     console.log(name);
     const res = collections.filter((item) => item.name === name);
     console.log("collection posts", res[0].posts);
-    setSavedPosts(res[0].posts);
+    setSavedPosts(res[0].posts.reverse());
+
   };
 
   useEffect(() => {
@@ -111,13 +112,13 @@ const UserPosts = () => {
                         <CardBody className="overflow-visible p-0">
                           {isVideo(item.images) ? (
                             <video className="w-full h-full flex items-center object-cover rounded-xl">
-                              <source src={item.images} type="video/mp4" />
+                              <source src={item.images[0]} type="video/mp4" />
                             </video>
                           ) : (
                             <Image
                               className="w-full flex items-center object-cover rounded-xl"
                               alt="Card background"
-                              src={item.images}
+                              src={item.images[0]}
                             />
                           )}
                         </CardBody>
@@ -175,7 +176,7 @@ const UserPosts = () => {
                       <h2>{currentCollection}</h2>
                     </div>
 
-                    {savedPosts.map((item, index) => (
+                    {savedPosts.reverse().map((item, index) => (
                       <>
                         <Card
                           key={index}
@@ -187,13 +188,13 @@ const UserPosts = () => {
                           <CardBody className="overflow-visible p-0">
                             {isVideo(item.images) ? (
                               <video className="w-full h-full flex items-center object-cover rounded-xl">
-                                <source src={item.images} type="video/mp4" />
+                                <source src={item.images[0]} type="video/mp4" />
                               </video>
                             ) : (
                               <Image
                                 className="w-full flex items-center object-cover rounded-xl"
                                 alt="Card background"
-                                src={item.images}
+                                src={item.images[0]}
                               />
                             )}
                           </CardBody>

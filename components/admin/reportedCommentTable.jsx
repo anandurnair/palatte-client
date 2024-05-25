@@ -32,14 +32,14 @@ const statusColorMap = {
 };
 
 
-const INITIAL_VISIBLE_COLUMNS = ["postImg","username","reason",'status','actions'];
+const INITIAL_VISIBLE_COLUMNS = ["postImg","username","comment","reason",'status','actions'];
 
-export default function ReportedPostTable() {
-  const [blockEmail,setBlockEmail] = useState()
+export default function ReportedCommentTable() {
+  const [blockComment,setBlockComment] = useState()
   const {isOpen, onOpen, onOpenChange,onClose} = useDisclosure();
   const msgs = useRef(null);
   const [block,setBlock]=useState(false)
-  const [posts,setPosts] = useState([])
+  const [comments,setComments] = useState([])
   useEffect(()=>{
     const fetchData=async()=>{
       try {
@@ -47,7 +47,7 @@ export default function ReportedPostTable() {
         if (res.status === 200) {
           const data = res.data
           console.log("reported posts : ",data.reportedComments)
-          setPosts(data.reportedComments)
+          setComments(data.reportedComments)
         } else {
           alert( data.error);  
         }
@@ -80,7 +80,7 @@ export default function ReportedPostTable() {
   }, [visibleColumns]);
 
   const filteredItems = React.useMemo(() => {
-    let filteredPosts = [...posts];
+    let filteredPosts = [...comments];
 
     if (hasSearchFilter) {
       filteredPosts = filteredPosts.filter((user) =>
@@ -94,7 +94,7 @@ export default function ReportedPostTable() {
     }
 
     return filteredPosts;
-  }, [posts, filterValue, statusFilter]);
+  }, [comments, filterValue, statusFilter]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -119,27 +119,24 @@ export default function ReportedPostTable() {
   const handleDelete=async()=>{
     onClose()
     try {
-      const res = await axios.delete(`http://localhost:4000/delete-post?postId=${blockEmail}`);
-      const data = await res.json();
-      if (res.ok) {
+     await axios.delete(`http://localhost:4000/delete-comment?commentId=${blockComment}`);
+     
         setBlock(prev=>!prev)
         toast.success(data.message)
-      } else {
-        alert( data.error);  
-      }
+     
     } catch (error) {
       toast.error(error)
     }
    
   }
 
-  const handleOpen = (postId) => {
-    setBlockEmail(postId)
+  const handleOpen = (commentId) => {
+    setBlockComment(commentId)
     onOpen();
   }
 
-  const renderCell = React.useCallback((post, columnKey) => {
-    const cellValue = post[columnKey];
+  const renderCell = React.useCallback((comment, columnKey) => {
+    const cellValue = comment[columnKey];
 
     switch (columnKey) {
       case "postImg":
@@ -147,7 +144,7 @@ export default function ReportedPostTable() {
           <Image
           width={100}
       alt="NextUI hero Image"
-      src={post.postImg}
+      src={comment.postImg[0]}
     />
         );
       case "role":
@@ -159,7 +156,7 @@ export default function ReportedPostTable() {
         );
       case "status":
         return (
-          <Chip className="capitalize" color={statusColorMap[post.status]} size="sm" variant="flat">
+          <Chip className="capitalize" color={statusColorMap[comment.status]} size="sm" variant="flat">
             {cellValue}
           </Chip>
         );
@@ -174,7 +171,7 @@ export default function ReportedPostTable() {
               </DropdownTrigger>
               <DropdownMenu>
                 {/* <DropdownItem>View</DropdownItem> */}
-                <DropdownItem onClick={()=>handleOpen(post.postId)}  aria-label="Block data">{ post.status === 'active'?"Delete":''}</DropdownItem>
+                <DropdownItem onClick={()=>handleOpen(comment.commentId)}  aria-label="Block data">{ comment.status === 'active'?"Delete":''}</DropdownItem>
                 {/* <DropdownItem>Delete</DropdownItem> */}
               </DropdownMenu>
             </Dropdown>
@@ -278,7 +275,7 @@ export default function ReportedPostTable() {
           </div>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">Total {posts.length} posts</span>
+          <span className="text-default-400 text-small">Total {comments.length} comments</span>
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
             <select
@@ -298,7 +295,7 @@ export default function ReportedPostTable() {
     statusFilter,
     visibleColumns,
     onRowsPerPageChange,
-    posts.length,
+    comments.length,
     onSearchChange,
     hasSearchFilter,
   ]);
@@ -339,7 +336,7 @@ export default function ReportedPostTable() {
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-1">Delete Post</ModalHeader>
+              <ModalHeader className="flex flex-col gap-1">Delete comment</ModalHeader>
               <ModalBody>
                 <p> 
                 Are you sure you want to delete ?
@@ -384,7 +381,7 @@ export default function ReportedPostTable() {
           </TableColumn>
         )}
       </TableHeader>
-      <TableBody emptyContent={"No posts found"} items={sortedItems}>
+      <TableBody emptyContent={"No comments found"} items={sortedItems}>
         {(item) => (
           <TableRow key={item.postId}>
             {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}

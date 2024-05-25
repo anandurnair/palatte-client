@@ -9,6 +9,7 @@ import DeletePostModal from "./userModals/deletePostModal";
 import EditPostModal from "../../components/user/userModals/editPostModal";
 import SaveModal from "./userModals/savePostModal";
 import ReportModal from "@/components/user/userModals/reportModal";
+import SimpleImageSlider from "react-simple-image-slider";
 
 import {
   Card,
@@ -42,7 +43,7 @@ const PostDetail = ({ postId }) => {
   const current = useSelector((state) => state.user.currentUser);
   const [currentUser,setCurrentUser] = useState(current)
   const dispatch = useDispatch();
-  const [post, setPost] = useState(null);
+  const [post, setPost] = useState();
   const [likes, setLikes] = useState(0);
   const [bookmarked, setBookmarked] = useState(false);
   const [isUser, setIsUser] = useState(false);
@@ -63,7 +64,6 @@ const PostDetail = ({ postId }) => {
           }
           setPost(res.data.post);
           setLikes(res.data.post.likes.length);
-          // Check if the post is bookmarked by the current user
           setBookmarked(currentUser?.allSaved?.includes(postId));
         }
       } catch (error) {
@@ -210,17 +210,33 @@ const PostDetail = ({ postId }) => {
         </CardHeader>
         <Divider />
         <CardBody className="flex items-center gap-y-5">
-        {isVideo(post?.images)?(
-                <video   className="w-full h-full flex items-center object-cover rounded-xl"  controls>
-                <source src={post?.images} type="video/mp4"/>
-               </video>
-              ):(
-                <Image
-                className="w-full flex items-center object-cover rounded-xl"
-                alt="Card background"
-                src={post?.images}
-              />
-              )}
+        {post?.images ? (
+  // Render image content based on image type (video or single/multiple images)
+  isVideo(post?.images[0]) ? (
+    <video controls className="w-full h-full flex items-center object-cover rounded-xl">
+      <source src={post?.images[0]} type="video/mp4" />
+    </video>
+  ) : (
+    post?.images.length === 1 ? (
+      <Image
+        className="w-full flex items-center object-cover rounded-xl"
+        alt="Card background"
+        src={post?.images[0]}
+      />
+    ) : (
+      <SimpleImageSlider
+        width={380}
+        height={280}
+        images={post.images.map((img) => ({ url: img }))}
+        showBullets={true}
+        showNavs={true}
+      />
+    )
+  )
+) : (
+  // Display a loading indicator or placeholder while data is being fetched
+  <p>Loading post...</p>
+)}
           <div className="flex px-2 justify-between w-full">
             <div className="flex gap-x-5">
               {likes ? (

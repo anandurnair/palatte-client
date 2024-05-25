@@ -18,6 +18,8 @@ import axiosInstance from "./axiosConfig";
 import { useDispatch, useSelector } from "react-redux";
 import { updateAllPosts } from "@/redux/reducers/post";
 import SimpleImageSlider from "react-simple-image-slider";
+import {CircularProgress} from "@nextui-org/react";
+import {Progress} from "@nextui-org/react";
 
 const UploadPost = ({setUpdatePosts}) => {
   const inputRef = useRef(null);
@@ -42,7 +44,7 @@ const UploadPost = ({setUpdatePosts}) => {
   const [video, setVideo] = useState("");
   const [isVideo, setIsVideo] = useState(false);
   const [selected, setSelected] = useState("");
-
+  const [show,setShow] = useState(false)
   function blobUrlToBase64(blobUrl, callback) {
     var xhr = new XMLHttpRequest();
     xhr.onload = function () {
@@ -71,6 +73,10 @@ const UploadPost = ({setUpdatePosts}) => {
 
   const handleSubmit = async () => {
     try {
+      // if(video == ''){
+      //   toast.error("Invalid file");
+      //   return
+      // }
       if (isVideo) {
         console.log("it is working",video)
         const base64Data = await convertToBase64(video);
@@ -100,6 +106,7 @@ const UploadPost = ({setUpdatePosts}) => {
 
   async function postToDatabase(data) {
     try {
+      setShow(true)
       const res = await axiosInstance.post("http://localhost:4000/add-post", data);
 
       if (res.status === 200) {
@@ -109,12 +116,18 @@ const UploadPost = ({setUpdatePosts}) => {
         setSelected("");
         setIsVideo(false);
         setUpdatePosts(prev =>!prev)
+        setShow(false)
         toast.success("Uploaded Successfully");
+        
       } else {
+        setShow(false)
+
         console.log(res.data);
         toast.error(res.data.error);
       }
     } catch (error) {
+      setShow(false)
+
       toast.error("Error in Updating");
       console.error(error);
     }
@@ -146,16 +159,28 @@ const UploadPost = ({setUpdatePosts}) => {
         (file) => file.type === "image/png" || file.type === "image/jpeg"
       );
       const videoFile = selectedFiles.find((file) => file.type === "video/mp4");
-
+  
       if (videoFile) {
-        console.log("video file",videoFile)
         const videoURL = URL.createObjectURL(videoFile);
-        setVideo(videoURL);
-        setIsVideo(true);
-        console.log("video file", videoURL);
+        const videoElement = document.createElement('video');
+  
+        videoElement.src = videoURL;
+  
+        videoElement.onloadedmetadata = () => {
+          const duration = videoElement.duration;
+          if (duration <= 60) {
+            setVideo(videoURL);
+            setIsVideo(true);
+            console.log("video file", videoURL);
+          } else {
+            toast.error("Video duration must be within 60 seconds.");
+            URL.revokeObjectURL(videoURL); // Clean up the object URL
+          }
+        };
+  
         return;
       }
-
+  
       if (validImages.length > 0) {
         setIsVideo(false);
         setImages(validImages);
@@ -167,7 +192,7 @@ const UploadPost = ({setUpdatePosts}) => {
       }
     }
   };
-
+  
   const handleCropImage = async (e) => {
     e.preventDefault();
     try {
@@ -193,6 +218,7 @@ const UploadPost = ({setUpdatePosts}) => {
     setVideo("");
     setIsVideo(false);
     setSelected("");
+    
     onClose();
   };
 
@@ -253,6 +279,9 @@ const UploadPost = ({setUpdatePosts}) => {
 
       <div className="w-full m-5 bg-semiDark h-20 gap-x-5 flex justify-between items-center p-4 rounded-lg">
         <Avatar isBordered color="default" src={user?.profileImg} />
+        { show && (<div>
+        <CircularProgress label="Uploading..." />
+        </div>)}
         <Button className="btn-full" onPress={onOpen}>
           Add Post
         </Button>

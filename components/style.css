@@ -6,6 +6,13 @@
     color: #00B9AE;
     
 }
+.btn{
+    color:#00B9AE ;
+    border-color: #00B9AE;
+}
+.btn-full{
+    background-color: #00B9AE;
+}
 
 .bg-dark {
     background-color:#131312 ;
@@ -17,18 +24,14 @@
 background-color: #232323;
 }
     
-.btn{
-    color:#00B9AE ;
-    border-color: #00B9AE;
-}
-.btn-full{
-    background-color: #00B9AE;
-}
 
 .bg-semiDark{
     background-color: #1C1C1C;
 }
-
+.message-list {
+    overflow-y: auto;
+    height: 500px; /* Adjust height as needed */
+  }
 .bg4{
     background-color: #20222b;
 }

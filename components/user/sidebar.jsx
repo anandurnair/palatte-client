@@ -34,10 +34,10 @@ const HomeSidebar = () => {
           <Sidebar.Item  onClick={()=>router.push('/explore')} icon={MdExplore} className=' bg-5 rounded-lg p-4 shadow-lg text-gray-200 bg-semiDark'>
             Explore
           </Sidebar.Item>
-          <Sidebar.Item href="#" icon={IoMdChatbubbles} className='bg-5 rounded-lg p-4 shadow-lg text-gray-200 bg-semiDark'>
+          <Sidebar.Item  onClick={()=>router.push('/inbox')}    icon={IoMdChatbubbles} className='bg-5 rounded-lg p-4 shadow-lg text-gray-200 bg-semiDark'>
             Inbox
           </Sidebar.Item>
-          <Sidebar.Item href="#" icon={MdGroups} className='bg-5 rounded-lg p-4 shadow-lg text-gray-200 bg-semiDark'>
+          <Sidebar.Item  icon={MdGroups} className='bg-5 rounded-lg p-4 shadow-lg text-gray-200 bg-semiDark'>
             Community
           </Sidebar.Item>
           <Sidebar.Item  onClick={()=>router.push('/profile/#myPosts')}  icon={PiPaintBrushFill} className='bg-5 rounded-lg p-4 shadow-lg text-gray-200 bg-semiDark'>
