@@ -81,7 +81,7 @@ const SearchComponenet = () => {
                   </h5>
                 </div>
               </div>
-              <Button
+              {/* <Button
                 className={
                   isFollowed
                     ? "bg-transparent text-foreground border-default-200"
@@ -94,20 +94,9 @@ const SearchComponenet = () => {
                 onPress={() => setIsFollowed(!isFollowed)}
               >
                 {isFollowed ? "Unfollow" : "Follow"}
-              </Button>
+              </Button> */}
             </CardHeader>
-            {/* <CardBody className="px-3 py-0 text-small text-default-400">
-              <p>
-                Frontend developer and UI/UX enthusiast. Join me on this coding
-                adventure!
-              </p>
-              <span className="pt-2">
-                #FrontendWithZoey
-                <span className="py-2" aria-label="computer" role="img">
-                  💻
-                </span>
-              </span>
-            </CardBody> */}
+            
             <CardFooter className="gap-3">
               <div className="flex gap-1">
                 <p className="font-semibold text-default-400 text-small">{user.following.length}</p>

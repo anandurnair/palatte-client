@@ -21,7 +21,7 @@ import { Breadcrumbs, BreadcrumbItem } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import ProtectedRoute from "../../components/user/ProtectedRoute";
 import { useDispatch, useSelector } from "react-redux";
-import { logout } from "@/redux/reducers/user";
+import { logout ,signupUser} from "@/redux/reducers/user";
 const Header = () => {
   const dispatch = useDispatch()
   const [user,setUser] = useState()
@@ -51,6 +51,7 @@ const Header = () => {
   const handleLogout = ()=>{
     localStorage.removeItem('token')
     dispatch(logout())
+    dispatch(signupUser(null))
     router.push('/')
   }
   return (

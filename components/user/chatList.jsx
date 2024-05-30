@@ -4,57 +4,79 @@ import {
   Card,
   CardHeader,
   CardBody,
-  CardFooter,
   Avatar,
-  Button,
+  Badge,
 } from "@nextui-org/react";
 import axiosInstance from "./axiosConfig";
+import { useSelector } from "react-redux";
 const url = process.env.NEXT_PUBLIC_API_URL;
 
+const ChatListComponent = ({
+  conversation,
+  currentUser,
+  user,
+  setUser,
+  setCurrentChat,
+  onlineUsers = [], // Default to an empty array
+}) => {
+  console.log("Hey: ", onlineUsers);
+  console.log("Hello: ", user?._id);
+  const [receiver, setReceiver] = useState(null);
+  const current = useSelector((state) => state.user.currentUser);
 
-const ChatListComponent = ({conversation,currentUser}) => {
- const [user,setUser] = useState(null);
- useEffect(()=>{
-  const friendId = conversation.members.find((m)=> m!==currentUser._id)
-  const getUser = async()=>{
-    try {
-      const res = await axiosInstance.get(`${url}/getUserById?userId=${friendId}`);
-      setUser(res.data.user)
-      console.log("Conversations :",res.data.user);
-    } catch (error) {
-      alert(error)
-    }
-    
-  }
-  getUser()
- },[conversation,currentUser])
+  useEffect(() => {
+    const friendId = conversation.members.find((m) => m !== currentUser?._id);
+    const getUser = async () => {
+      try {
+        if (current) {
+          const res = await axiosInstance.get(`${url}/getUserById?userId=${friendId}`);
+          setReceiver(res.data.user);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getUser();
+  }, [currentUser]);
+
+  const handleClick = () => {
+    setCurrentChat(conversation);
+    setUser(receiver);
+  };
+
   return (
-    <>
-     <Card className="w-full mb-3 cursor-pointer">
-            <CardHeader className="justify-between">
-              <div className="flex gap-5">
-                <Avatar
-                  isBordered
-                  radius="full"
-                  size="md"
-                  src={user?.profileImg}
-                />
-                <div className="flex flex-col gap-1 items-start justify-center">
-                  <h4 className="text-small font-semibold leading-none text-default-600">
-                    {user?.fullname}
-                  </h4>
-                  <h5 className="text-small tracking-tight text-default-400">
-                    @{user?.username}
-                  </h5>
-                </div>
-              </div>
+    <div onClick={handleClick}>
+      <Card className="w-full mb-3 cursor-pointer">
+        <CardHeader className="justify-between">
+          <div className="flex gap-5">
+            {onlineUsers.includes(receiver?._id) ? ( // Use receiver?._id here
+              <Badge
+                content=""
+                color="success"
+                shape="circle"
+                placement="bottom-right"
+              >
+                <Avatar isBordered radius="full" size="md" src={receiver?.profileImg} />
+              </Badge>
+            ) : (
+              <Avatar isBordered radius="full" size="md" src={receiver?.profileImg} />
+            )}
 
-              <p className="text-xs font-thin">click to chat</p>
-            </CardHeader>
-            <CardBody className="px-3 py-0 text-small text-default-400"></CardBody>
-          </Card>
-    </>
-   
+            <div className="flex flex-col gap-1 items-start justify-center">
+              <h4 className="text-small font-semibold leading-none text-default-600">
+                {receiver?.fullname}
+              </h4>
+              <h5 className="text-small tracking-tight text-default-400">
+                @{receiver?.username}
+              </h5>
+            </div>
+          </div>
+
+          <p className="text-xs font-thin">click to chat</p>
+        </CardHeader>
+        <CardBody className="px-3 py-0 text-small text-default-400"></CardBody>
+      </Card>
+    </div>
   );
 };
 

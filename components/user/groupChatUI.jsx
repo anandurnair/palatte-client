@@ -2,30 +2,30 @@
 import React, { useState, useEffect, useRef } from "react";
 import ProtectedRoute from "../../components/user/ProtectedRoute";
 import { Card, CardHeader, CardBody, Avatar, Input } from "@nextui-org/react";
-import { format } from "timeago.js";
-import axiosInstance from "./axiosConfig";
 import { FaVideo, FaPhoneAlt } from "react-icons/fa";
 import { BsThreeDotsVertical } from "react-icons/bs";
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+} from "@nextui-org/react";
+import GroupVideoCall from '@/components/user/GroupVideoCall'
 import {
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Button,
   useDisclosure,
 } from "@nextui-org/react";
 
-import {
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-  Button,
-} from "@nextui-org/react";
+import { format } from "timeago.js";
+import axiosInstance from "./axiosConfig";
+const url = process.env.NEXT_PUBLIC_API_URL;
 
-import VideoCallComponent from '@/components/user/videoCallComponent'
 const ChatUI = ({
-  setUpdate,
   messages,
   setMessages,
   currentUser,
@@ -34,10 +34,54 @@ const ChatUI = ({
   currentChat,
   arrivalMessage,
   setArrivalMessage,
+  setUpdate,
 }) => {
-  const [isVideoCall, setIsVideoCall] = useState(false);
+  console.log("messages :", messages);
+  console.log("current Chat : ", currentChat);
   const scrollRef = useRef();
   const [newMessage, setNewMessage] = useState("");
+  const [users, setUsers] = useState([]);
+  const [isVideoCall, setIsVideoCall] = useState(false);
+  const fetchedUsers = useRef(new Set());
+  useEffect(() => {
+    const fetchUser = async (userId) => {
+      try {
+        const res = await axiosInstance.get(
+          `${url}/getUserById?userId=${userId}`
+        );
+
+        setUsers((prevUsers) => [...prevUsers, res.data.user]);
+
+        setMessages((prevMessages) =>
+          prevMessages.map((message) =>
+            message.sender === res.data.user._id
+              ? {
+                  ...message,
+                  username: res.data.user.username,
+                  profileImg: res.data.user.profileImg,
+                }
+              : message
+          )
+        );
+      } catch (error) {
+        alert(error);
+      }
+    };
+
+    const uniqueSenderIds = [
+      ...new Set(messages.map((message) => message.sender)),
+    ];
+    const fetchAllUsers = async () => {
+      for (const senderId of uniqueSenderIds) {
+        if (!fetchedUsers.current.has(senderId)) {
+          await fetchUser(senderId);
+          fetchedUsers.current.add(senderId);
+        }
+      }
+    };
+
+    fetchAllUsers();
+  }, [messages]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -95,8 +139,8 @@ const ChatUI = ({
   return (
     <ProtectedRoute>
       <div className="h-full w-full flex flex-col pb-4 rounded-lg">
-        <Card className="w-full h-1/6">
-          <CardHeader className="justify-between px-5 py-5">
+        <Card className="w-full h-1/6 pt-3 pl-3">
+          <CardHeader className="justify-between">
             <div className="flex gap-5">
               <Avatar
                 isBordered
@@ -106,23 +150,19 @@ const ChatUI = ({
               />
               <div className="flex flex-col gap-1 items-start justify-center">
                 <h4 className="text-small font-semibold leading-none text-default-600">
-                  {user?.fullname}
+                  {currentChat?.groupName}
                 </h4>
-                <h5 className="text-small tracking-tight text-default-400">
-                  {user?.username}
-                </h5>
+                {/* <h5 className="text-small tracking-tight text-default-400">
+                  {currentChat?.username}
+                </h5> */}
               </div>
             </div>
             <div className="flex gap-4">
               <Button variant="" isIconOnly>
                 <FaPhoneAlt size={20} />
               </Button>
-              <Button
-                variant=""
-                isIconOnly
-                onClick={() => setIsVideoCall(true)}
-              >
-                <FaVideo size={20} />
+              <Button variant="" isIconOnly>
+                <FaVideo size={20} onClick={()=>setIsVideoCall(prev =>!prev)} />
               </Button>
 
               <Dropdown>
@@ -146,45 +186,40 @@ const ChatUI = ({
             </div>
           </CardHeader>
         </Card>
-
-        <>
-        {isVideoCall ?(
-<VideoCallComponent currentUser={currentUser} receiverId = {user._id}/>
-        ):(
+        {isVideoCall ? (
+         <GroupVideoCall members={currentChat.members} currentUser={currentUser}/>
+        ) : (
           <>
-          
-          <div className="w-full h-5/6 bg-lightDark p-4 overflow-y-auto">
-          {messages.map((msg, index) => (
-            <div ref={scrollRef} key={index}>
-              <Message
-                setUpdate={setUpdate}
-                messageId={msg._id}
-                message={msg.text}
-                avatar={user?.profileImg}
-                isCurrentUser={msg.sender === currentUser?._id}
-                time={format(msg.createdAt)}
-              />
+            <div className="w-full h-5/6 bg-lightDark p-4 overflow-y-auto">
+              {messages.map((msg, index) => (
+                <div ref={scrollRef} key={index}>
+                  <Message
+                    messageId={msg._id}
+                    username={msg.username}
+                    message={msg.text}
+                    avatar={msg?.profileImg}
+                    isCurrentUser={msg.sender === currentUser?._id}
+                    time={format(msg.createdAt)}
+                    setUpdate={setUpdate}
+                  />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <div className="w-full h-1/6 flex p-3 gap-2">
-          <Input
-            variant="bordered"
-            type="text"
-            value={newMessage}
-            placeholder="Type message here"
-            onChange={(e) => {
-              setNewMessage(e.target.value);
-            }}
-            onKeyDown={handleKeyDown}
-          />
-          <Button onClick={handleSend}>Send</Button>
-        </div>
+            <div className="w-full h-1/6 flex p-3 gap-2">
+              <Input
+                variant="bordered"
+                type="text"
+                value={newMessage}
+                placeholder="Type message here"
+                onChange={(e) => {
+                  setNewMessage(e.target.value);
+                }}
+                onKeyDown={handleKeyDown}
+              />
+              <Button onClick={handleSend}>Send</Button>
+            </div>
           </>
-         
         )}
-         
-        </>
       </div>
     </ProtectedRoute>
   );
@@ -193,12 +228,13 @@ const ChatUI = ({
 export default ChatUI;
 
 const Message = ({
-  setUpdate,
   messageId,
   message,
+  username,
   isCurrentUser,
   avatar,
   time,
+  setUpdate,
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const handleDeleteMessage = async () => {
@@ -230,8 +266,13 @@ const Message = ({
         }`}
       >
         <CardBody>
-          <p>{message}</p>
-          <p className="text-xs">{time}</p>
+          {!isCurrentUser ? (
+            <p className="text-neutral-200 font-bold mb-2">{username}</p>
+          ) : (
+            ""
+          )}
+          <p className="font-mono">{message}</p>
+          <p className="text-[10px] font-thin text-neutral-300">{time}</p>
         </CardBody>
       </Card>
       {isCurrentUser ? (
@@ -284,3 +325,13 @@ const Message = ({
     </div>
   );
 };
+
+// const DeletModal =()=>{
+//   const {isOpen, onOpen, onOpenChange} = useDisclosure();
+
+//   return (
+//       <>
+
+//       </>
+//   )
+// }

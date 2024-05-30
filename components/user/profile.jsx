@@ -32,24 +32,27 @@ const ProfileComponent = () => {
   }, []);
 
   const fetchUserDetails = async () => {
-    try {
-      const res = await axiosInstance.get(
-        `http://localhost:4000/user-details?email=${user.email}`
-      );
-      if (res.status === 200) {
-        setUserDetails(res.data.user);
-        const allServices = res.data.user.services;
-        setServices(allServices);
-        dispatch(updateUser(res.data.user));
-      } else {
-        console.log("Eror in verififcation");
-        alert(res.data.error);
+    if(user.email){
+      try {
+        const res = await axiosInstance.get(
+          `http://localhost:4000/user-details?email=${user.email}`
+        );
+        if (res.status === 200) {
+          setUserDetails(res.data.user);
+          const allServices = res.data.user.services;
+          setServices(allServices);
+          dispatch(updateUser(res.data.user));
+        } else {
+          console.log("Eror in verififcation");
+          alert(res.data.error);
+        }
+      } catch (error) {
+        dispatch(logout());
+        localStorage.removeItem("token");
+        router.push("/");
       }
-    } catch (error) {
-      dispatch(logout());
-      localStorage.removeItem("token");
-      router.push("/");
     }
+   
   };
 
   console.log("user:", userDetails);

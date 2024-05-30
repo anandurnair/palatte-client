@@ -90,6 +90,7 @@ const PostList = ({updatePosts,setUpdatePosts}) => {
             bookmarked: savedPosts.includes(post._id),
             likedByUser: post.likes.includes(user._id),
           }));
+          console.log("New log : ",postsWithBookmarks)
           setPosts(postsWithBookmarks);
           initializeLikesState(postsWithBookmarks);
         } else {
@@ -220,188 +221,190 @@ const PostList = ({updatePosts,setUpdatePosts}) => {
         position="bottom-right"
       />
       {posts.map((post) => (
-        <div
-          key={post._id}
-          className="w-full h-auto gap-x-5 flex justify-evenly items-center rounded-lg mb-10 shadow-lg"
-        >
-          <Card className="w-full bg-semi">
-            <CardHeader className="flex justify-between">
-              <div className="flex gap-3">
-                {post.userId && (
-                  <Image
-                    alt="nextui logo"
-                    height={40}
-                    radius="sm"
-                    src={post.userId.profileImg}
-                    width={40}
-                  />
-                )}
-                <div className="flex flex-col">
-                  <p className="text-md">{post.userId?.username}</p>
-                  <p className="text-small text-default-500">
-                    {post.uploadedDate}
-                  </p>
-                </div>
-              </div>
-              <div>
-                <Dropdown>
-                  <DropdownTrigger>
-                    <Button isIconOnly className="" variant="">
-                      <IoMdMore size={25} />
-                    </Button>
-                  </DropdownTrigger>
-                  {currentUserId === post?.userId?._id ? (
-                    <DropdownMenu aria-label="Static Actions">
-                      <DropdownItem
-                        key="new"
-                        onPress={() =>
-                          router.push(`/postDetails?postId=${post._id}`)
-                        }
-                      >
-                        Go to Post
-                      </DropdownItem>
-                      <DropdownItem
-                        key="delete"
-                       
-                        onPress={() => toggleModal(post._id, "edit")}
-                      >
-                        Edit Post
-                      </DropdownItem>
-                      <DropdownItem
-                        key="delete"
-                       
-                        onPress={() => toggleModal(post._id, "delete")}
-                      >
-                        Delete Post
-                      </DropdownItem>
-                      <DropdownItem
-                        key="cancel"
-                        className="text-danger"
-                        color="danger"
-                      >
-                        Cancel
-                      </DropdownItem>
-                    </DropdownMenu>
-                  ) : (
-                    <DropdownMenu aria-label="Static Actions">
-                      <DropdownItem key="report" onPress={() => toggleModal(post._id, "report")}>
-                        Report post
-                      </DropdownItem>
-                      <DropdownItem
-                        key="new"
-                        onPress={() =>
-                          router.push(`/postDetails?postId=${post._id}`)
-                        }
-                      >
-                        Go to Post
-                      </DropdownItem>
-                      <DropdownItem
-                        key="cancel"
-                        className="text-danger"
-                        color="danger"
-                      >
-                        Cancel
-                      </DropdownItem>
-                    </DropdownMenu>
-                  )}
-                </Dropdown>
-              </div>
-            </CardHeader>
-            <Divider />
-            <CardBody className="flex items-center gap-y-5">
-              {isVideo(post.images)?(
-                <video width="750" height="500"  className="w-full flex items-center object-cover rounded-xl" controls >
-                <source src={post.images} type="video/mp4"/>
-               </video>
-              ):(
-                (post.images.length == 1)?(
-                  <Image
-                  className="w-full flex items-center object-cover rounded-xl"
-                  alt="Card background"
-                  src={post.images[0]}
+        !post.unListed && <div
+        key={post._id}
+        className="w-full h-auto gap-x-5 flex justify-evenly items-center rounded-lg mb-10 shadow-lg"
+      >
+        <Card className="w-full bg-semi">
+          <CardHeader className="flex justify-between">
+            <div className="flex gap-3">
+              {post.userId && (
+                <Image
+                  alt="nextui logo"
+                  height={40}
+                  radius="sm"
+                  src={post.userId.profileImg}
+                  width={40}
                 />
-                ):(
-                  <SimpleImageSlider
-                    width={380}
-                    height={280}
-                    images={post.images.map((img) => ({ url: img }))}
-                    showBullets={true}
-                    showNavs={true}
-                  />
-                )
-               
               )}
-              
-              <div className="flex px-2 justify-between w-full">
-                <div className="flex gap-x-5">
-                  {likes[post._id] ? (
-                    <BiSolidLike
-                      className="cursor-pointer"
-                      onClick={() => toggleLike(post._id)}
-                      size={25}
-                    />
-                  ) : (
-                    <BiLike
-                      className="cursor-pointer"
-                      onClick={() => toggleLike(post._id)}
-                      size={25}
-                    />
-                  )}
-                  {post.likes.length} {/* Display likes count */}
-                  <FaRegComment
-                    className="cursor-pointer"
-                    size={25}
-                    onClick={() => toggleCommentVisibility(post._id)}
-                  />
-                  {post.commentCount}
-                </div>
-                <div className="cursor-pointer">
-                  {post.bookmarked ? (
-                    <FaBookmark
-                      onClick={() => toggleBookmark(post._id)}
-                      size={25}
-                    />
-                  ) : (
-                    <FaRegBookmark
-                      onClick={() => toggleBookmark(post._id)}
-                      size={25}
-                    />
-                  )}
-                </div>
-              </div>
-              <div className="w-full">
-                <p className="px-3 flex items-start justify-start">
-                  <span className="mr-5 font-semibold">
-                    {post.userId?.username}
-                  </span>
-                  {post?.caption}
+              <div className="flex flex-col">
+                <p className="text-md">{post.userId?.username}</p>
+                <p className="text-small text-default-500">
+                  {post.uploadedDate}
                 </p>
               </div>
-            </CardBody>
-            <Divider />
-            <CardFooter>
-              {post.showComments && <CommentComponent setUpdateComment={setUpdateComment} postId={post._id} />}
-            </CardFooter>
-          </Card>
-          <Modal
-            key={post._id}
-            isOpen={modalOpenStates[post._id] || false} // Ensure default false if undefined
-            onOpenChange={() => toggleModal(post._id)}
-          >
-            {modal === "report" && (
-              <ReportModal postId={post._id} userId={currentUserId} />
+            </div>
+            <div>
+              <Dropdown>
+                <DropdownTrigger>
+                  <Button isIconOnly className="" variant="">
+                    <IoMdMore size={25} />
+                  </Button>
+                </DropdownTrigger>
+                {currentUserId === post?.userId?._id ? (
+                  <DropdownMenu aria-label="Static Actions">
+                    <DropdownItem
+                      key="new"
+                      onPress={() =>
+                        router.push(`/postDetails?postId=${post._id}`)
+                      }
+                    >
+                      Go to Post
+                    </DropdownItem>
+                    <DropdownItem
+                      key="delete"
+                     
+                      onPress={() => toggleModal(post._id, "edit")}
+                    >
+                      Edit Post
+                    </DropdownItem>
+                    <DropdownItem
+                      key="delete"
+                     
+                      onPress={() => toggleModal(post._id, "delete")}
+                    >
+                      Delete Post
+                    </DropdownItem>
+                   
+                    <DropdownItem
+                      key="cancel"
+                      className="text-danger"
+                      color="danger"
+                    >
+                      Cancel
+                    </DropdownItem>
+                  </DropdownMenu>
+                ) : (
+                  <DropdownMenu aria-label="Static Actions">
+                    <DropdownItem key="report" onPress={() => toggleModal(post._id, "report")}>
+                      Report post
+                    </DropdownItem>
+                    <DropdownItem
+                      key="new"
+                      onPress={() =>
+                        router.push(`/postDetails?postId=${post._id}`)
+                      }
+                    >
+                      Go to Post
+                    </DropdownItem>
+                    <DropdownItem
+                      key="cancel"
+                      className="text-danger"
+                      color="danger"
+                    >
+                      Cancel
+                    </DropdownItem>
+                  </DropdownMenu>
+                )}
+              </Dropdown>
+            </div>
+          </CardHeader>
+          <Divider />
+          <CardBody className="flex items-center gap-y-5">
+            {isVideo(post.images)?(
+              <video width="750" height="500"  className="w-full flex items-center object-cover rounded-xl" controls >
+              <source src={post.images} type="video/mp4"/>
+             </video>
+            ):(
+              (post.images.length == 1)?(
+                <Image
+                className="w-full flex items-center object-cover rounded-xl"
+                alt="Card background"
+                src={post.images[0]}
+              />
+              ):(
+                <SimpleImageSlider
+                  width={380}
+                  height={280}
+                  images={post.images.map((img) => ({ url: img }))}
+                  showBullets={true}
+                  showNavs={true}
+                />
+              )
+             
             )}
-            {modal === "edit" && (
-          <EditPostModal
-            key="editModal"
-            postId={post._id}
-            setUpdate={setUpdate}
-          />
-        )}
-            {modal === "delete" && <DeletePostModal postId={post._id} setUpdate={setUpdate} />}
-            {modal === "save" && <SaveModal setUpdate={setUpdate} postId={post._id}  userId={user._id}/>}
-          </Modal>
-        </div>
+            
+            <div className="flex px-2 justify-between w-full">
+              <div className="flex gap-x-5">
+                {likes[post._id] ? (
+                  <BiSolidLike
+                    className="cursor-pointer"
+                    onClick={() => toggleLike(post._id)}
+                    size={25}
+                  />
+                ) : (
+                  <BiLike
+                    className="cursor-pointer"
+                    onClick={() => toggleLike(post._id)}
+                    size={25}
+                  />
+                )}
+                {post.likes.length} {/* Display likes count */}
+                <FaRegComment
+                  className="cursor-pointer"
+                  size={25}
+                  onClick={() => toggleCommentVisibility(post._id)}
+                />
+                {post.commentCount}
+              </div>
+              <div className="cursor-pointer">
+                {post.bookmarked ? (
+                  <FaBookmark
+                    onClick={() => toggleBookmark(post._id)}
+                    size={25}
+                  />
+                ) : (
+                  <FaRegBookmark
+                    onClick={() => toggleBookmark(post._id)}
+                    size={25}
+                  />
+                )}
+              </div>
+            </div>
+            <div className="w-full">
+              <p className="px-3 flex items-start justify-start">
+                <span className="mr-5 font-semibold">
+                  {post.userId?.username}
+                </span>
+                {post?.caption}
+              </p>
+            </div>
+          </CardBody>
+          <Divider />
+          <CardFooter>
+            {post.showComments && <CommentComponent setUpdateComment={setUpdateComment} postId={post._id} />}
+          </CardFooter>
+        </Card>
+        <Modal
+          key={post._id}
+          isOpen={modalOpenStates[post._id] || false} // Ensure default false if undefined
+          onOpenChange={() => toggleModal(post._id)}
+        >
+          {modal === "report" && (
+            <ReportModal postId={post._id} userId={currentUserId} />
+          )}
+          {modal === "edit" && (
+        <EditPostModal
+          key="editModal"
+          postId={post._id}
+          setUpdate={setUpdate}
+        />
+      )}
+          {modal === "delete" && <DeletePostModal postId={post._id} setUpdate={setUpdate} />}
+          {modal === "save" && <SaveModal setUpdate={setUpdate} postId={post._id}  userId={user._id}/>}
+        </Modal>
+      </div>
+        
       ))}
     
     </>

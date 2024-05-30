@@ -27,7 +27,7 @@ import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDis
 
 const statusColorMap = {
   active: "success",
-  blocked: "danger",
+  notactive: "danger",
   vacation: "warning",
 };
 
@@ -40,6 +40,7 @@ export default function ReportedPostTable() {
   const msgs = useRef(null);
   const [block,setBlock]=useState(false)
   const [posts,setPosts] = useState([])
+  const [update,setUpdate] = useState(false)
   useEffect(()=>{
     const fetchData=async()=>{
       try {
@@ -59,7 +60,7 @@ export default function ReportedPostTable() {
     }
     fetchData()
    
-  },[block])
+  },[block,update])
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
   const [visibleColumns, setVisibleColumns] = React.useState(new Set(INITIAL_VISIBLE_COLUMNS));
@@ -77,7 +78,7 @@ export default function ReportedPostTable() {
     if (visibleColumns === "all") return columns;
 
     return columns.filter((column) => Array.from(visibleColumns).includes(column.uid));
-  }, [visibleColumns]);
+  }, [visibleColumns,update]);
 
   const filteredItems = React.useMemo(() => {
     let filteredPosts = [...posts];
@@ -94,7 +95,7 @@ export default function ReportedPostTable() {
     }
 
     return filteredPosts;
-  }, [posts, filterValue, statusFilter]);
+  }, [posts, filterValue, statusFilter,update]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -103,7 +104,7 @@ export default function ReportedPostTable() {
     const end = start + rowsPerPage;
 
     return filteredItems.slice(start, end);
-  }, [page, filteredItems, rowsPerPage]);
+  }, [page, filteredItems, rowsPerPage,update]);
 
   const sortedItems = React.useMemo(() => {
     return [...items].sort((a, b) => {
@@ -113,15 +114,16 @@ export default function ReportedPostTable() {
 
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
     });
-  }, [sortDescriptor, items]);
+  }, [sortDescriptor, items,update]);
 
 
-  const handleDelete=async()=>{
-    onClose()
+  const handleList=async()=>{
+    onClose();
     try {
-      const res = await axios.delete(`http://localhost:4000/delete-post?postId=${blockEmail}`);
+      const res = await axios.patch(`http://localhost:4000/list-post?postId=${blockEmail}`);
       const data = await res.json();
       if (res.ok) {
+        setUpdate(prev => !prev)
         setBlock(prev=>!prev)
         toast.success(data.message)
       } else {
@@ -174,7 +176,7 @@ export default function ReportedPostTable() {
               </DropdownTrigger>
               <DropdownMenu>
                 {/* <DropdownItem>View</DropdownItem> */}
-                <DropdownItem onClick={()=>handleOpen(post.postId)}  aria-label="Block data">{ post.status === 'active'?"Delete":''}</DropdownItem>
+                <DropdownItem onClick={()=>handleOpen(post.postId)}  aria-label="Block data">{ post.status === 'active' ? 'Unlist' : 'List'}</DropdownItem>
                 {/* <DropdownItem>Delete</DropdownItem> */}
               </DropdownMenu>
             </Dropdown>
@@ -183,7 +185,7 @@ export default function ReportedPostTable() {
       default:
         return cellValue;
     }
-  }, []);
+  }, [update]);
 
   const onNextPage = React.useCallback(() => {
     if (page < pages) {
@@ -301,6 +303,7 @@ export default function ReportedPostTable() {
     posts.length,
     onSearchChange,
     hasSearchFilter,
+    update
   ]);
 
   const bottomContent = React.useMemo(() => {
@@ -339,18 +342,18 @@ export default function ReportedPostTable() {
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-1">Delete Post</ModalHeader>
+              <ModalHeader className="flex flex-col gap-1">List/Unlist Post</ModalHeader>
               <ModalBody>
                 <p> 
-                Are you sure you want to delete ?
+                Are you sure ?
                 </p>
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="light" onPress={onClose}>
                   Cancel
                 </Button>
-                <Button color="default" onClick={handleDelete}>
-                  Delete
+                <Button color="default" onClick={handleList}>
+                  Confirm
                 </Button>
               </ModalFooter>
             </>

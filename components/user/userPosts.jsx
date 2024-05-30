@@ -69,12 +69,11 @@ const UserPosts = () => {
           setPosts(res.data.posts);
         } else {
           console.log("Cannot fetch posts");
-          alert(res.data.error);
+          console.log(res.data.error);
         }
       }
     } catch (error) {
       console.log(error);
-      alert(error);
     }
   };
 
