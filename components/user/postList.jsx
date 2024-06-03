@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import {
   Card,
   CardHeader,
@@ -19,6 +19,7 @@ import DeletePostModal from "@/components/user/userModals/deletePostModal";
 import ReportModal from "./userModals/reportModal";
 import SaveModal from "./userModals/savePostModal";
 import EditPostModal from "../../components/user/userModals/editPostModal";
+import { io } from "socket.io-client";
 
 import {
   Dropdown,
@@ -41,6 +42,8 @@ const isVideo = (url) => {
 
 
 const PostList = ({updatePosts,setUpdatePosts}) => {
+  const socket = useRef(null);
+
   const router = useRouter();
   const dispatch = useDispatch();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -52,6 +55,8 @@ const PostList = ({updatePosts,setUpdatePosts}) => {
   const [user,setUser] = useState(current)
   const [update,setUpdate]  = useState(false)
   const [updateCommet,setUpdateComment] = useState(false)
+  socket.current = io(process.env.NEXT_PUBLIC_API_URL);
+
   useEffect(()=>{
     const fetchUserDetails = async () => {
       try {
@@ -90,7 +95,6 @@ const PostList = ({updatePosts,setUpdatePosts}) => {
             bookmarked: savedPosts.includes(post._id),
             likedByUser: post.likes.includes(user._id),
           }));
-          console.log("New log : ",postsWithBookmarks)
           setPosts(postsWithBookmarks);
           initializeLikesState(postsWithBookmarks);
         } else {
@@ -170,7 +174,7 @@ const PostList = ({updatePosts,setUpdatePosts}) => {
     }
   };
 
-  const toggleLike = async (postId) => {
+  const toggleLike = async (postId,user) => {
     try {
       const postIndex = posts.findIndex((post) => post._id === postId);
       const currentLiked = likes[postId];
@@ -186,6 +190,8 @@ const PostList = ({updatePosts,setUpdatePosts}) => {
           userId: user._id,
           postId: postId,
         });
+        socket.current.emit("like", currentUser,user);
+        
       } else {
         await axiosInstance.post("http://localhost:4000/unlike-post", {
           userId: user._id,
@@ -339,13 +345,13 @@ const PostList = ({updatePosts,setUpdatePosts}) => {
                 {likes[post._id] ? (
                   <BiSolidLike
                     className="cursor-pointer"
-                    onClick={() => toggleLike(post._id)}
+                    onClick={() => toggleLike(post._id,post.userId)}
                     size={25}
                   />
                 ) : (
                   <BiLike
                     className="cursor-pointer"
-                    onClick={() => toggleLike(post._id)}
+                    onClick={() => toggleLike(post._id,post.userId)}
                     size={25}
                   />
                 )}
@@ -382,7 +388,7 @@ const PostList = ({updatePosts,setUpdatePosts}) => {
           </CardBody>
           <Divider />
           <CardFooter>
-            {post.showComments && <CommentComponent setUpdateComment={setUpdateComment} postId={post._id} />}
+            {post.showComments && <CommentComponent setUpdateComment={setUpdateComment} postId={post._id} userId={post.userId} />}
           </CardFooter>
         </Card>
         <Modal

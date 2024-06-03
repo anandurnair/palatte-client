@@ -94,7 +94,6 @@ const PostDetail = ({ postId }) => {
       setBookmarked(!bookmarked)
       if (newBookmarked) {
         setModal("save");
-        console.log("Save modal");
         onOpen();
       } else {
         try {
@@ -113,7 +112,6 @@ const PostDetail = ({ postId }) => {
       const res = await axiosInstance.get(
         `${url}/user-details?email=${currentUser.email}`
       );
-      console.log("Saved user : ",res.data.user)
       dispatch(updateUser(res.data.user));
       setCurrentUser(res.data.user)
     } catch (error) {

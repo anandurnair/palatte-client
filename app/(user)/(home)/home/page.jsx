@@ -5,7 +5,10 @@ import PostList from "../../../../components/user/postList";
 import { Button } from "@nextui-org/react";
 import { Suspense } from "react";
 import Loading from "../../loading";
+import { useRouter } from "next/navigation";
+import NotificationComponent from '@/components/user/NotificationCommponent'
 const Home = () => {
+  const router = useRouter()
   const [updatePosts,setUpdatePosts] = useState(false)
   return (
     <div className="purple-dark flex h-lvh bg-background text-foreground overflow-hidden ">
@@ -16,12 +19,12 @@ const Home = () => {
         </Suspense>
       </div>
       <div className="w-4/12  h-auto flex gap-y-4 flex-col px-10 ">
-        <Button className="btn" variant="bordered">
+        <Button className="btn" variant="bordered" onClick={()=>router.push('/hireFreelancer')}>
           Hire freelancer
         </Button>
 
-        <div className="h-96 w-full bg-semiDark rounded-lg p-4 flex justify-center">
-          Chats
+        <div className="h-2/3 w-full  rounded-lg py-4 flex justify-center">
+          <NotificationComponent/>
         </div>
         <div className="h-56 w-full bg-semiDark rounded-lg p-4 flex justify-center">
           Suggestions

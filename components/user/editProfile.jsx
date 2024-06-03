@@ -110,7 +110,6 @@ const EditProfile = () => {
       const res = await axiosInstance.post("http://localhost:4000/edit-profile", data);
 
       if (res.status === 200) {
-        console.log("updated user :",res.data.updatedUser)
         dispatch(updateUser(res.data.updatedUser))
         // localStorage.setItem("currentUser", JSON.stringify(res.data?.updatedUser));
         toast.success(res.data.message);

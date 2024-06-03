@@ -29,7 +29,6 @@ const Login = () => {
         password,
       });
       if (res.status === 200) {
-        console.log("Data of user : ", res.data.user);
         dispatch(updateUser(res.data.user));
         toast.success('Login successfully')
         localStorage.setItem("token", JSON.stringify(res.data.token));

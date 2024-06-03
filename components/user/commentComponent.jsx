@@ -1,6 +1,6 @@
 "use client";
 import { Input, Button } from "@nextui-org/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axiosInstance from "./axiosConfig";
@@ -26,9 +26,11 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import DeleteCommentModal from "../user/userModals/deleteCommentModal";
+import { io } from "socket.io-client";
 
-const CommentComponent = ({ setUpdateComment, postId }) => {
+const CommentComponent = ({ setUpdateComment, postId ,userId}) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const socket = useRef(null);
   const [commentId, setCommentId] = useState();
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState([]);
@@ -37,6 +39,7 @@ const CommentComponent = ({ setUpdateComment, postId }) => {
   const currentUser = useSelector((state) => state.user.currentUser);
   const [modal, setModal] = useState("");
   const [update, setUpdate] = useState(false);
+  socket.current = io(process.env.NEXT_PUBLIC_API_URL);
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -46,7 +49,6 @@ const CommentComponent = ({ setUpdateComment, postId }) => {
         );
         if (res.status === 200) {
           const showReplyState = {};
-          console.log("comments  :",res.data.comments)
           res.data.comments.forEach((comment) => {
             showReplyState[comment._id] = false;
           });
@@ -75,6 +77,7 @@ const CommentComponent = ({ setUpdateComment, postId }) => {
       if (res.status === 200) {
         toast.success(res.data.message);
         setUpdateComment(prev => !prev)
+        socket.current.emit("comment", currentUser,userId);
 
         setNewComment("");
         setUpdate(!update);

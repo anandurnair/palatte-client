@@ -23,7 +23,7 @@ import {
   Button,
 } from "@nextui-org/react";
 
-import VideoCallComponent from '@/components/user/videoCallComponent'
+import VideoCallComponent from "@/components/user/videoCallComponent";
 const ChatUI = ({
   setUpdate,
   messages,
@@ -72,6 +72,7 @@ const ChatUI = ({
       senderId: currentUser?._id,
       receiverId,
       text: newMessage,
+      isGroup:false
     });
 
     try {
@@ -114,16 +115,28 @@ const ChatUI = ({
               </div>
             </div>
             <div className="flex gap-4">
-              <Button variant="" isIconOnly>
+              {/* <Button variant="" isIconOnly>
                 <FaPhoneAlt size={20} />
-              </Button>
-              <Button
-                variant=""
-                isIconOnly
-                onClick={() => setIsVideoCall(true)}
-              >
-                <FaVideo size={20} />
-              </Button>
+              </Button> */}
+
+              {isVideoCall ? (
+                <Button
+                  variant=""
+                  
+                  onClick={() => setIsVideoCall((prev) => !prev)}
+                >
+                  <p>Cut call</p>{" "}
+                </Button>
+              ) : (
+                <Button
+                  variant=""
+                  isIconOnly
+                  onClick={() => setIsVideoCall((prev) => !prev)}
+                >
+                  {" "}
+                  <FaVideo size={20} />{" "}
+                </Button>
+              )}
 
               <Dropdown>
                 <DropdownTrigger>
@@ -133,7 +146,7 @@ const ChatUI = ({
                 </DropdownTrigger>
                 <DropdownMenu aria-label="Static Actions">
                   <DropdownItem key="new">Delete chat</DropdownItem>
-                  <DropdownItem key="copy">Report User</DropdownItem>
+                  {/* <DropdownItem key="copy">Report User</DropdownItem> */}
                   <DropdownItem
                     key="delete"
                     className="text-danger"
@@ -148,42 +161,42 @@ const ChatUI = ({
         </Card>
 
         <>
-        {isVideoCall ?(
-<VideoCallComponent currentUser={currentUser} receiverId = {user._id}/>
-        ):(
-          <>
-          
-          <div className="w-full h-5/6 bg-lightDark p-4 overflow-y-auto">
-          {messages.map((msg, index) => (
-            <div ref={scrollRef} key={index}>
-              <Message
-                setUpdate={setUpdate}
-                messageId={msg._id}
-                message={msg.text}
-                avatar={user?.profileImg}
-                isCurrentUser={msg.sender === currentUser?._id}
-                time={format(msg.createdAt)}
-              />
-            </div>
-          ))}
-        </div>
-        <div className="w-full h-1/6 flex p-3 gap-2">
-          <Input
-            variant="bordered"
-            type="text"
-            value={newMessage}
-            placeholder="Type message here"
-            onChange={(e) => {
-              setNewMessage(e.target.value);
-            }}
-            onKeyDown={handleKeyDown}
-          />
-          <Button onClick={handleSend}>Send</Button>
-        </div>
-          </>
-         
-        )}
-         
+          {isVideoCall ? (
+            <VideoCallComponent
+              currentUser={currentUser}
+              receiverId={user._id}
+            />
+          ) : (
+            <>
+              <div className="w-full h-5/6 bg-lightDark p-4 overflow-y-auto">
+                {messages.map((msg, index) => (
+                  <div ref={scrollRef} key={index}>
+                    <Message
+                      setUpdate={setUpdate}
+                      messageId={msg._id}
+                      message={msg.text}
+                      avatar={user?.profileImg}
+                      isCurrentUser={msg.sender === currentUser?._id}
+                      time={format(msg.createdAt)}
+                    />
+                  </div>
+                ))}
+              </div>
+              <div className="w-full h-1/6 flex p-3 gap-2">
+                <Input
+                  variant="bordered"
+                  type="text"
+                  value={newMessage}
+                  placeholder="Type message here"
+                  onChange={(e) => {
+                    setNewMessage(e.target.value);
+                  }}
+                  onKeyDown={handleKeyDown}
+                />
+                <Button onClick={handleSend}>Send</Button>
+              </div>
+            </>
+          )}
         </>
       </div>
     </ProtectedRoute>

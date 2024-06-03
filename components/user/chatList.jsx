@@ -19,8 +19,6 @@ const ChatListComponent = ({
   setCurrentChat,
   onlineUsers = [], // Default to an empty array
 }) => {
-  console.log("Hey: ", onlineUsers);
-  console.log("Hello: ", user?._id);
   const [receiver, setReceiver] = useState(null);
   const current = useSelector((state) => state.user.currentUser);
 

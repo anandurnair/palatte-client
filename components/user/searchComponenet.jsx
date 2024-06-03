@@ -47,17 +47,17 @@ const SearchComponenet = () => {
       />
       <div className="w-full h-full  flex flex-col items-center rounded-lg my-5 gap-y-5">
         <div className="flex w-2/5 gap-3">
-          <Input
-            radius="full"
-            type="text"
-            placeholder="Search user"
-            className="w-full"
-            variant="bordered"
-            onChange={(e)=>setUsername(e.target.value)}
-          />
-          <Button  radius="full" className="btn" variant="bordered" onClick={hanldeSearch}>
-            search
-          </Button>
+            <Input
+              radius="full"
+              type="text"
+              placeholder="Search user"
+              className="w-full"
+              variant="bordered"
+              onChange={(e)=>setUsername(e.target.value)}
+            />
+            <Button  radius="full" className="btn" variant="bordered" onClick={hanldeSearch}>
+              search
+            </Button>
         </div>
         <div className="w-6/12  h-auto p-5 flex gap-y-4 items-center flex-col px-10 rounded-lg">
             {users.length === 0 ? <h2>No Users found</h2> : ''}

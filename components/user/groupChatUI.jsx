@@ -36,8 +36,7 @@ const ChatUI = ({
   setArrivalMessage,
   setUpdate,
 }) => {
-  console.log("messages :", messages);
-  console.log("current Chat : ", currentChat);
+
   const scrollRef = useRef();
   const [newMessage, setNewMessage] = useState("");
   const [users, setUsers] = useState([]);

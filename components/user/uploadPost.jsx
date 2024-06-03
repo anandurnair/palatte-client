@@ -78,9 +78,7 @@ const UploadPost = ({setUpdatePosts}) => {
       //   return
       // }
       if (isVideo) {
-        console.log("it is working",video)
         const base64Data = await convertToBase64(video);
-        console.log('video base64  : ',base64Data)
         const data = {
           userId: user._id,
           images: [base64Data],
@@ -122,7 +120,6 @@ const UploadPost = ({setUpdatePosts}) => {
       } else {
         setShow(false)
 
-        console.log(res.data);
         toast.error(res.data.error);
       }
     } catch (error) {
@@ -148,7 +145,6 @@ const UploadPost = ({setUpdatePosts}) => {
     setCrop({ x: 0, y: 0, width: 1, height: 1 });
     setCroppedAreaPixels(null);
     setPreview(true);
-    console.log("preview working");
     onOpen();
   };
 
@@ -171,7 +167,6 @@ const UploadPost = ({setUpdatePosts}) => {
           if (duration <= 60) {
             setVideo(videoURL);
             setIsVideo(true);
-            console.log("video file", videoURL);
           } else {
             toast.error("Video duration must be within 60 seconds.");
             URL.revokeObjectURL(videoURL); // Clean up the object URL

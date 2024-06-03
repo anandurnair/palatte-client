@@ -13,7 +13,6 @@ const changePasswordForm = () => {
   const user = useSelector(state=>state.user.currentUser)
   const router = useRouter();
 
-  console.log("User : ", user);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState();
@@ -36,7 +35,6 @@ const changePasswordForm = () => {
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
-      console.log(currentPassword, newPassword, user.email);
 
       const res = await axiosInstance.post(
         "http://localhost:4000/change-password",

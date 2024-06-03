@@ -20,7 +20,6 @@ const ResetPasswordForm =  () => {
         const res = await axiosInstance.post("http://localhost:4000/reset-password",{email : user.email, newPassword })
       
     if (res.status ===200) {
-      console.log('success')
       // toast.success(res.data.message);
       toast.success(res.data.message)
       router.push('/profile')

@@ -48,7 +48,7 @@ const CreateProfileForm = () => {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [phoneErr,setPhoneErr] = useState('')
   const [services, setServices] = useState([]);
-
+  
   const user = useSelector(state => state.user.tempUser)
   useEffect(() => {
 
@@ -144,7 +144,6 @@ const CreateProfileForm = () => {
   
       blobUrlToBase64(croppedImageBase64, function (base64Data) {
         setCroppedImage(base64Data);
-        console.log("img", base64Data);
   
         // Data posting logic
         const data = {
@@ -188,7 +187,6 @@ const CreateProfileForm = () => {
       if (res.status === 200) {
         dispatch(updateUser(res.data.updatedUser))
         toast.success(res.data.message);
-        console.log("New user", res.data.updatedUser);
         router.push("/home");
       } else {
         toast.error(res.data.error || "Unknown error occurred");
@@ -251,7 +249,6 @@ const CreateProfileForm = () => {
               size="sm"
               onChange={(e) => {
                 setFullname(e.target.value)
-                console.log('Croped image : ',croppedImage)
               }}
               className="w-full"
             />

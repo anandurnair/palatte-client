@@ -55,7 +55,6 @@ const ProfileComponent = () => {
    
   };
 
-  console.log("user:", userDetails);
   return (
     <ProtectedRoute>
       <div className="w-full h-auto mt-96 flex flex-col items-center rounded-lg my-5">

@@ -27,7 +27,6 @@ const ProtectedRoute = ({ children }) => {
                 `http://localhost:4000/user-details?email=${user?.email}`
               );
               if (res.status === 200) {
-                console.log(res.data?.user);
                 if(res.data.user?.isBlocked){
                     localStorage.removeItem('token')
                     router.push('/')

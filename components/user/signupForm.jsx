@@ -45,15 +45,13 @@ const SignupForm = () => {
         return
       }
       e.preventDefault();
-      console.log("Working");
-      console.log(fullname, email, password);
+      
       const res = await axios.post("http://localhost:4000/signupData", {
         fullname,
         email,
         password,
       });
       if (res.status === 200) {
-        console.log(res.data);
         dispatch(signupUser(res.data.user));
         router.push("/otp");
       } else {

@@ -20,8 +20,7 @@ const OTPform = () => {
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
-      console.log("Otp data : ", OTP);
-      console.log("Working");
+      
       const res = await axios.post("http://localhost:4000/otp", { OTP,tempUser })
       if (res.status) {
   
@@ -29,7 +28,6 @@ const OTPform = () => {
   
         localStorage.setItem('token',JSON.stringify(res.data.token))
         dispatch(updateUser(res.data.user));
-        console.log('Worked');
         router.push('/createProfile')
       } else {
         toast.error("Verification failed: " + res.data.error);      // router.push("/signup");
@@ -43,7 +41,6 @@ const OTPform = () => {
   const handleResend=async()=>{
     
 
-    console.log("resend OTP : ",tempUser);
     const res = await axios.post("http://localhost:4000/resendOTP",{tempUser })
     if (res.status ===200) {
       alert("resended successfully");

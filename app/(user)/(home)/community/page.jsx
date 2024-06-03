@@ -51,17 +51,20 @@ useEffect(() => {
 
   // Set up socket connection
   useEffect(() => {
-    socket.current = io('http://localhost:4000');
+    socket.current = io(process.env.NEXT_PUBLIC_API_URL);
+
+    socket.current.emit('addUser', currentUser?._id);
     socket.current.on('getMessage', (data) => {
-      setArrivalMessage({
-        senderId: data.senderId,
-        text: data.text,
-        createdAt: Date.now(),
-        groupId: data.groupId,
-      });
+      if (data.isGroup && data.groupId === currentChat?._id) {
+        setArrivalMessage({
+          senderId: data.senderId,
+          text: data.text,
+          createdAt: Date.now(),
+          groupId: data.groupId,
+        });
+      }
     });
 
-    socket.current.emit('addUser', currentUser._id);
     socket.current.on('getUsers', (users) => {
       setOnlineUsers(users);
     });
@@ -69,7 +72,7 @@ useEffect(() => {
     return () => {
       socket.current.disconnect();
     };
-  }, [currentUser]);
+  }, [currentUser, currentChat]);
 
   useEffect(() => {
     if (arrivalMessage) {
@@ -99,9 +102,9 @@ useEffect(() => {
   }, [currentChat]);
   const handleSendMessage = async (text) => {
     const message = {
-      senderId: currentUser._id,
+      senderId: currentUser?._id,
       text,
-      groupId: currentChat._id,
+      groupId: currentChat?._id,
     };
 
     socket.current.emit('sendMessage', {

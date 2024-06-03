@@ -29,9 +29,7 @@ const UserPosts = () => {
   const [savedPosts, setSavedPosts] = useState([]);
   const handleCollection = (name) => {
     setCurrentCollection(name);
-    console.log(name);
     const res = collections.filter((item) => item.name === name);
-    console.log("collection posts", res[0].posts);
     setSavedPosts(res[0].posts.reverse());
 
   };
@@ -42,12 +40,10 @@ const UserPosts = () => {
   }, [user]);
   const fetchSavedPosts = async () => {
     try {
-      console.log("saved psot fetching", user);
       const res = await axiosInstance.get(
         `http://localhost:4000/get-all-saved-posts?userId=${user?._id}`
       );
       if (res.status == 200) {
-        console.log("posts:", res.data.savedPosts);
         setCollections(res.data.savedPosts);
       } else {
         console.log("Cannot fetch posts");
@@ -65,7 +61,6 @@ const UserPosts = () => {
           `http://localhost:4000/get-user-posts?userId=${user?._id}`
         );
         if (res.status == 200) {
-          console.log("posts:", res.data.posts);
           setPosts(res.data.posts);
         } else {
           console.log("Cannot fetch posts");
@@ -175,7 +170,7 @@ const UserPosts = () => {
                       <h2>{currentCollection}</h2>
                     </div>
 
-                    {savedPosts.reverse().map((item, index) => (
+                    {savedPosts.map((item, index) => (
                       <>
                         <Card
                           key={index}

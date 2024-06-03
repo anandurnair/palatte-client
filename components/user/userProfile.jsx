@@ -37,7 +37,6 @@ const UserProfileComponent = ({ userId }) => {
   const [posts, setPosts] = useState([]);
   const [isFollowed, setIsFollowed] = useState(false);
   const currentUser = useSelector((state) => state.user.currentUser);
-  console.log("current user :", currentUser);
   const [userDetails, setUserDetails] = useState();
   useEffect(() => {
     try {
@@ -46,7 +45,6 @@ const UserProfileComponent = ({ userId }) => {
           `http://localhost:4000/getUserById?userId=${userId}`
         );
         if (res.status === 200) {
-          console.log("uuuser : ", res.data.user);
           const user = res.data.user;
           setIsFollowed(currentUser.following.includes(user._id));
           setFollowers(user.followers.length);
@@ -63,7 +61,6 @@ const UserProfileComponent = ({ userId }) => {
 
   const hanldeFollow = async () => {
     try {
-      console.log("user id ");
       const res = await axiosInstance.post(
         "http://localhost:4000/follow-user",
         { currentUserId: currentUser._id, userId }
@@ -106,6 +103,7 @@ const UserProfileComponent = ({ userId }) => {
                   {userDetails?.username}
                 </h2>
                 <div className="flex gap-4">
+                  
                   <Button
                     variant="bordered"
                     className="btn"
@@ -116,6 +114,14 @@ const UserProfileComponent = ({ userId }) => {
                   <Button variant="bordered" className="btn">
                     message
                   </Button>
+                  {userDetails?.freelance && (
+
+                  <Button variant="bordered" className="btn" onClick={()=>{
+                    router.push(`/freelancerDetails?userId=${userDetails._id}&&service=${service}`)
+                  }}>
+                    Hire
+                  </Button>
+                  )}
                   <Dropdown>
                     <DropdownTrigger>
                       <Button isIconOnly className="" variant="">

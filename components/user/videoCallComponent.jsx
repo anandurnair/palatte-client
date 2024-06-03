@@ -10,12 +10,7 @@ const VideoCallComponent = ({currentUser,receiverId}) => {
         const zc  = ZegoUIKitPrebuilt.create(kitToken)
         zc.joinRoom({
             container:element,
-            sharedLinks:[
-                {
-                    name:"Copy link",
-                    url :`http://localhost:3000/inbox/${roomId}`
-                }
-            ],
+            
             scenario:{
                 mode :ZegoUIKitPrebuilt.OneONoneCall
             },
