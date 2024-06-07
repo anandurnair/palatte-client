@@ -96,6 +96,10 @@ const Header = () => {
                 <p className="font-bold">{user?.username}</p>
               </DropdownItem>
               <DropdownItem key="settings" onClick={()=>router.push('/profile')}>My Profile</DropdownItem>
+              <DropdownItem key="serviceList" onClick={()=>router.push('/serviceList')}>Freelance</DropdownItem>
+              <DropdownItem key="wallet" onClick={()=>router.push('/wallet')}>Wallet</DropdownItem>
+
+
               {/* <DropdownItem key="team_settings">Team Settings</DropdownItem>
               <DropdownItem key="analytics">Analytics</DropdownItem>
               <DropdownItem key="system">System</DropdownItem>

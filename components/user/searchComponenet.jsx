@@ -63,7 +63,7 @@ const SearchComponenet = () => {
             {users.length === 0 ? <h2>No Users found</h2> : ''}
           { users.map(user =>(
             <div className="w-full"  key={user._id} onClick={() => handleClick(user._id)}>
-               <Card className="w-full"   >
+               <Card className="w-full cursor-pointer">
             <CardHeader className="justify-between">
               <div className="flex gap-5">
                 <Avatar

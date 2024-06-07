@@ -33,7 +33,7 @@ const SelectFreelancerComponent = () => {
   const [services, setServices] = useState([]);
   const [freelancers, setFreelancers] = useState([]);
   const [isFollowed, setIsFollowed] = React.useState(false);
-  const [serviceId,setServiceId] = useState()
+  const [serviceName,setServiceName] = useState()
   useEffect(() => {
     const fetchServices = async () => {
       try {
@@ -81,7 +81,7 @@ const SelectFreelancerComponent = () => {
            { freelancers.map((freelance)=>(
                <Card className="min-w-[340px] p-3">
                <CardHeader className="justify-between cursor-pointer" onClick={()=>{
-                (currentUser._id === freelance._id) ?  router.push('/profile'):  router.push(`/userProfile?userId=${freelance._id}`)
+           router.push(`/serviceDetails?userId=${freelance._id}&&serviceName=${serviceName}`)
               }
                }>
                  <div className="flex gap-5">
@@ -112,10 +112,9 @@ const SelectFreelancerComponent = () => {
                    color="primary"
                    radius="full"
                    size="sm"
-                   variant={isFollowed ? "bordered" : "solid"}
-                   onPress={() => setIsFollowed(!isFollowed)}
+                   variant={ "bordered" }
                    onClick={()=> {
-                    router.push(`/freelancerDetails?userId=${freelance._id}&&service=${serviceId}`)
+                    router.push(`/serviceDetails?userId=${freelance._id}&&service=${serviceName}`)
                    }}
                  >
                  Hire
@@ -156,8 +155,8 @@ const SelectFreelancerComponent = () => {
               <SelectServiceModal
                 services={services}
                 setFreelancers={setFreelancers}
-                serviceId={serviceId}
-                setServiceId={setServiceId}
+                serviceName={serviceName}
+                setServiceName={setServiceName}
               />
             )}
           </Modal>

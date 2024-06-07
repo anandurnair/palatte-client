@@ -19,7 +19,6 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, updateUser } from "@/redux/reducers/user";
 const ProfileComponent = () => {
-  const [services, setServices] = useState([]);
   const dispatch = useDispatch();
   const [userDetails, setUserDetails] = useState();
   const user = useSelector((state) => state.user.currentUser);
@@ -39,8 +38,6 @@ const ProfileComponent = () => {
         );
         if (res.status === 200) {
           setUserDetails(res.data.user);
-          const allServices = res.data.user.services;
-          setServices(allServices);
           dispatch(updateUser(res.data.user));
         } else {
           console.log("Eror in verififcation");
@@ -114,12 +111,7 @@ const ProfileComponent = () => {
             <div className="flex flex-col gap-7">
               <h2>{userDetails?.fullname}</h2>
               <p>{userDetails?.bio}</p>
-              <div className="flex gap-x-3">
-                <p className="font-bold">Services :</p>
-                {services.map((service) => (
-                  <Chip size="lg">{service.serviceName}</Chip>
-                ))}
-              </div>
+             
               {/* <p className="font-semibold">Contact :</p> */}
               <p className="flex gap-2">
                 <span className="font-bold">Email</span>

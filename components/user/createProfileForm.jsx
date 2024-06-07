@@ -1,18 +1,17 @@
 "use client";
 
-import React, { useEffect,useCallback, useRef, useState } from "react";
+import React, { useEffect, useCallback, useRef, useState } from "react";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import Cropper from "react-easy-crop";
 import axiosInstance from "../user/axiosConfig";
 import ProtectedRoute from "../../components/user/ProtectedRoute";
-import CropModal from './cropModal'
-import getCroppedImg from '../../helpers/croppedImage'
+import CropModal from "./cropModal";
+import getCroppedImg from "../../helpers/croppedImage";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
-import{
+import {
   Input,
   RadioGroup,
   Radio,
@@ -25,12 +24,12 @@ import{
 import "../style.css";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import {updateUser} from '../../redux/reducers/user'
+import { updateUser } from "../../redux/reducers/user";
 const CreateProfileForm = () => {
   const [isLoading, setIsLoading] = useState(true); // Initially set to true
 
   const inputRef = useRef(null);
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const router = useRouter();
   const [selectedKeys, setSelectedKeys] = useState(new Set([]));
   const [fullname, setFullname] = useState("");
@@ -41,32 +40,30 @@ const CreateProfileForm = () => {
   const [bio, setBio] = useState("");
   const [isFreelance, setFreelance] = useState("no");
   const [image, setImage] = useState();
-  const [crop, setCrop] = useState({ x: 0, y: 0, width: 100, height: 100 }); 
-  const  [croppedImage, setCroppedImage] = useState();
+  const [crop, setCrop] = useState({ x: 0, y: 0, width: 100, height: 100 });
+  const [croppedImage, setCroppedImage] = useState();
   const [preview, setPreview] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
-  const [phoneErr,setPhoneErr] = useState('')
-  const [services, setServices] = useState([]);
-  
-  const user = useSelector(state => state.user.tempUser)
+  const [phoneErr, setPhoneErr] = useState("");
+  const user = useSelector((state) => state.user.tempUser);
   useEffect(() => {
-
-
     setFullname(user?.fullname);
     setEmail(user?.email);
-    
+
     const fetchData = async () => {
       try {
-        const res = await axiosInstance.get("http://localhost:4000/getServices");
+        const res = await axiosInstance.get(
+          "http://localhost:4000/getServices"
+        );
         if (res.status === 200) {
-            setServices(res.data.services);
-        } 
+          setServices(res.data.services);
+        }
       } catch (error) {
         toast.error(error);
       }
-  };
-  fetchData();
+    };
+    fetchData();
   }, [user]);
 
   // const handleProfilePhoto = (e) => {
@@ -121,30 +118,39 @@ const CreateProfileForm = () => {
     e.preventDefault();
     try {
       if (croppedAreaPixels && image) {
-        const croppedImageBase64 = await getCroppedImg(image, croppedAreaPixels);
+        const croppedImageBase64 = await getCroppedImg(
+          image,
+          croppedAreaPixels
+        );
         setCroppedImage(croppedImageBase64);
         setShowModal(false);
         setPreview(false);
       }
     } catch (error) {
-      console.error('Error cropping image:', error);
+      console.error("Error cropping image:", error);
     }
   };
 
-
   const handleSubmit = async (e) => {
-    if(phoneErr || fullname == '' || username == '' || bio ==='' || place === '' || croppedImage == undefined){
-      toast.error('Fill the form')
-      return
+    if (
+      phoneErr ||
+      fullname == "" ||
+      username == "" ||
+      bio === "" ||
+      place === "" ||
+      croppedImage == undefined
+    ) {
+      toast.error("Fill the form");
+      return;
     }
     if (croppedAreaPixels && image) {
       const croppedImageBase64 = await getCroppedImg(image, croppedAreaPixels);
       setShowModal(false);
       setPreview(false);
-  
+
       blobUrlToBase64(croppedImageBase64, function (base64Data) {
         setCroppedImage(base64Data);
-  
+
         // Data posting logic
         const data = {
           profilePic: base64Data, // Use base64Data here
@@ -154,15 +160,14 @@ const CreateProfileForm = () => {
           bio,
           phone,
           country: place,
-          isFreelance,
-          selectedKeys: [...selectedKeys],
+          
         };
-  
-        postToDatabase(data); 
+
+        postToDatabase(data);
       });
     }
   };
-  
+
   function blobUrlToBase64(blobUrl, callback) {
     var xhr = new XMLHttpRequest();
     xhr.onload = function () {
@@ -176,16 +181,17 @@ const CreateProfileForm = () => {
     xhr.responseType = "blob";
     xhr.send();
   }
-  
+
   async function postToDatabase(data) {
     try {
+      console.log("data : ",data)
       const res = await axiosInstance.post(
         "http://localhost:4000/create-profile",
         data
       );
-    
+
       if (res.status === 200) {
-        dispatch(updateUser(res.data.updatedUser))
+        dispatch(updateUser(res.data.updatedUser));
         toast.success(res.data.message);
         router.push("/home");
       } else {
@@ -201,21 +207,21 @@ const CreateProfileForm = () => {
   }
 
   function validatePhoneNumber(phoneNumber) {
-    var phoneRegex = /^\d{10}$/; 
+    var phoneRegex = /^\d{10}$/;
     if (phoneRegex.test(phoneNumber)) {
-        return true; 
+      return true;
     } else {
-        return false;
-    }
-}
-  const hanldePhone =(e)=>{
-    if(validatePhoneNumber(e.target.value)){
-        setPhone(e.target.value);
-        setPhoneErr(false)
-    }else{
-      setPhoneErr(true)
+      return false;
     }
   }
+  const hanldePhone = (e) => {
+    if (validatePhoneNumber(e.target.value)) {
+      setPhone(e.target.value);
+      setPhoneErr(false);
+    } else {
+      setPhoneErr(true);
+    }
+  };
 
   return (
     <ProtectedRoute>
@@ -236,9 +242,17 @@ const CreateProfileForm = () => {
               className=" my-2 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
               type="file"
             />
-             <div className='bg-blue-400 w-32 h-32 border rounded-full'>
-                  <img src={croppedImage?croppedImage:"https://upload.wikimedia.org/wikipedia/commons/b/b5/Windows_10_Default_Profile_Picture.svg"} alt="Cropped" className='rounded-full' />
-                </div>
+            <div className="bg-blue-400 w-32 h-32 border rounded-full">
+              <img
+                src={
+                  croppedImage
+                    ? croppedImage
+                    : "https://upload.wikimedia.org/wikipedia/commons/b/b5/Windows_10_Default_Profile_Picture.svg"
+                }
+                alt="Cropped"
+                className="rounded-full"
+              />
+            </div>
 
             <Input
               type="text"
@@ -248,7 +262,7 @@ const CreateProfileForm = () => {
               variant="bordered"
               size="sm"
               onChange={(e) => {
-                setFullname(e.target.value)
+                setFullname(e.target.value);
               }}
               className="w-full"
             />
@@ -275,7 +289,7 @@ const CreateProfileForm = () => {
               onChange={hanldePhone}
               className="w-full"
               isInvalid={phoneErr}
-              errorMessage={ "Invalid phone"}
+              errorMessage={"Invalid phone"}
             />
             <Input
               type="text"
@@ -286,58 +300,13 @@ const CreateProfileForm = () => {
               onChange={(e) => setPlace(e.target.value)}
               className="w-full"
             />
-            <RadioGroup
-              label="Do you want to offer your services as a freelancer?"
-              orientation="horizontal"
-            >
-              <Radio value="yes" onClick={() => setFreelance("yes")}>
-                Yes
-              </Radio>
-              <Radio value="no" onClick={() => setFreelance("no")}>
-                No
-              </Radio>
-            </RadioGroup>
+           
 
-            {isFreelance === "yes" && (
-              <div className="flex flex-col items-center  gap-y-6 w-full">
-                <p>Select a service</p>
-                <ListboxWrapper>
-                  <Listbox
-                    aria-label="Multiple selection example"
-                    variant="flat"
-                    disallowEmptySelection
-                    selectionMode="multiple"
-                    selectedKeys={selectedKeys}
-                    onSelectionChange={setSelectedKeys}
-                  >
-                    {services.map((service)=>(
-                      <ListboxItem key={service._id}>
-                    { service.serviceName}
-                    </ListboxItem>
-                    ))}
-                    {/* <ListboxItem key=" Custom artwork commissions">
-                      Custom artwork commissions
-                    </ListboxItem>
-                    <ListboxItem key="Graphic design">
-                      Graphic design
-                    </ListboxItem>
-                    <ListboxItem key="Handmade crafts">
-                      Handmade crafts
-                    </ListboxItem>
-                    <ListboxItem key="Crafting tutorials or workshops">
-                      Crafting tutorials or workshops
-                    </ListboxItem> */}
-                  </Listbox>
-                </ListboxWrapper>
-                {/* <p className="text-small text-default-500">
-                  Selected Service: {...selectedKeys}
-                </p> */}
-              </div>
-            )}
-
-            <Button className="w-full" onClick={handleSubmit}>
-              Create
-            </Button>
+           
+              <Button className="w-full" onClick={handleSubmit}>
+                Create
+              </Button>
+         
           </div>
         </div>
       </div>

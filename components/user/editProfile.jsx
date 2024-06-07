@@ -28,8 +28,7 @@ const EditProfile = () => {
   const [fullname, setFullname] = useState(currentUser?.fullname);
   const [username, setUsername] = useState(currentUser?.username);
   const [phone, setPhone] = useState(currentUser?.phone);
-  const [services, setServices] = useState(currentUser?.services);
-  const [selectedKeys, setSelectedKeys] = useState(new Set(services.map(service => service._id))); 
+ 
   const [bio, setBio] = useState(currentUser?.bio);
   const [place, setPlace] = useState(currentUser?.country);
   const [image, setImage] = useState();
@@ -103,7 +102,7 @@ const EditProfile = () => {
       bio,
       phone,
       country: place,
-      updatedServices: [...selectedKeys],
+     
     };
 
     try {
@@ -185,38 +184,7 @@ const EditProfile = () => {
               className="w-full"
               onChange={(e) => setPlace(e.target.value)}
             />
-            <div className="flex gap-2">
-              <p>Services : </p>
-              {services.map((service, index) => (
-                <Chip key={index} onClose={() => handleClose(service)} variant="flat">
-                  {service.serviceName}
-                </Chip>
-              ))}
-               
-            </div>
-            <div className="flex flex-col items-center  gap-y-6 w-full">
-                <p>Add service </p>
-                <ListboxWrapper>
-                  <Listbox
-                    aria-label="Multiple selection example"
-                    variant="flat"
-                    disallowEmptySelection
-                    selectionMode="multiple"
-                    selectedKeys={selectedKeys}
-                    onSelectionChange={setSelectedKeys}
-                  >
-                    {allServices.map((service)=>(
-                      <ListboxItem key={service._id}>
-                    { service.serviceName}
-                    </ListboxItem>
-                    ))}
-                   
-                  </Listbox>
-                </ListboxWrapper>
-                {/* <p className="text-small text-default-500">
-                  Selected Service: {...selectedKeys}
-                </p> */}
-              </div>
+            
             <div className="w-full flex gap-x-4">
               <Button className="w-1/2" onClick={() => router.push("/profile")}>Cancel</Button>
               <Button className="w-1/2" onClick={handleSubmit}>Submit</Button>

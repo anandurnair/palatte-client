@@ -12,18 +12,18 @@ import {
 import { toast } from "react-toastify";
 import axiosInstance from "../axiosConfig";
 
-const SelectServiceModal = ({ services,setFreelancers,serviceId,setServiceId}) => {
+const SelectServiceModal = ({ services,setFreelancers,serviceName,setServiceName}) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
     const handleSelect =async()=>{
-        console.log("Service id : ",serviceId)
-        if(!serviceId){
+        console.log("Service id : ",serviceName)
+        if(!serviceName){
             alert('select a service')
             return;
         }
 
         try {
-            const res = await axiosInstance.get(`/get-freelancers-by-Id?serviceId=${serviceId}`);
+            const res = await axiosInstance.get(`/get-freelancers-by-serviceName?serviceName=${serviceName}`);
             console.log("Freelanncers ",res.data.freelancers)
             setFreelancers(res.data.freelancers)
         } catch (error) {
@@ -40,10 +40,10 @@ const SelectServiceModal = ({ services,setFreelancers,serviceId,setServiceId}) =
               Select service
             </ModalHeader>
             <ModalBody>
-              <RadioGroup label="" value={serviceId}
-              onValueChange={setServiceId}>
+              <RadioGroup label="" value={serviceName}
+              onValueChange={setServiceName}>
                 {services.map((service) => (
-                  <CustomRadio value={service._id}>
+                  <CustomRadio value={service.serviceName}>
                     {service.serviceName}
                   </CustomRadio>
                 ))}
@@ -53,7 +53,7 @@ const SelectServiceModal = ({ services,setFreelancers,serviceId,setServiceId}) =
               <Button color="danger" variant="light" onPress={onClose}>
                 Close
               </Button>
-              <Button color="primary" onClick={handleSelect} onPress={onClose}>
+              <Button  onClick={handleSelect} onPress={onClose}>
                 Select
               </Button>
             </ModalFooter>

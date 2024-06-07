@@ -36,7 +36,7 @@ const ProtectedRoute = ({ children }) => {
                 // alert(res.data.error);
               }
             } catch (error) {
-              // toast.error("Verification Failed");
+              toast.error("Verification Failed");
             }
           };
           fetchUserDetails()

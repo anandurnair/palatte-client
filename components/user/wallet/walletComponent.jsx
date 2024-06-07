@@ -1,0 +1,162 @@
+"use client";
+import React, { useEffect, useState } from "react";
+import ProtectedRoute from "../ProtectedRoute";
+import { Card, CardBody, Divider, Input } from "@nextui-org/react";
+import { MdCurrencyRupee } from "react-icons/md";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+} from "@nextui-org/react";
+import { loadStripe } from "@stripe/stripe-js";
+import axiosInstance from "../axiosConfig";
+import { useSelector } from "react-redux";
+
+const WalletComponent = () => {
+  const currentUser = useSelector((state) => state.user.currentUser);
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [addAmount, setAddAmount] = useState(0);
+  const [wallet ,setWallet] =useState();
+  const [update,setUpdate]  = useState(false)
+  const stripePromise = loadStripe(
+    "pk_test_51OMD9cSHHtMTvNEWFwltwJ7Ms44q8bgqFZSvmQRnBDsrDYUZi1hKe5AxS1qSyGYjAJzMeMfPCNnCdWevOrkaBpIH00ANhFQoJ7"
+  );
+
+  useEffect(()=>{
+    const fetchWalletData = async() =>{
+      try {
+        const res = await axiosInstance.get(`/get-wallet-by-userId?userId=${currentUser._id}`);
+      setWallet(res.data.wallet)
+      console.log("wallet :",res.data.wallet)
+      } catch (error) {
+        alert(error)
+      }
+      
+    }
+    fetchWalletData()
+  },[currentUser,update])
+
+  const handleAddMoney = async () => {
+    try {
+      const res = await axiosInstance.post("/add-wallet-amount", {
+        addAmount,
+        userId: currentUser,
+      });
+      setUpdate(prev=>!prev)
+      setAddAmount(0)
+      alert("Money added successfully");
+      // const stripe = await stripePromise;
+      // await stripe.redirectToCheckout({ sessionId: res.data.id });
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  return (
+    <ProtectedRoute>
+      <div className="w-full h-auto  flex flex-col items-center rounded-lg my-5">
+        <div className="w-3/5 h-auto bg-semi flex flex-col items-center  rounded-lg  z-10 shadow-2xl">
+          <Card className="w-full py-2">
+            <CardBody className="w-full flex items-center justify-center">
+              <p className="text-2xl font-semibold">Wallet</p>
+            </CardBody>
+          </Card>
+          <div className="w-full flex flex-col p-5 gap-3 items-center">
+            <h2>Balance</h2>
+            <div className="flex">
+              <MdCurrencyRupee size={30} />
+              <h2 className="text-3xl font-semibold items-center justify-center">
+                {wallet?.balance}.00
+              </h2>
+            </div>
+            <div>
+              <Button variant="bordered" className="btn" onPress={onOpen}>
+                Add money
+              </Button>
+            </div>
+          </div>
+          <Card className="w-full py-2">
+            <CardBody className="w-full flex items-center justify-center">
+              <p className="text-lg font-semibold">Transactions</p>
+            </CardBody>
+          </Card>
+          <div className="w-full h-72 p-5 overflow-y-auto">
+            {wallet?.transactions.length === 0 ? (
+              <p>No transactions yet</p>
+            ) : (
+              wallet?.transactions.slice().reverse().map((transaction,index) => (
+                <div key={index} className="w-full py-2 px-10">
+                  <div className="w-full flex justify-between ">
+                    <p className="text-lg">{transaction.payer?.fullname ?? 'Bank'}</p>
+                    <div className="flex justify-center items-center">
+                      <MdCurrencyRupee size={20} />
+                      <p className="text-lg"> {transaction?.amount}.00</p>
+                    </div>
+                  </div>
+                  <div className="w-full flex justify-between ">
+                    <p className="text-neutral-400 text-sm">
+                      {transaction?.type}
+                    </p>
+                    <p className="text-sm text-neutral-400">{transaction?.date}</p>
+                  </div>
+                  <Divider className="my-4" />
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                Add money
+              </ModalHeader>
+              <ModalBody>
+                <Input
+                  type="number"
+                  label="Enter Amount"
+                  value={addAmount}
+                  onChange={(e) => setAddAmount(e.target.value)}
+                  placeholder="0.00"
+                  labelPlacement="outside"
+                  startContent={
+                    <div className="pointer-events-none flex items-center">
+                      <span className="text-default-400 text-small">
+                        <MdCurrencyRupee size={16} />
+                      </span>
+                    </div>
+                  }
+                />
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button
+                  color=""
+                  variant="bordered"
+                  onPress={onClose}
+                  onClick={handleAddMoney}
+                >
+                  continue
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+    </ProtectedRoute>
+  );
+};
+
+export default WalletComponent;
+
+const AddMoneyModal = () => {
+  return <></>;
+};
