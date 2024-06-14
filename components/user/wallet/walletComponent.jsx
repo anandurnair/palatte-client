@@ -12,54 +12,72 @@ import {
   Button,
   useDisclosure,
 } from "@nextui-org/react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { loadStripe } from "@stripe/stripe-js";
 import axiosInstance from "../axiosConfig";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { updateUser } from "@/redux/reducers/user";
 
 const WalletComponent = () => {
+  const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.user.currentUser);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [addAmount, setAddAmount] = useState(0);
-  const [wallet ,setWallet] =useState();
-  const [update,setUpdate]  = useState(false)
+  const [addAmount, setAddAmount] = useState("");
+  const [wallet, setWallet] = useState();
+  const [update, setUpdate] = useState(false);
   const stripePromise = loadStripe(
     "pk_test_51OMD9cSHHtMTvNEWFwltwJ7Ms44q8bgqFZSvmQRnBDsrDYUZi1hKe5AxS1qSyGYjAJzMeMfPCNnCdWevOrkaBpIH00ANhFQoJ7"
   );
 
-  useEffect(()=>{
-    const fetchWalletData = async() =>{
+  useEffect(() => {
+    const fetchWalletData = async () => {
       try {
         const res = await axiosInstance.get(`/get-wallet-by-userId?userId=${currentUser._id}`);
-      setWallet(res.data.wallet)
-      console.log("wallet :",res.data.wallet)
+        setWallet(res.data.wallet);
+        console.log("wallet :", res.data.wallet);
       } catch (error) {
-        alert(error)
+        alert(error);
       }
-      
-    }
-    fetchWalletData()
-  },[currentUser,update])
+    };
+    fetchWalletData();
+  }, [currentUser, update]);
 
   const handleAddMoney = async () => {
     try {
+      const amount = parseFloat(addAmount);
+      console.log("amount ",amount)
+      if (isNaN(amount) || amount <= 0) {
+        toast.error("Please enter a valid amount");
+        return;
+      }
+
       const res = await axiosInstance.post("/add-wallet-amount", {
-        addAmount,
-        userId: currentUser,
+        addAmount: amount,
+        userId: currentUser._id,
       });
-      setUpdate(prev=>!prev)
-      setAddAmount(0)
-      alert("Money added successfully");
-      // const stripe = await stripePromise;
-      // await stripe.redirectToCheckout({ sessionId: res.data.id });
+
+      const stripe = await stripePromise;
+      const { error } = await stripe.redirectToCheckout({ sessionId: res.data.id });
+
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success("Successfully added");
+      }
     } catch (error) {
-      alert(error.message);
+      toast.error(error.message);
     }
   };
 
   return (
     <ProtectedRoute>
-      <div className="w-full h-auto  flex flex-col items-center rounded-lg my-5">
-        <div className="w-3/5 h-auto bg-semi flex flex-col items-center  rounded-lg  z-10 shadow-2xl">
+      <ToastContainer
+        toastStyle={{ backgroundColor: "#1d2028" }}
+        position="bottom-center"
+      />
+      <div className="w-full h-auto flex flex-col items-center rounded-lg my-5">
+        <div className="w-3/5 h-auto bg-semi flex flex-col items-center rounded-lg z-10 shadow-2xl">
           <Card className="w-full py-2">
             <CardBody className="w-full flex items-center justify-center">
               <p className="text-2xl font-semibold">Wallet</p>
@@ -88,13 +106,13 @@ const WalletComponent = () => {
             {wallet?.transactions.length === 0 ? (
               <p>No transactions yet</p>
             ) : (
-              wallet?.transactions.slice().reverse().map((transaction,index) => (
-                <div key={index} className="w-full py-2 px-10">
+              wallet?.transactions.slice().reverse().map((transaction, index) => (
+                <div key={index} className={`w-full py-2 px-10 ${transaction.type == 'credit' ? 'text-green-600' : 'text-red-600'}`}>
                   <div className="w-full flex justify-between ">
-                    <p className="text-lg">{transaction.payer?.fullname ?? 'Bank'}</p>
+                    <p className="text-lg text-neutral-300">{transaction.payer?.fullname ?? 'Bank'}</p>
                     <div className="flex justify-center items-center">
                       <MdCurrencyRupee size={20} />
-                      <p className="text-lg"> {transaction?.amount}.00</p>
+                      <p className="text-lg font-semibold"> {transaction?.amount}.00</p>
                     </div>
                   </div>
                   <div className="w-full flex justify-between ">
@@ -144,7 +162,7 @@ const WalletComponent = () => {
                   onPress={onClose}
                   onClick={handleAddMoney}
                 >
-                  continue
+                  Continue
                 </Button>
               </ModalFooter>
             </>

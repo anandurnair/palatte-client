@@ -2,55 +2,49 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  CardFooter,
-  Avatar,
-  Button,
-} from "@nextui-org/react";
+import { Card, CardHeader, Avatar, Button } from "@nextui-org/react";
 import { IoIosClose } from "react-icons/io";
 import axiosInstance from "./axiosConfig";
 
 const NotificationComponent = () => {
-  const [isFollowed, setIsFollowed] = useState(false);
   const [notifications, setNotifications] = useState([]);
-  const notificationsRef = useRef(notifications);
   const currentUser = useSelector((state) => state.user.currentUser);
   const socket = useRef(null);
 
   useEffect(() => {
-    fetchNotifications()
-      
+    if (!currentUser) return;
+    
+    const fetchNotifications = async () => {
+      try {
+        const res = await axiosInstance.get(`/get-notifications?userId=${currentUser._id}`);
+        setNotifications(res.data.notifications);
+      } catch (error) {
+        alert(error);
+      }
+    };
+
+    fetchNotifications();
+    
     socket.current = io(process.env.NEXT_PUBLIC_API_URL);
+
     socket.current.on("notification", (toUser, text, fromUser) => {
-      if (currentUser._id === toUser._id && currentUser._id !== fromUser._id) {
+      if (currentUser?._id === toUser?._id && currentUser?._id !== fromUser?._id) {
         const newNotification = { text, fromUser };
-        setNotifications((prevNotifications) => {
-          notificationsRef.current = [...prevNotifications, newNotification];
-          return notificationsRef.current;
-        });
-        postNotification(toUser, text, fromUser);
+        setNotifications((prevNotifications) => [...prevNotifications, newNotification]);
+        postNotification(toUser?._id, text, fromUser?._id);
       }
     });
 
     return () => {
-      socket.current.disconnect();
+      if (socket.current) {
+        socket.current.disconnect();
+      }
     };
   }, [currentUser]);
 
-  const fetchNotifications=async()=>{
-    try {
-      const res= await axiosInstance(`/get-notifications?userId=${currentUser._id}`)
-      setNotifications(res.data.notifications)
-    } catch (error) {
-      alert(error)
-    }
-  }
   const postNotification = async (userId, text, user) => {
     try {
-      const res = await axiosInstance.post("/post-notification", {
+      await axiosInstance.post("/post-notification", {
         userId,
         text,
         user,
@@ -60,24 +54,26 @@ const NotificationComponent = () => {
     }
   };
 
-  const handleClose = async(indexToRemove) => {
+  const handleClose = async (indexToRemove) => {
     const newArray = notifications.filter(
       (notification, index) => index !== indexToRemove
     );
-    try {
-      await axiosInstance.delete(`/remove-notification?index=${indexToRemove}&&userId=${currentUser._id}`)
-    } catch (error) {
-      alert(error)
-    }
     setNotifications(newArray);
+    
+    try {
+      await axiosInstance.delete(`/remove-notification?index=${indexToRemove}&&userId=${currentUser._id}`);
+    } catch (error) {
+      alert(error);
+    }
   };
 
-  const handleClearAll = async() => {
+  const handleClearAll = async () => {
     setNotifications([]);
+    
     try {
-      await axiosInstance.delete(`/remove-all-notifications?userId=${currentUser._id}`)
+      await axiosInstance.delete(`/remove-all-notifications?userId=${currentUser._id}`);
     } catch (error) {
-      alert(error)
+      alert(error);
     }
   };
 
@@ -110,15 +106,10 @@ const NotificationComponent = () => {
                   </div>
                 </div>
                 <Button
-                  className={
-                    isFollowed
-                      ? "bg-transparent text-foreground border-default-200"
-                      : ""
-                  }
                   radius="full"
                   size="sm"
                   isIconOnly
-                  variant={isFollowed ? "bordered" : "solid"}
+                  variant=""
                   onClick={() => handleClose(index)}
                 >
                   <IoIosClose color="grey" size={30} />

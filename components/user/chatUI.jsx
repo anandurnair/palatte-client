@@ -6,6 +6,8 @@ import { format } from "timeago.js";
 import axiosInstance from "./axiosConfig";
 import { FaVideo, FaPhoneAlt } from "react-icons/fa";
 import { BsThreeDotsVertical } from "react-icons/bs";
+import { io } from "socket.io-client";
+
 import {
   Modal,
   ModalContent,
@@ -14,6 +16,7 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@nextui-org/react";
+import { TiTick } from "react-icons/ti";
 
 import {
   Dropdown,
@@ -22,8 +25,10 @@ import {
   DropdownItem,
   Button,
 } from "@nextui-org/react";
+import { FaCheckDouble } from "react-icons/fa6";
 
 import VideoCallComponent from "@/components/user/videoCallComponent";
+
 const ChatUI = ({
   setUpdate,
   messages,
@@ -40,22 +45,62 @@ const ChatUI = ({
   const [newMessage, setNewMessage] = useState("");
 
   useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (!socket.current) {
+      socket.current = io(process.env.NEXT_PUBLIC_API_URL);
+    }
+
+    socket.current.on("msgSeen", (data) => {
+      if (currentUser?._id === data?.senderId) {
+        const updatedMessages = messages.map((m) => {
+          if (m.sender === currentUser._id) {
+            return { ...m, status: "seen" };
+          }
+          return m;
+        });
+        setMessages(updatedMessages);
+      }
+    });
+
+    return () => {
+      if (socket.current) {
+        socket.current.off("msgSeen");
+      }
+    };
+  }, [currentUser?._id, messages, setMessages, socket]);
 
   useEffect(() => {
-    if (
-      arrivalMessage &&
-      currentChat?.members.includes(arrivalMessage.sender)
-    ) {
-      const messageExists = messages.find(
-        (msg) => msg._id === arrivalMessage._id
-      );
+    const updateData = async () => {
+      if (!currentChat) return;
+      try {
+        const res = await axiosInstance.patch("/update-message-status", {
+          conversationId: currentChat?._id,
+          senderId: currentUser?._id,
+        });
+        socket.current.emit("seen", {
+          receiverId: currentUser?._id,
+          senderId: user?._id,
+          conversationId: currentChat._id,
+        });
+        setUpdate((prev) => !prev);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    updateData();
+  }, [currentChat, currentUser?._id, setUpdate, user?._id, socket]);
+
+  useEffect(() => {
+    if (arrivalMessage && currentChat?.members.includes(arrivalMessage.sender)) {
+      const messageExists = messages.find((msg) => msg._id === arrivalMessage._id);
       if (!messageExists) {
         setMessages((prev) => [...prev, arrivalMessage]);
       }
     }
-  }, [arrivalMessage, currentChat]);
+  }, [arrivalMessage, currentChat, messages, setMessages]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const handleSend = async (e) => {
     e.preventDefault();
@@ -72,7 +117,7 @@ const ChatUI = ({
       senderId: currentUser?._id,
       receiverId,
       text: newMessage,
-      isGroup:false
+      isGroup: false,
     });
 
     try {
@@ -90,6 +135,18 @@ const ChatUI = ({
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       handleSend(e);
+    }
+  };
+
+  const handleVideoCall = async () => {
+    const userId = user._id;
+    socket.current.emit("call", currentUser, user);
+
+    const members = [currentUser._id, userId];
+    try {
+      await axiosInstance.post("/saveCalls", members);
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -115,26 +172,23 @@ const ChatUI = ({
               </div>
             </div>
             <div className="flex gap-4">
-              {/* <Button variant="" isIconOnly>
-                <FaPhoneAlt size={20} />
-              </Button> */}
-
               {isVideoCall ? (
                 <Button
                   variant=""
-                  
                   onClick={() => setIsVideoCall((prev) => !prev)}
                 >
-                  <p>Cut call</p>{" "}
+                  <p>Cut call</p>
                 </Button>
               ) : (
                 <Button
                   variant=""
                   isIconOnly
-                  onClick={() => setIsVideoCall((prev) => !prev)}
+                  onClick={() => {
+                    handleVideoCall();
+                    setIsVideoCall((prev) => !prev);
+                  }}
                 >
-                  {" "}
-                  <FaVideo size={20} />{" "}
+                  <FaVideo size={20} />
                 </Button>
               )}
 
@@ -146,7 +200,6 @@ const ChatUI = ({
                 </DropdownTrigger>
                 <DropdownMenu aria-label="Static Actions">
                   <DropdownItem key="new">Delete chat</DropdownItem>
-                  {/* <DropdownItem key="copy">Report User</DropdownItem> */}
                   <DropdownItem
                     key="delete"
                     className="text-danger"
@@ -160,44 +213,43 @@ const ChatUI = ({
           </CardHeader>
         </Card>
 
-        <>
-          {isVideoCall ? (
-            <VideoCallComponent
-              currentUser={currentUser}
-              receiverId={user._id}
-            />
-          ) : (
-            <>
-              <div className="w-full h-5/6 bg-lightDark p-4 overflow-y-auto">
-                {messages.map((msg, index) => (
-                  <div ref={scrollRef} key={index}>
-                    <Message
-                      setUpdate={setUpdate}
-                      messageId={msg._id}
-                      message={msg.text}
-                      avatar={user?.profileImg}
-                      isCurrentUser={msg.sender === currentUser?._id}
-                      time={format(msg.createdAt)}
-                    />
-                  </div>
-                ))}
-              </div>
-              <div className="w-full h-1/6 flex p-3 gap-2">
-                <Input
-                  variant="bordered"
-                  type="text"
-                  value={newMessage}
-                  placeholder="Type message here"
-                  onChange={(e) => {
-                    setNewMessage(e.target.value);
-                  }}
-                  onKeyDown={handleKeyDown}
-                />
-                <Button onClick={handleSend}>Send</Button>
-              </div>
-            </>
-          )}
-        </>
+        {isVideoCall ? (
+          <VideoCallComponent
+            currentUser={currentUser}
+            receiverId={user._id}
+          />
+        ) : (
+          <>
+            <div className="w-full h-5/6 bg-lightDark p-4 overflow-y-auto">
+              {messages.map((msg, index) => (
+                <div ref={scrollRef} key={index}>
+                  <Message
+                    setUpdate={setUpdate}
+                    messageId={msg._id}
+                    message={msg.text}
+                    avatar={user?.profileImg}
+                    isCurrentUser={msg.sender === currentUser?._id}
+                    time={format(msg.createdAt)}
+                    status={msg.status}
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="w-full h-1/6 flex p-3 gap-2">
+              <Input
+                variant="bordered"
+                type="text"
+                value={newMessage}
+                placeholder="Type message here"
+                onChange={(e) => {
+                  setNewMessage(e.target.value);
+                }}
+                onKeyDown={handleKeyDown}
+              />
+              <Button onClick={handleSend}>Send</Button>
+            </div>
+          </>
+        )}
       </div>
     </ProtectedRoute>
   );
@@ -212,11 +264,13 @@ const Message = ({
   isCurrentUser,
   avatar,
   time,
+  status,
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+
   const handleDeleteMessage = async () => {
     try {
-      const res = await axiosInstance.delete(
+      await axiosInstance.delete(
         `http://localhost:4000/delete-message?messageId=${messageId}`
       );
       setUpdate((prev) => !prev);
@@ -224,6 +278,7 @@ const Message = ({
       alert(error);
     }
   };
+
   return (
     <div
       className={`flex ${isCurrentUser ? "justify-end" : "justify-start"} mb-2`}
@@ -244,7 +299,15 @@ const Message = ({
       >
         <CardBody>
           <p>{message}</p>
-          <p className="text-xs">{time}</p>
+          <div className="flex gap-3">
+            <p className="text-xs">{time}</p>
+            {isCurrentUser &&
+              (status === "seen" ? (
+                <FaCheckDouble size={15} />
+              ) : (
+                status === "delivered" && <TiTick size={15} />
+              ))}
+          </div>
         </CardBody>
       </Card>
       {isCurrentUser ? (
@@ -283,9 +346,9 @@ const Message = ({
               </Button>
               <Button
                 color="primary"
-                onClick={handleDeleteMessage}
-                onPress={() => {
-                  /* Add delete logic here */ onClose();
+                onClick={() => {
+                  handleDeleteMessage();
+                  onClose();
                 }}
               >
                 Delete

@@ -1,6 +1,8 @@
 import React from 'react'
 import {ZegoUIKitPrebuilt} from '@zegocloud/zego-uikit-prebuilt'
+import axiosInstance from './axiosConfig'
 const VideoCallComponent = ({currentUser,receiverId}) => {
+    console.log("currentuser : ",currentUser._id,"next  :",receiverId)
     const roomId = (parseInt(currentUser)._id + parseInt(receiverId).toString());
 
     const myMeeting = async(element)=>{
@@ -17,6 +19,8 @@ const VideoCallComponent = ({currentUser,receiverId}) => {
             showScreenSharingButton:false
         })
     }
+   
+   
   return (
 <div className="w-full h-5/6 bg-white p-4 overflow-y-auto">     
     <div className='' ref={myMeeting}/>

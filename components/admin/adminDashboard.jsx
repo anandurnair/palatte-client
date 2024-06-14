@@ -4,9 +4,9 @@ import React, { useEffect, useState } from "react";
 import { FaUsers } from "react-icons/fa";
 import { IoIosImages } from "react-icons/io";
 import { FaComments } from "react-icons/fa6";
-import { MdHomeRepairService } from "react-icons/md";
+import { MdBorderColor  } from "react-icons/md";
 import {Card, CardBody} from "@nextui-org/react";
-
+import GraphComponent from '@/components/admin/graphComponents'
 const AdminDashboardComponent = () => {
   const [counts, setCounts] = useState({});
 
@@ -24,7 +24,7 @@ const AdminDashboardComponent = () => {
 
   return (
     <div className="w-full h-auto p-5 flex flex-col gap-y-5  ">
-      <div className="w-full h-auto bg-semiDark flex gap-x-6 p-10 rounded-lg">
+      <div className="w-full h-auto bg-semiDark text-cyan-500 flex gap-x-6 p-10 rounded-lg">
         <CardComponent
           icon={<FaUsers size={35} />}
           name={"Users"}
@@ -35,8 +35,8 @@ const AdminDashboardComponent = () => {
           name={"Posts"}
           counts={counts.postCount}
         />
-        <CardComponent icon={<FaComments size={35} />} name={"Comments"} counts={counts.freelancersCount} />
-        <CardComponent icon={<MdHomeRepairService size={35} />} name={"Freelancers"} counts={counts.commentCount} />
+        <CardComponent icon={<FaComments size={35} />} name={"Comments"} counts={counts.commentCount} />
+        <CardComponent icon={<MdBorderColor  size={35} />} name={"Orders"} counts={counts.orderCount} />
       </div>
 
      <GraphComponent/>
@@ -61,11 +61,3 @@ const CardComponent = ({ icon, name, counts }) => {
   );
 };
 
-
-const GraphComponent =()=>{
-  return(
-    <div className="w-full h-auto bg-semiDark flex gap-x-6 p-5 rounded-lg">
-        
-    </div>
-  )
-}

@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ProtectedRoute from "../../components/user/ProtectedRoute";
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  Avatar,
-  Badge,
-} from "@nextui-org/react";
+import { Card, CardHeader, CardBody, Avatar, Badge,Chip } from "@nextui-org/react";
 import axiosInstance from "./axiosConfig";
 import { useSelector } from "react-redux";
 const url = process.env.NEXT_PUBLIC_API_URL;
@@ -27,7 +21,9 @@ const ChatListComponent = ({
     const getUser = async () => {
       try {
         if (current) {
-          const res = await axiosInstance.get(`${url}/getUserById?userId=${friendId}`);
+          const res = await axiosInstance.get(
+            `${url}/getUserById?userId=${friendId}`
+          );
           setReceiver(res.data.user);
         }
       } catch (error) {
@@ -54,10 +50,20 @@ const ChatListComponent = ({
                 shape="circle"
                 placement="bottom-right"
               >
-                <Avatar isBordered radius="full" size="md" src={receiver?.profileImg} />
+                <Avatar
+                  isBordered
+                  radius="full"
+                  size="md"
+                  src={receiver?.profileImg}
+                />
               </Badge>
             ) : (
-              <Avatar isBordered radius="full" size="md" src={receiver?.profileImg} />
+              <Avatar
+                isBordered
+                radius="full"
+                size="md"
+                src={receiver?.profileImg}
+              />
             )}
 
             <div className="flex flex-col gap-1 items-start justify-center">
@@ -70,7 +76,13 @@ const ChatListComponent = ({
             </div>
           </div>
 
-          <p className="text-xs font-thin">click to chat</p>
+          {conversation?.unreadCount === 0 ? (
+  <p className="text-xs font-thin">click to chat</p>
+) : currentUser._id !== conversation.lastSenderId ? (
+  <Chip size="sm" color="success"><p className="font-bold">{conversation.unreadCount}</p></Chip>
+) : (
+  <p className="text-xs font-thin">click to chat</p>
+)}
         </CardHeader>
         <CardBody className="px-3 py-0 text-small text-default-400"></CardBody>
       </Card>

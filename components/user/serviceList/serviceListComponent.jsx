@@ -34,6 +34,7 @@ const ServiceList = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [selectedService, setSelectedService] = useState();
   const router = useRouter();
+  const [update,setUpdate] = useState(true)
   const [serviceList,setServiceList] = useState([])
   const [description, setDescription] = useState(null);
   const [allServices, setAllServices] = useState([]);
@@ -59,7 +60,6 @@ const ServiceList = () => {
   useEffect(() => {
     try {
       const fetchData = async () => {
-        console.log("Effect working");
         const res = await axiosInstance.get("/getServices");
         setAllServices(res.data.services);
       };
@@ -74,7 +74,6 @@ const ServiceList = () => {
   useEffect(() => {
     try {
       const fetchData = async () => {
-        console.log("Effect working");
         const res = await axiosInstance.get(`/get-freelance-service-list?userId=${currentUser?._id}`);
         setServiceList(res.data.freelancerServices?.services || []);
       };
@@ -84,7 +83,7 @@ const ServiceList = () => {
     }
 
 
-  }, []);
+  }, [update]);
 
 
   const addService =async () => {
@@ -117,6 +116,7 @@ const ServiceList = () => {
    await axiosInstance.post('/add-freelance-service', serviceData)
       .then(response => {
         toast.success(response.data.message);
+        setUpdate(prev => !prev)
         // Close modal and reset form if needed
       })
       .catch(error => {
@@ -140,11 +140,12 @@ const ServiceList = () => {
             </Button>
           </div>
           <div className="w-full h-auto  py-2  rounded-lg flex flex-col gap-2">
+            {serviceList.length === 0  && <h2 className="text-center">No services</h2>}
            {
             serviceList.map((s)=>(
               <div
               onClick={() =>
-                router.push(`/serviceDetails?userId=${currentUser?._id}&&serviceName=${s.title}`)
+                router.push(`/serviceDetails?userId=${currentUser?._id}&&service=${s.title}`)
               }
             >
               <Card className="w-full p-5 cursor-pointer">

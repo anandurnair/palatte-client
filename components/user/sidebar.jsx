@@ -129,16 +129,10 @@ const HomeSidebar = () => {
                     : "bg-semiDark"
                 }`}
               >
-                Hired histtory
+                Hirings
               </Sidebar.Item>
             </Sidebar.ItemGroup>
-            {/* <Sidebar.CTA className="bg-transparent overflow-hidden ">
-        <Image
-      width={300}
-      alt="NextUI hero Image"
-      src="https://cdn3d.iconscout.com/3d/premium/thumb/sharing-ideas-10787235-8662360.png"
-    />       
-     </Sidebar.CTA> */}
+          
           </Sidebar>
         </div>
       </div>

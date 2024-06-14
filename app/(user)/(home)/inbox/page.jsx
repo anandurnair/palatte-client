@@ -6,11 +6,15 @@ import { IoIosAdd } from "react-icons/io";
 import { useSelector } from "react-redux";
 import axiosInstance from "@/components/user/axiosConfig";
 import { io } from "socket.io-client";
-import { Modal, Button, useDisclosure } from "@nextui-org/react";
+import { Modal, useDisclosure } from "@nextui-org/react";
 import AddChatModal from "../../../../components/user/userModals/addChatMModal";
+import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button} from "@nextui-org/react";
+import { IoMdMore } from "react-icons/io";
+import { useRouter } from "next/navigation";
 
 const InboxPage = () => {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const router = useRouter()
   const currentUser = useSelector((state) => state.user.currentUser);
   const socket = useRef(null);
   const [newConversation, setNewConversation] = useState(null);
@@ -19,8 +23,8 @@ const InboxPage = () => {
   const [messages, setMessages] = useState([]);
   const [user, setUser] = useState(null);
   const [arrivalMessage, setArrivalMessage] = useState(null);
-const [onlineUsers,setOnlineUsers] = useState()
-const [update,setUpdate] = useState(false)
+  const [onlineUsers, setOnlineUsers] = useState();
+  const [update, setUpdate] = useState(false);
   useEffect(() => {
     if (!socket.current) {
       socket.current = io(process.env.NEXT_PUBLIC_API_URL);
@@ -33,8 +37,8 @@ const [update,setUpdate] = useState(false)
         });
       });
       socket.current.on("getUsers", (users) => {
-        const usersId =users.map((u)=>u.userId)
-        console.log("Online users :",usersId)
+        const usersId = users.map((u) => u.userId);
+        console.log("Online users :", usersId);
         setOnlineUsers(usersId);
       });
     }
@@ -45,7 +49,7 @@ const [update,setUpdate] = useState(false)
         socket.current = null;
       }
     };
-  }, [currentUser]);
+  }, [currentUser, update]);
 
   useEffect(() => {
     if (
@@ -60,7 +64,7 @@ const [update,setUpdate] = useState(false)
     if (newConversation) {
       startConversation();
     }
-  }, [newConversation]);
+  }, [newConversation, update]);
 
   const startConversation = async () => {
     try {
@@ -84,13 +88,14 @@ const [update,setUpdate] = useState(false)
         const res = await axiosInstance.get(
           `${process.env.NEXT_PUBLIC_API_URL}/conversation/${currentUser?._id}`
         );
-        setConversation(res.data.conversation);
+        setConversation(res.data.conversations);
+        console.log("conversations : ", res.data.conversations);
       } catch (error) {
         console.error(error);
       }
     };
     fetchConversations();
-  }, [currentUser]);
+  }, [currentUser, update]);
 
   useEffect(() => {
     const getMessages = async () => {
@@ -106,7 +111,7 @@ const [update,setUpdate] = useState(false)
     if (currentChat) {
       getMessages();
     }
-  }, [currentChat,update]);
+  }, [currentChat, update]);
 
   return (
     <>
@@ -114,9 +119,26 @@ const [update,setUpdate] = useState(false)
         <div className="h-full bg-semi w-2/6 shadow-lg rounded-lg p-4 overflow-y-auto">
           <div className="w-full h-auto p-3 flex justify-between border-b-1 mb-3 border-neutral-700">
             <h1>Chat list</h1>
+            <div className="flex">
             <Button onPress={onOpen} isIconOnly variant="default">
               <IoIosAdd size={30} className="cursor-pointer" />
             </Button>
+            <Dropdown>
+      <DropdownTrigger>
+        <Button 
+          isIconOnly variant="default"
+        >
+         <IoMdMore size={30} className="cursor-pointer" />
+
+        </Button>
+      </DropdownTrigger>
+      <DropdownMenu aria-label="Static Actions">
+        <DropdownItem key="new" onClick={()=>router.push('/inbox/callHistory')}>Call history</DropdownItem>
+        
+      </DropdownMenu>
+    </Dropdown>
+            </div>
+          
           </div>
           {conversation.map((c) => (
             <ChatListComponent
@@ -133,7 +155,7 @@ const [update,setUpdate] = useState(false)
         <div className="w-full rounded-md shadow-lg flex flex-col gap-y-1 justify-center items-center overflow-y-scroll mr-4 bg-semi">
           {currentChat ? (
             <ChatUI
-            setUpdate={setUpdate}
+              setUpdate={setUpdate}
               arrivalMessage={arrivalMessage}
               setArrivalMessage={setArrivalMessage}
               messages={messages}
