@@ -2,14 +2,19 @@
 import React, { useState } from 'react'
 import { Input, Button,Link } from "@nextui-org/react";
 import axios from 'axios'
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import axiosInstance from '../user/axiosConfig'
 import ProtectedRoute from "../../components/user/ProtectedRoute";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
 
-const ResetPasswordForm =  () => {
+const   ResetPasswordForm =  () => {
+
+  const currentUser = useSelector(state => state.user.currentUser)
+
+  const searchParams = useSearchParams();
+  const paramEmail = searchParams.get("email"); 
   const router = useRouter()
   const user = useSelector(state => state.user.currentUser);
 
@@ -17,12 +22,25 @@ const ResetPasswordForm =  () => {
     const [confirmPassword,setConfirmPassword]= useState()
 
     const handleSubmit=async()=>{
-        const res = await axiosInstance.post("http://localhost:4000/reset-password",{email : user.email, newPassword })
+      let res;
+      if(currentUser){
+
+         res = await axiosInstance.post("http://localhost:4000/reset-password",{email : user.email, newPassword })
+      }else{
+        res = await axiosInstance.post("http://localhost:4000/reset-password",{email : paramEmail, newPassword })
+
+      }
       
     if (res.status ===200) {
       // toast.success(res.data.message);
       toast.success(res.data.message)
-      router.push('/profile')
+      if(currentUser){
+
+        router.push('/profile')
+      }else{
+        router.push('/')
+
+      }
     } else {
       console.log('failed')
       // toast.error(res.data.error);
@@ -30,8 +48,7 @@ const ResetPasswordForm =  () => {
     }
     }
   return (
-    <ProtectedRoute>
-
+  
     <>
     <ToastContainer
         toastStyle={{ backgroundColor: "#1d2028" }}
@@ -68,7 +85,6 @@ const ResetPasswordForm =  () => {
     </div>
     </>
              
-            </ProtectedRoute>
   )
 }
 

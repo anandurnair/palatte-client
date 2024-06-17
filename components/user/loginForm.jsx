@@ -20,8 +20,8 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [passwordErr, setPasswordErr] = useState(false);
   const handleSubmit = async (e) => {
-    if(emailErr || passwordErr){
-      return
+    if (emailErr || passwordErr) {
+      return;
     }
     try {
       const res = await axios.post("http://localhost:4000/loginData", {
@@ -30,7 +30,7 @@ const Login = () => {
       });
       if (res.status === 200) {
         dispatch(updateUser(res.data.user));
-        toast.success('Login successfully')
+        toast.success("Login successfully");
         localStorage.setItem("token", JSON.stringify(res.data.token));
 
         router.push("/home");
@@ -38,15 +38,15 @@ const Login = () => {
         toast.error(res.data.error);
       }
     } catch (err) {
-      console.log(err)
+      console.log(err);
       toast.error("Invalid User");
     }
   };
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
-    setEmailErr(e.target.value.length < 3); 
+    setEmailErr(e.target.value.length < 3);
   };
-  
+
   // Handle password input change
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
@@ -110,8 +110,8 @@ const Login = () => {
             }
             type={isVisible ? "text" : "password"}
           />
+
           <Button
-          
             color=""
             onClick={handleSubmit}
             className="w-full h-12 lg btn"
@@ -123,6 +123,12 @@ const Login = () => {
             Create an account ?{" "}
             <Link href="/signup" className="underline">
               Create account
+            </Link>
+          </p>
+
+          <p className="text-teal-500">
+            <Link href="/forgotPassword" className="underline">
+              Forgot your password ?{" "}
             </Link>
           </p>
         </div>

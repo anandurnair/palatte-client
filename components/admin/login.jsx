@@ -1,9 +1,16 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Input, Button } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 const Login = () => {
   const router = useRouter()
+  useEffect(()=>{
+         const isLogin = JSON.parse(localStorage.getItem("admin"));
+         if(isLogin){
+          router.push('/admin/dashboard')
+         }
+
+  },[])
   const [username,setUsername] = useState()
   const [password , setPassword] = useState()
   const handleSubmit=async()=>{
@@ -17,7 +24,6 @@ const Login = () => {
     });
     const data = await res.json();
     if (res.ok) {
-      alert(data.message)
      
       localStorage.setItem('admin',JSON.stringify({username}))
       router.push('/admin/dashboard')

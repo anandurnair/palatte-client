@@ -17,22 +17,23 @@ import {
 } from "@nextui-org/react";
 import { Breadcrumbs, BreadcrumbItem } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
+import ProtectedRoute from "@/components/admin/ProtectedRoute";
 
 const Header = () => {
-  const router = useRouter()
+  const router = useRouter();
   const [currentPage, setCurrentPage] = React.useState("song");
-  const handleLogout=()=>{
-    localStorage.removeItem('admin')
-    router.push('/admin')
-  }
+  const handleLogout = () => {
+    localStorage.removeItem("admin");
+    router.push("/admin");
+  };
   return (
-    <div className="w-full h-auto main-bg py-4 px-4">
-      <Navbar className="flex bg3 rounded-lg max-w-full">
-      <NavbarBrand className="max-w-full">
-       
-        <p className="font-bold text-inherit">Admin Panel</p>
-      </NavbarBrand>
-      {/* <NavbarContent className="hidden sm:flex gap-4" justify="center">
+    <ProtectedRoute>
+      <div className="w-full h-auto main-bg py-4 px-4">
+        <Navbar className="flex bg3 rounded-lg max-w-full">
+          <NavbarBrand className="max-w-full">
+            <p className="font-bold text-inherit">Admin Panel</p>
+          </NavbarBrand>
+          {/* <NavbarContent className="hidden sm:flex gap-4" justify="center">
         <NavbarItem>
           <Link color="foreground" href="#">
             Features
@@ -49,16 +50,16 @@ const Header = () => {
           </Link>
         </NavbarItem>
       </NavbarContent> */}
-      <NavbarContent justify="end">
-        
-        <NavbarItem>
-          <Button  onClick={handleLogout} variant="bordered">
-            Logout
-          </Button>
-        </NavbarItem>
-      </NavbarContent>
-    </Navbar>
-    </div>
+          <NavbarContent justify="end">
+            <NavbarItem>
+              <Button onClick={handleLogout} variant="bordered">
+                Logout
+              </Button>
+            </NavbarItem>
+          </NavbarContent>
+        </Navbar>
+      </div>
+    </ProtectedRoute>
   );
 };
 

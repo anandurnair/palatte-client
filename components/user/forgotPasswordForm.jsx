@@ -17,16 +17,18 @@ import {
   Link,
 } from "@nextui-org/react";
 import OTPInput, { ResendOTP } from "otp-input-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import ProtectedRoute from "../../components/user/ProtectedRoute";
+import { useSelector } from "react-redux";
 
 const ForgotPasswordForm = () => {
+
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [OTP, setOTP] = useState("");
   const [email, setEmail] = useState("");
   const router = useRouter();
   const [emailErr, setEmailErr] = useState(false);
-
+  const currentUser  = useSelector(state => state.user.currentUser)
   const handleSubmit = async () => {
     if (email.length == "") {
       setEmailErr(true);
@@ -63,7 +65,13 @@ const ForgotPasswordForm = () => {
       );
       if (res.status === 200) {
         toast.success(res.data.message);
-        router.push("/profile/resetPassword");
+        if(currentUser){
+          router.push("/profile/resetPassword");
+
+        }else{
+          router.push(`/resetPassword?email=${email}`);
+
+        }
       } else {
         toast.error(res.data.error);
       }
@@ -85,8 +93,8 @@ const ForgotPasswordForm = () => {
   };
 
   return (
-    <ProtectedRoute>
-      <ToastContainer />
+    <>
+     <ToastContainer />
       <div className="w-full h-full flex justify-center items-center p-5">
         <div className="w-2/5 h-auto bg rounded-md bg-semi shadow-lg flex flex-col justify-center items-center p-10 gap-y-6">
           <h2>Forgot Password</h2>
@@ -150,7 +158,8 @@ const ForgotPasswordForm = () => {
           </ModalContent>
         </Modal>
       </div>
-    </ProtectedRoute>
+    </>
+     
   );
 };
 
