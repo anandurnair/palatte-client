@@ -173,11 +173,13 @@ const PostList = ({ updatePosts, setUpdatePosts }) => {
           postId: postId,
         });
         socket.current.emit("like", currentUser, postUser);
+        console.log("LIked")
       } else {
         await axiosInstance.post("http://localhost:4000/unlike-post", {
           userId: user._id,
           postId: postId,
         });
+        console.log("Unliked")
       }
 
       const updatedPosts = [...posts];
@@ -215,7 +217,7 @@ const PostList = ({ updatePosts, setUpdatePosts }) => {
               key={post._id}
               className="w-full h-auto gap-x-5 flex justify-evenly items-center rounded-lg mb-10 shadow-lg"
             >
-              <Card className="w-full bg-semi">
+              <Card className="w-full bg3">
                 <CardHeader className="flex justify-between">
                   <div className="flex gap-3">
                     {post.userId && (

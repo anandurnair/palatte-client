@@ -1,48 +1,47 @@
 "use client";
 import React, { useState } from "react";
 import { Input, Button } from "@nextui-org/react";
-import { useRouter } from "next/navigation";
-import axios from "axios";
-import "../style.css";
 import Link from "next/link";
-import { useDispatch } from "react-redux";
-import { signupUser } from "@/redux/reducers/user";
+import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { signupUser, updateUser } from "@/redux/reducers/user";
 
-const SignupForm = () => {
+const Signup = () => {
   const dispatch = useDispatch();
-  const [isVisible, setIsVisible] = React.useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const [fullname, setFullname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [passwordErr,setPasswordErr] = useState(false)
+  const [passwordErr, setPasswordErr] = useState(false);
   const router = useRouter();
 
   const toggleVisibility = () => setIsVisible(!isVisible);
+
   const validatePassword = (value) => {
     const hasUpperCase = /[A-Z]/.test(value);
     const hasLowerCase = /[a-z]/.test(value);
     const hasNumber = /[0-9]/.test(value);
     const isLengthValid = value.length >= 8;
-
     return hasUpperCase && hasLowerCase && hasNumber && isLengthValid;
   };
 
-  const handlePassword = async(e)=>{
+  const handlePassword = (e) => {
+    if (validatePassword(e.target.value)) {
+      setPasswordErr(false);
+      setPassword(e.target.value);
+    } else {
+      setPasswordErr(true);
+    }
+  };
 
-      if(validatePassword(e.target.value)){
-        setPasswordErr(false)
-        setPassword(e.target.value)
-      }else{
-        setPasswordErr(true)
-      }
-  }
   const handleSubmit = async (e) => {
     try {
-      if(fullname=="" || email =='' || password == ""){
-        toast.error("Fill the form correctly")
-        return
+      if (fullname === "" || email === "" || password === "") {
+        toast.error("Fill the form correctly");
+        return;
       }
       e.preventDefault();
       
@@ -51,67 +50,64 @@ const SignupForm = () => {
         email,
         password,
       });
+
       if (res.status === 200) {
         dispatch(signupUser(res.data.user));
         router.push("/otp");
       } else {
-        toast.success("user already exists");
-        console.log("error");
+        toast.success("User already exists");
       }
     } catch (error) {
-      toast.error('User already exists');
+      toast.error("User already exists");
     }
   };
+
   return (
-    <div className=" w-full h-full flex  py-4 ">
-       <ToastContainer
-        toastStyle={{ backgroundColor: "#1d2028" }}
-        position="bottom-center"
-      />
-      <div className=" w-1/2 h-full flex justify-center items-center pl-32">
-        <div className="w-full flex flex-col items-center p-28  gap-y-5 ">
-          <h1 className="text-3xl font-extrabold tracking-wide">
-            Welcome to <span className="bg2">Palatte</span>{" "}
+    <div className="w-full flex flex-col lg:flex-row py-4">
+      <ToastContainer toastStyle={{ backgroundColor: "#1d2028" }} position="bottom-center" />
+      <div className="w-full lg:w-1/2 flex justify-center items-center py-28 px-4 lg:px-32">
+        <div className="flex flex-col items-center gap-y-5">
+          <h1 className="text-4xl font-extrabold tracking-wide text-center">
+            Join <span className="text-teal-500">Palatte</span>
           </h1>
-          <p className="text-center">
-            Palatte is the ultimate online haven for artists and crafters alike,
-            where creativity knows no bounds. Connect, create, and share your
-            masterpieces with a vibrant community of like-minded individuals.
+          <p className="text-center px-4 mb-10 text-lg">
+            Palatte is the ultimate online haven for artists and crafters alike, where creativity knows no bounds. Connect, create, and share your masterpieces with a vibrant community of like-minded individuals.
           </p>
         </div>
       </div>
-      <div className="w-2/5 h-full  rounded-md bg-semi shadow-lg flex flex-col justify-center items-center ml-32">
-        <h2 className="text-2xl font-extrabold pb-10 tracking-wider">
-          CREATE ACCOUNT
-        </h2>
-        <div className="w-2/3 flex flex-col justify-center items-center gap-y-6">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center bg-neutral-900 shadow-large shadow-slate-400 rounded-lg p-10 lg:p-20 lg:ml-32">
+        <h2 className="text-2xl font-extrabold pb-10 tracking-wider text-teal-500">SIGN UP</h2>
+        <div className="w-full flex flex-col gap-y-5">
           <Input
-            type="text"
+            name="fullName"
             label="Full Name"
             labelPlacement="inside"
             variant="underlined"
+            errorMessage="Please enter a valid first name"
             size="lg"
             onChange={(e) => setFullname(e.target.value)}
-            required
           />
+        
           <Input
+            name="email"
             type="email"
             label="Email"
             labelPlacement="inside"
             variant="underlined"
+            errorMessage="Please enter a valid email"
             size="lg"
             onChange={(e) => setEmail(e.target.value)}
-            required
           />
-
           <Input
+            name="password"
             label="Password"
             labelPlacement="inside"
             size="lg"
             variant="underlined"
-            onChange={handlePassword}
             isInvalid={passwordErr}
-            errorMessage={ "Weak Password"}
+
+            errorMessage="Please enter a valid password"
+            onChange={handlePassword}
             endContent={
               <button
                 className="focus:outline-none"
@@ -126,18 +122,17 @@ const SignupForm = () => {
               </button>
             }
             type={isVisible ? "text" : "password"}
-            required
           />
           <Button
             color=""
+            onClick={handleSubmit}
             className="w-full h-12 lg btn"
             variant="bordered"
-            onClick={handleSubmit}
           >
-            SUBMIT
+            SIGN UP
           </Button>
-          <p>
-            Already have an account ?{" "}
+          <p className="text-center">
+            Already have an account?{" "}
             <Link href="/" className="underline">
               Login
             </Link>
@@ -148,7 +143,7 @@ const SignupForm = () => {
   );
 };
 
-export default SignupForm;
+export default Signup;
 
 const EyeSlashFilledIcon = (props) => (
   <svg

@@ -272,7 +272,7 @@ const UploadPost = ({setUpdatePosts}) => {
         </ModalContent>
       </Modal>
 
-      <div className="w-full m-5 bg-semiDark h-20 gap-x-5 flex justify-between items-center p-4 rounded-lg">
+      <div className="w-full m-5 bg3 shadow-lg  h-20 gap-x-5 flex justify-between items-center p-4 rounded-lg">
         <Avatar isBordered color="default" src={user?.profileImg} />
         { show && (<div>
         <CircularProgress label="Uploading..." />

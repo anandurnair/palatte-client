@@ -34,7 +34,10 @@ body::-webkit-scrollbar {
   ::-webkit-scrollbar-thumb:hover {
     background: #555; 
   }
-
+  .btn{
+    color:#00B9AE ;
+    border-color: #00B9AE;
+}
 
   /* layer1 #131312*/ 
   /* layer2 #18181C */

@@ -131,10 +131,12 @@ const OrdersComponent = () => {
     }
   };
 
-  const onTimeUp =async()=>{
+  
+
+  const onTimeUp =async(orderId)=>{
     try {
       const res = await axiosInstance.post("/work-uncompleted", {
-        orderId,
+        orderId ,
       });
       setUpdate((prev) => !prev);
       toast.success(res.data.message);
@@ -258,7 +260,7 @@ const OrdersComponent = () => {
                                         </div>
                                         <div className="border-1 border-neutral-500 p-4 flex flex-col items-center rounded-lg">
                                           <div className="font-bold text-lg text-green-500">
-                                            <CountdownTimer
+                                            <CountdownTimer orderId = {order._id} 
                                               deadline={order?.deadline} onTimeUp={onTimeUp}
                                             />
                                           </div>
@@ -637,7 +639,7 @@ const OrdersComponent = () => {
 
 export default OrdersComponent;
 
-const CountdownTimer = ({ deadline, onTimeUp }) => {
+const CountdownTimer = ({ deadline, onTimeUp ,orderId}) => {
   const calculateTimeLeft = () => {
     const difference = new Date(deadline) - new Date();
     let timeLeft = {};
@@ -662,7 +664,7 @@ const CountdownTimer = ({ deadline, onTimeUp }) => {
       setTimeLeft(newTimeLeft);
 
       if (Object.keys(newTimeLeft).length === 0 && onTimeUp) {
-        onTimeUp();
+        onTimeUp(orderId);
       }
     }, 1000);
 

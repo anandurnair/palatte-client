@@ -33,6 +33,7 @@ const Login = () => {
   }
   
   
+  
   return (
     <div className='w-1/3 rounded-lg flex flex-col items-center justify-center px-16 py-20 bg3'>
       <div className='w-full h-full  flex flex-col items-center justify-center gap-y-5'>

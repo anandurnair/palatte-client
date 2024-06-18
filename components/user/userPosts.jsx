@@ -31,7 +31,6 @@ const UserPosts = () => {
     setCurrentCollection(name);
     const res = collections.filter((item) => item.name === name);
     setSavedPosts(res[0].posts.reverse());
-
   };
 
   useEffect(() => {
@@ -79,9 +78,9 @@ const UserPosts = () => {
   return (
     <div
       id="myPosts"
-      className="w-full  min-h-96 flex flex-col items-center rounded-lg "
+      className="w-full min-h-96 flex flex-col items-center rounded-lg px-4 md:px-0"
     >
-      <div className="w-4/5 h-full  mt-3 rounded-lg p- z-10 shadow-2xl">
+      <div className="w-full md:w-4/5 h-full mt-3 rounded-lg p-4 md:p-10 z-10 shadow-2xl">
         <Tabs
           aria-label="Options"
           selectedKey={selected}
@@ -95,33 +94,27 @@ const UserPosts = () => {
                     {posts.length === 0 ? "No Posts" : ""}
                   </h1>
                   {posts.map((item, index) => (
-                    <>
-                      <Card
-                        key={index}
-                        shadow="sm"
-                        isPressable
-                        className="justify-self-start"
-                        onPress={() => handleClick(item._id)}
-                      >
-                        <CardBody className="overflow-visible p-0">
-                          {isVideo(item.images) ? (
-                            <video className="w-full h-full flex items-center object-cover rounded-xl">
-                              <source src={item.images[0]} type="video/mp4" />
-                            </video>
-                          ) : (
-                            <Image
-                              className="w-full flex items-center object-cover rounded-xl"
-                              alt="Card background"
-                              src={item.images[0]}
-                            />
-                          )}
-                        </CardBody>
-                        {/* <CardFooter className="text-small justify-between">
-            <b>{item.title}</b>
-            <p className="text-default-500">{item.price}</p>
-          </CardFooter> */}
-                      </Card>
-                    </>
+                    <Card
+                      key={index}
+                      shadow="sm"
+                      isPressable
+                      className="justify-self-start"
+                      onPress={() => handleClick(item._id)}
+                    >
+                      <CardBody className="overflow-visible p-0">
+                        {isVideo(item.images) ? (
+                          <video className="w-full h-full flex items-center object-cover rounded-xl">
+                            <source src={item.images[0]} type="video/mp4" />
+                          </video>
+                        ) : (
+                          <Image
+                            className="w-full flex items-center object-cover rounded-xl"
+                            alt="Card background"
+                            src={item.images[0]}
+                          />
+                        )}
+                      </CardBody>
+                    </Card>
                   ))}
                 </div>
               </CardBody>
@@ -146,7 +139,7 @@ const UserPosts = () => {
                           shadow="lg"
                           isPressable
                           onPress={() => handleCollection(item.name)}
-                          className="justify-self-start  bg-lightDark w-40 h-30"
+                          className="justify-self-start bg-lightDark w-40 h-30"
                         >
                           <CardBody className="overflow-visible text-center font-bold">
                             <h2>{item.name}</h2>
@@ -158,20 +151,19 @@ const UserPosts = () => {
                     )}
                 </div>
                 <div className="gap-2 grid grid-cols-2 sm:grid-cols-4">
-                {currentCollection !== "" && (
-                  <>
-                    <div className="flex gap-x-5 ">
-                      <p
-                        className="underline cursor-pointer"
-                        onClick={() => setCurrentCollection("")}
-                      >
-                        back
-                      </p>
-                      <h2>{currentCollection}</h2>
-                    </div>
+                  {currentCollection !== "" && (
+                    <>
+                      <div className="flex gap-x-5 col-span-full">
+                        <p
+                          className="underline cursor-pointer"
+                          onClick={() => setCurrentCollection("")}
+                        >
+                          back
+                        </p>
+                        <h2>{currentCollection}</h2>
+                      </div>
 
-                    {savedPosts.map((item, index) => (
-                      <>
+                      {savedPosts.map((item, index) => (
                         <Card
                           key={index}
                           shadow="sm"
@@ -192,28 +184,14 @@ const UserPosts = () => {
                               />
                             )}
                           </CardBody>
-                          {/* <CardFooter className="text-small justify-between">
-<b>{item.title}</b>
-<p className="text-default-500">{item.price}</p>
-</CardFooter> */}
                         </Card>
-                      </>
-                    ))}
-                  </>
-                )}
+                      ))}
+                    </>
+                  )}
                 </div>
-                
               </CardBody>
             </Card>
           </Tab>
-          {/* <Tab key="videos" title="Videos">
-              <Card>
-                <CardBody>
-                  Excepteur sint occaecat cupidatat non proident, sunt in culpa
-                  qui officia deserunt mollit anim id est laborum.
-                </CardBody>
-              </Card>
-            </Tab> */}
         </Tabs>
       </div>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>

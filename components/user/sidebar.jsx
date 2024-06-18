@@ -1,31 +1,17 @@
-"use client";
-import React from "react";
-import "../style.css";
-
-import { FaHome } from "react-icons/fa";
-import { MdGroups, MdExplore } from "react-icons/md";
-import { IoMdChatbubbles } from "react-icons/io";
-import ProtectedRoute from "../../components/user/ProtectedRoute";
-import { MdBorderColor } from "react-icons/md";
-import { MdWorkHistory } from "react-icons/md";
-
-import {
-  HiArrowSmRight,
-  HiChartPie,
-  HiInbox,
-  HiShoppingBag,
-  HiTable,
-  HiUser,
-  HiViewBoards,
-} from "react-icons/hi";
+'use client';
+import React, { useState, useEffect } from "react";
 import { Sidebar } from "flowbite-react";
-import { BiBuoy } from "react-icons/bi";
+import { FaHome } from "react-icons/fa";
+import { MdGroups, MdExplore, MdWorkHistory } from "react-icons/md";
+import { IoMdChatbubbles } from "react-icons/io";
 import { PiPaintBrushFill } from "react-icons/pi";
 import { usePathname, useRouter } from "next/navigation";
-import { Image } from "@nextui-org/react";
+import ProtectedRoute from "../../components/user/ProtectedRoute";
 
 const HomeSidebar = () => {
   const pathname = usePathname();
+  const router = useRouter();
+
   let words = pathname
     .split("/")
     .filter((word) => word !== "")
@@ -34,27 +20,79 @@ const HomeSidebar = () => {
   let result = words.join(" / ") + "/";
 
   result = result.replace(/([a-z])([A-Z])/g, "$1 $2");
-  const router = useRouter();
+
+  // State to manage sidebar visibility
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Initially closed on smaller devices
+
+  // Effect to determine window size and set sidebar state
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 640) {
+        setSidebarOpen(true); // Open sidebar on medium devices and above
+      } else {
+        setSidebarOpen(false); // Close sidebar on small devices
+      }
+    };
+
+    handleResize(); // Initial check
+    window.addEventListener("resize", handleResize); // Listen for window resize
+
+    return () => {
+      window.removeEventListener("resize", handleResize); // Clean up resize listener
+    };
+  }, []);
+
+  // Handle sidebar toggle on swipe right for small devices
+  const handleTouchStart = (e) => {
+    const touchStartX = e.touches[0].clientX;
+    const touchStartY = e.touches[0].clientY;
+
+    const handleTouchMove = (e) => {
+      const currentX = e.touches[0].clientX;
+      const currentY = e.touches[0].clientY;
+
+      if (currentX - touchStartX > 50 && Math.abs(currentY - touchStartY) < 20) {
+        setSidebarOpen(true); // Open sidebar if sliding from the left
+      }
+    };
+
+    const handleTouchEnd = () => {
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
+    };
+
+    window.addEventListener("touchmove", handleTouchMove);
+    window.addEventListener("touchend", handleTouchEnd);
+  };
+
+  // Close sidebar on item click for small devices
+  const handleItemClick = () => {
+    if (window.innerWidth < 640) {
+      setSidebarOpen(false);
+    }
+  };
+
   return (
     <ProtectedRoute>
-      <div className="w-auto h-lvh   p-4 ">
-        <div className="w-full h-full bg3 rounded-lg overflow-hidden">
-          <Sidebar
-            aria-label="Sidebar with content separator example"
-            theme={ownTheme}
-            className="overflow-hidden"
-          >
-            <Sidebar.Logo
-              onClick={() => router.push("/home")}
-              className="pl-10  "
-            >
-              <h2 className="text-2xl cursor-pointer  ">
+      {/* Sidebar */}
+      <div
+        className={`w-auto h-full p-4 ${sidebarOpen ? "block" : "hidden"} md:block`}
+        onTouchStart={handleTouchStart}
+      >
+        <div className="w-full h-full bg3 rounded-lg overflow-hidden relative ">
+          <Sidebar aria-label="Sidebar with content separator example" theme={ownTheme} className="overflow-hidden">
+            {/* Sidebar content */}
+            <Sidebar.Logo onClick={() => router.push("/home")} className="pl-10">
+              <h2 className="text-2xl cursor-pointer">
                 <span className="bg2">P</span>ALATTE
               </h2>
             </Sidebar.Logo>
             <Sidebar.ItemGroup className="flex flex-col gap-y-3 pt-10 cursor-pointer">
               <Sidebar.Item
-                onClick={() => router.push("/home")}
+                onClick={() => {
+                  handleItemClick();
+                  router.push("/home");
+                }}
                 icon={FaHome}
                 className={`bg-5 rounded-lg p-4 shadow-lg text-gray-200 ${
                   result === "Home/"
@@ -64,9 +102,11 @@ const HomeSidebar = () => {
               >
                 Home
               </Sidebar.Item>
-
               <Sidebar.Item
-                onClick={() => router.push("/explore")}
+                onClick={() => {
+                  handleItemClick();
+                  router.push("/explore");
+                }}
                 icon={MdExplore}
                 className={`bg-5 rounded-lg p-4 shadow-lg text-gray-200 ${
                   result === "Explore/"
@@ -77,7 +117,10 @@ const HomeSidebar = () => {
                 Explore
               </Sidebar.Item>
               <Sidebar.Item
-                onClick={() => router.push("/inbox")}
+                onClick={() => {
+                  handleItemClick();
+                  router.push("/inbox");
+                }}
                 icon={IoMdChatbubbles}
                 className={`bg-5 rounded-lg p-4 shadow-lg text-gray-200 ${
                   result === "Inbox/"
@@ -89,7 +132,10 @@ const HomeSidebar = () => {
               </Sidebar.Item>
               <Sidebar.Item
                 icon={MdGroups}
-                onClick={() => router.push("/community")}
+                onClick={() => {
+                  handleItemClick();
+                  router.push("/community");
+                }}
                 className={`bg-5 rounded-lg p-4 shadow-lg text-gray-200 ${
                   result === "Community/"
                     ? "bg-neutral-800 transform scale-110 transition-transform duration-300"
@@ -99,7 +145,10 @@ const HomeSidebar = () => {
                 Community
               </Sidebar.Item>
               <Sidebar.Item
-                onClick={() => router.push("/profile/#myPosts")}
+                onClick={() => {
+                  handleItemClick();
+                  router.push("/profile/#myPosts");
+                }}
                 icon={PiPaintBrushFill}
                 className={`bg-5 rounded-lg p-4 shadow-lg text-gray-200 ${
                   result === "Profile/"
@@ -110,8 +159,11 @@ const HomeSidebar = () => {
                 My Works
               </Sidebar.Item>
               <Sidebar.Item
-                onClick={() => router.push("/orders")}
-                icon={MdBorderColor}
+                onClick={() => {
+                  handleItemClick();
+                  router.push("/orders");
+                }}
+                icon={MdWorkHistory}
                 className={`bg-5 rounded-lg p-4 shadow-lg text-gray-200 ${
                   result === "Orders/"
                     ? "bg-neutral-800 transform scale-110 transition-transform duration-300"
@@ -120,19 +172,7 @@ const HomeSidebar = () => {
               >
                 Orders
               </Sidebar.Item>
-              <Sidebar.Item
-                onClick={() => router.push("/hiredHistory")}
-                icon={MdWorkHistory}
-                className={`bg-5 rounded-lg p-4 shadow-lg text-gray-200 ${
-                  result === "Hired History/"
-                    ? "bg-neutral-800 transform scale-110 transition-transform duration-300"
-                    : "bg-semiDark"
-                }`}
-              >
-                Hirings
-              </Sidebar.Item>
             </Sidebar.ItemGroup>
-          
           </Sidebar>
         </div>
       </div>

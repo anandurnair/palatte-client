@@ -2,8 +2,6 @@
 import React, { useState } from "react";
 import { Input, Button } from "@nextui-org/react";
 import Link from "next/link";
-
-import "../style.css";
 import { signupUser, updateUser } from "@/redux/reducers/user";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -19,6 +17,7 @@ const Login = () => {
   const [emailErr, setEmailErr] = useState(false);
   const [password, setPassword] = useState("");
   const [passwordErr, setPasswordErr] = useState(false);
+
   const handleSubmit = async (e) => {
     if (emailErr || passwordErr) {
       return;
@@ -32,7 +31,6 @@ const Login = () => {
         dispatch(updateUser(res.data.user));
         toast.success("Login successfully");
         localStorage.setItem("token", JSON.stringify(res.data.token));
-
         router.push("/home");
       } else {
         toast.error(res.data.error);
@@ -42,41 +40,36 @@ const Login = () => {
       toast.error("Invalid User");
     }
   };
+
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
     setEmailErr(e.target.value.length < 3);
   };
 
-  // Handle password input change
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
-    setPasswordErr(e.target.value.length < 4); // Set password error based on length
+    setPasswordErr(e.target.value.length < 4);
   };
-  const toggleVisibility = () => setIsVisible(!isVisible);
-  return (
-    <div className=" w-full h-full flex py-4 ">
-      <ToastContainer
-        toastStyle={{ backgroundColor: "#1d2028" }}
-        position="bottom-center"
-      />
 
-      <div className=" w-1/2 h-full flex justify-center items-center pl-32">
-        <div className="w-full flex flex-col items-center p-28  gap-y-5 ">
-          <h1 className="text-3xl font-extrabold tracking-wide">
-            Welcome to <span className="bg2">Palatte</span>{" "}
+  const toggleVisibility = () => setIsVisible(!isVisible);
+
+  return (
+    <div className="w-full flex flex-col  lg:flex-row py-4">
+      <ToastContainer toastStyle={{ backgroundColor: "#1d2028" }} position="bottom-center" />
+      <div className="w-full lg:w-1/2 flex justify-center items-center py-28 px-4 lg:px-32">
+        <div className="flex flex-col items-center gap-y-5">
+          <h1 className="text-4xl font-extrabold tracking-wide text-center">
+            Welcome to <span className="text-teal-500">Palatte</span>
           </h1>
-          <p className="text-center">
-            Palatte is the ultimate online haven for artists and crafters alike,
-            where creativity knows no bounds. Connect, create, and share your
-            masterpieces with a vibrant community of like-minded individuals.
+          <p className="text-center px-4 mb-10 text-lg">
+            Palatte is the ultimate online haven for artists and crafters alike, where creativity knows no bounds. Connect, create, and share your masterpieces with a vibrant community of like-minded individuals.
           </p>
         </div>
       </div>
-      <div className="w-2/5 h-full bg rounded-md bg-semi shadow-lg flex flex-col justify-center items-center ml-32">
-        <h2 className="text-2xl font-extrabold pb-10 tracking-wider">LOGIN</h2>
-        <div className="w-2/3 flex flex-col justify-center items-center gap-y-5">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center bg-neutral-900 shadow-large shadow-slate-400 rounded-lg p-10 lg:p-24  lg:ml-32">
+        <h2 className="text-2xl font-extrabold pb-10 tracking-wider text-teal-500">LOGIN</h2>
+        <div className="w-full   flex flex-col  gap-y-5">
           <Input
-            key=""
             type="email"
             label="Email"
             labelPlacement="inside"
@@ -86,8 +79,8 @@ const Login = () => {
             size="lg"
             onChange={handleEmailChange}
           />
-
           <Input
+          
             label="Password"
             labelPlacement="inside"
             size="lg"
@@ -110,7 +103,6 @@ const Login = () => {
             }
             type={isVisible ? "text" : "password"}
           />
-
           <Button
             color=""
             onClick={handleSubmit}
@@ -119,16 +111,15 @@ const Login = () => {
           >
             LOGIN
           </Button>
-          <p>
-            Create an account ?{" "}
+          <p className="text-center">
+            Create an account?{" "}
             <Link href="/signup" className="underline">
               Create account
             </Link>
           </p>
-
-          <p className="text-teal-500">
+          <p className="text-teal-500 text-center">
             <Link href="/forgotPassword" className="underline">
-              Forgot your password ?{" "}
+              Forgot your password?
             </Link>
           </p>
         </div>

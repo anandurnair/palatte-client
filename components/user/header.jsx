@@ -57,7 +57,7 @@ const Header = () => {
     <ProtectedRoute>
 
     <div className="w-full  h-auto  py-4 pr-4">
-      <Navbar className="bg-semi rounded-lg p-0 justify-noraml">
+      <Navbar className="bg3 rounded-lg p-0 justify-noraml">
         <NavbarContent justify="start" className=" sm:flex ">
           <Breadcrumbs
             size="lg"

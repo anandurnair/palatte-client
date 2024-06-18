@@ -18,11 +18,12 @@ import FollowingModal from '@/components/user/followingModal'
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, updateUser } from "@/redux/reducers/user";
+
 const ProfileComponent = () => {
   const dispatch = useDispatch();
   const [userDetails, setUserDetails] = useState();
   const user = useSelector((state) => state.user.currentUser);
-  const [showModal,setShowModal] = useState() 
+  const [showModal, setShowModal] = useState();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const router = useRouter();
@@ -31,7 +32,7 @@ const ProfileComponent = () => {
   }, []);
 
   const fetchUserDetails = async () => {
-    if(user.email){
+    if (user.email) {
       try {
         const res = await axiosInstance.get(
           `http://localhost:4000/user-details?email=${user.email}`
@@ -49,30 +50,22 @@ const ProfileComponent = () => {
         router.push("/");
       }
     }
-   
   };
 
   return (
     <ProtectedRoute>
-      <div className="w-full h-auto mt-96 flex flex-col items-center rounded-lg my-5">
-        {/* <div className="w-full h-72 bg-slate-500 rounded-lg overflow-hidden">
-          <Image
-            className="w-screen"
-            alt="NextUI hero Image"
-            src="https://img.freepik.com/premium-photo/colorful-psychedelic-abstract-wallpaper_168892-2466.jpg?size=626&ext=jpg&ga=GA1.1.2008272138.1712793600&semt=ais"
-          />
-        </div> */}
-        <div className="w-4/5 h-full bg-semi mt-3 rounded-lg p-20 z-10 shadow-2xl">
-          <div className="flex">
-            <div className="flex gap-4 items-center">
+      <div className="w-full h-auto flex flex-col items-center rounded-lg  my-5 mt-96 px-4 md:px-0">
+        <div className="w-full md:w-4/5 h-full bg-semi mt-3 rounded-lg p-10 bg3  md:p-20 z-10 shadow-2xl">
+          <div className="flex flex-col md:flex-row items-center">
+            <div className="flex gap-4 items-center mb-4 md:mb-0">
               <Avatar
                 src={userDetails?.profileImg}
                 className="rounded-full w-28 h-28"
               />
             </div>
-            <div className="w-full ml-14">
-              <div className="flex w-full h-1/2 items-center justify-between">
-                <h2 className="text-2xl font-semibold">
+            <div className="w-full md:ml-14">
+              <div className="flex flex-col md:flex-row w-full h-1/2 items-center md:items-start justify-between">
+                <h2 className="text-2xl font-semibold mb-4 md:mb-0">
                   {userDetails?.username}
                 </h2>
                 <div className="flex gap-4">
@@ -90,29 +83,25 @@ const ProfileComponent = () => {
                   </Button>
                 </div>
               </div>
-              <div className="w-full h-1/2 flex justify-between items-center font-semibold">
-                <h2>
+              <div className="w-full h-1/2 flex flex-col md:flex-row justify-between items-center font-semibold mt-4 md:mt-0">
+                <h2 className="mb-2 md:mb-0">
                   Posts <span>2</span>
                 </h2>
-                <Button className="cursor-pointer" variant="" onClick={()=>setShowModal('followers')} onPress={onOpen}>
+                <Button className="cursor-pointer" variant="" onClick={() => setShowModal('followers')} onPress={onOpen}>
                   Followers <span>{userDetails?.followers?.length}</span>
                 </Button>
-
-                <Button variant="" className="cursor-pointer" onClick={()=>setShowModal('following')} onPress={onOpen}>
+                <Button variant="" className="cursor-pointer" onClick={() => setShowModal('following')} onPress={onOpen}>
                   Following <span>{userDetails?.following.length}</span>
                 </Button>
               </div>
             </div>
           </div>
-          <div className="w-full  mt-10">
+          <div className="w-full mt-10">
             <h2 className="text-2xl font-semibold">About</h2>
             <Divider className="my-4" />
-
             <div className="flex flex-col gap-7">
               <h2>{userDetails?.fullname}</h2>
               <p>{userDetails?.bio}</p>
-             
-              {/* <p className="font-semibold">Contact :</p> */}
               <p className="flex gap-2">
                 <span className="font-bold">Email</span>
                 <span className="text-gray-400">{userDetails?.email}</span>
@@ -130,7 +119,7 @@ const ProfileComponent = () => {
         </div>
       </div>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-        {(showModal === "followers") ? <FollowersModal userId={userDetails?._id} /> : <FollowingModal userId={userDetails?._id}/>}
+        {showModal === "followers" ? <FollowersModal userId={userDetails?._id} /> : <FollowingModal userId={userDetails?._id} />}
       </Modal>
     </ProtectedRoute>
   );
