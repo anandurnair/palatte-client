@@ -20,7 +20,7 @@ import { updateAllPosts } from "@/redux/reducers/post";
 import SimpleImageSlider from "react-simple-image-slider";
 import {CircularProgress} from "@nextui-org/react";
 import {Progress} from "@nextui-org/react";
-
+import '../style.css'
 const UploadPost = ({setUpdatePosts}) => {
   const inputRef = useRef(null);
   const dispatch = useDispatch();

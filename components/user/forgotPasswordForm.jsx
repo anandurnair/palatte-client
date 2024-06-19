@@ -20,6 +20,7 @@ import OTPInput, { ResendOTP } from "otp-input-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import ProtectedRoute from "../../components/user/ProtectedRoute";
 import { useSelector } from "react-redux";
+import axios from "axios";
 
 const ForgotPasswordForm = () => {
 
@@ -55,6 +56,11 @@ const ForgotPasswordForm = () => {
   };
 
   const handleVerifyOTP = async () => {
+    console.log("OTP : ",OTP)
+    if(OTP.length !== 4){
+      toast.error("Fill the form")
+      return
+    }
     try {
       const res = await axiosInstance.post(
         "http://localhost:4000/verify-password-otp",
@@ -87,8 +93,16 @@ const ForgotPasswordForm = () => {
 
     setEmailErr(!emailRegex.test(emailValue)); // Set email error based on regex test
   };
-  const handleResend = () => {
-    // Implement resend OTP logic (optional)
+  const handleResend = async() => {
+    const tempUser = {};
+    tempUser[email] = email
+    const res = await axios.post("http://localhost:4000/resendOTP", { tempUser });
+    if (res.status === 200) {
+      toast.success("Resended successfully");
+    } else {
+      toast.error("Verification failed");
+      console.log("error");
+    }
     console.log("Resend OTP clicked");
   };
 
@@ -134,7 +148,7 @@ const ForgotPasswordForm = () => {
                     value={OTP}
                     onChange={setOTP}
                     autoFocus
-                    OTPLength={6}
+                    OTPLength={4}
                     otpType="number"
                     disabled={false}
                     inputStyles={{

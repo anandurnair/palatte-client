@@ -78,7 +78,7 @@ const NotificationComponent = () => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col items-center">
+    <div className="w-full h-full  flex flex-col items-center">
       <div className="w-full flex justify-center">
         <h2>Notifications</h2>
       </div>

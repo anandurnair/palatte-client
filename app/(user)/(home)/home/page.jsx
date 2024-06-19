@@ -23,12 +23,10 @@ const Home = () => {
           Hire freelancer
         </Button>
 
-        <div className="h-2/3 w-full rounded-lg py-4 flex justify-center">
+        <div className="h-full  w-full rounded-lg py-4 flex justify-center">
           <NotificationComponent />
         </div>
-        <div className="h-56 w-full bg-semiDark rounded-lg p-4 flex justify-center">
-          Suggestions
-        </div>
+       
       </div>
     </div>
   );

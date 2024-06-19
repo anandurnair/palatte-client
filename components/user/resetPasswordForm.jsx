@@ -22,6 +22,10 @@ const   ResetPasswordForm =  () => {
     const [confirmPassword,setConfirmPassword]= useState()
 
     const handleSubmit=async()=>{
+      if(newPassword !== confirmPassword){
+        toast.error("Password is not matching")
+        return;
+      }
       let res;
       if(currentUser){
 

@@ -28,14 +28,18 @@ const ProfileComponent = () => {
 
   const router = useRouter();
   useEffect(() => {
-    fetchUserDetails();
-  }, []);
+    if(user){
+
+      fetchUserDetails();
+    }
+  }, [user]);
 
   const fetchUserDetails = async () => {
-    if (user.email) {
+    console.log("USer : ",user)
+    if ( user ) {
       try {
         const res = await axiosInstance.get(
-          `http://localhost:4000/user-details?email=${user.email}`
+          `http://localhost:4000/user-details?email=${user?.email}`
         );
         if (res.status === 200) {
           setUserDetails(res.data.user);

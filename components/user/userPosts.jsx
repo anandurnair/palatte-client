@@ -34,8 +34,11 @@ const UserPosts = () => {
   };
 
   useEffect(() => {
-    fetchSavedPosts();
-    fetchPosts();
+    if(user){
+
+      fetchSavedPosts();
+      fetchPosts();
+    }
   }, [user]);
   const fetchSavedPosts = async () => {
     try {

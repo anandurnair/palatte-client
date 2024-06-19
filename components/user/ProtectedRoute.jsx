@@ -35,7 +35,10 @@ const ProtectedRoute = ({ children }) => {
         toast.error("Verification Failed");
       }
     };
-    fetchUserDetails();
+    if(user){
+      fetchUserDetails();
+
+    }
   }, [pathname]);
 
   return children;

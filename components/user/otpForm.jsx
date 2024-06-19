@@ -16,7 +16,9 @@ const OTPform = () => {
   const dispatch = useDispatch();
   const [OTP, setOTP] = useState("");
   const tempUser = useSelector((state) => state.user.tempUser);
-
+  if(!tempUser){
+      router.push('/')
+  }
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();

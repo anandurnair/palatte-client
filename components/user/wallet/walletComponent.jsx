@@ -40,7 +40,10 @@ const WalletComponent = () => {
         alert(error);
       }
     };
-    fetchWalletData();
+    if(currentUser){
+
+      fetchWalletData();
+    }
   }, [currentUser, update]);
 
   const handleAddMoney = async () => {
