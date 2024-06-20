@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useEffect, useCallback, useRef, useState } from "react";
-import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import Cropper from "react-easy-crop";
 import axiosInstance from "../user/axiosConfig";
 import ProtectedRoute from "../../components/user/ProtectedRoute";
 import CropModal from "./cropModal";
@@ -13,32 +11,24 @@ import "react-toastify/dist/ReactToastify.css";
 
 import {
   Input,
-  RadioGroup,
-  Radio,
   Button,
   Textarea,
-  Listbox,
-  ListboxItem,
-  Image, // Corrected import
+  // Corrected import
 } from "@nextui-org/react";
 import "../style.css";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { updateUser } from "../../redux/reducers/user";
 const CreateProfileForm = () => {
-  const [isLoading, setIsLoading] = useState(true); // Initially set to true
-
   const inputRef = useRef(null);
   const dispatch = useDispatch();
   const router = useRouter();
-  const [selectedKeys, setSelectedKeys] = useState(new Set([]));
   const [fullname, setFullname] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [place, setPlace] = useState("");
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
-  const [isFreelance, setFreelance] = useState("no");
   const [image, setImage] = useState();
   const [crop, setCrop] = useState({ x: 0, y: 0, width: 100, height: 100 });
   const [croppedImage, setCroppedImage] = useState();
@@ -153,14 +143,13 @@ const CreateProfileForm = () => {
 
         // Data posting logic
         const data = {
-          profilePic: base64Data, // Use base64Data here
+          profilePic: base64Data, 
           email,
           fullname,
           username,
           bio,
           phone,
           country: place,
-          
         };
 
         postToDatabase(data);
@@ -184,7 +173,7 @@ const CreateProfileForm = () => {
 
   async function postToDatabase(data) {
     try {
-      console.log("data : ",data)
+      console.log("data : ", data);
       const res = await axiosInstance.post(
         "http://localhost:4000/create-profile",
         data
@@ -300,13 +289,10 @@ const CreateProfileForm = () => {
               onChange={(e) => setPlace(e.target.value)}
               className="w-full"
             />
-           
 
-           
-              <Button className="w-full" onClick={handleSubmit}>
-                Create
-              </Button>
-         
+            <Button className="w-full" onClick={handleSubmit}>
+              Create
+            </Button>
           </div>
         </div>
       </div>

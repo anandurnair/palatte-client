@@ -18,10 +18,10 @@ import axiosInstance from "./axiosConfig";
 import { useDispatch, useSelector } from "react-redux";
 import { updateAllPosts } from "@/redux/reducers/post";
 import SimpleImageSlider from "react-simple-image-slider";
-import {CircularProgress} from "@nextui-org/react";
-import {Progress} from "@nextui-org/react";
-import '../style.css'
-const UploadPost = ({setUpdatePosts}) => {
+import { CircularProgress } from "@nextui-org/react";
+import { Progress } from "@nextui-org/react";
+import "../style.css";
+const UploadPost = ({ setUpdatePosts }) => {
   const inputRef = useRef(null);
   const dispatch = useDispatch();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
@@ -44,7 +44,7 @@ const UploadPost = ({setUpdatePosts}) => {
   const [video, setVideo] = useState("");
   const [isVideo, setIsVideo] = useState(false);
   const [selected, setSelected] = useState("");
-  const [show,setShow] = useState(false)
+  const [show, setShow] = useState(false);
   function blobUrlToBase64(blobUrl, callback) {
     var xhr = new XMLHttpRequest();
     xhr.onload = function () {
@@ -69,7 +69,6 @@ const UploadPost = ({setUpdatePosts}) => {
       });
     });
   };
-
 
   const handleSubmit = async () => {
     try {
@@ -104,8 +103,11 @@ const UploadPost = ({setUpdatePosts}) => {
 
   async function postToDatabase(data) {
     try {
-      setShow(true)
-      const res = await axiosInstance.post("http://localhost:4000/add-post", data);
+      setShow(true);
+      const res = await axiosInstance.post(
+        "http://localhost:4000/add-post",
+        data
+      );
 
       if (res.status === 200) {
         dispatch(updateAllPosts(res.data.posts));
@@ -113,17 +115,16 @@ const UploadPost = ({setUpdatePosts}) => {
         setVideo("");
         setSelected("");
         setIsVideo(false);
-        setUpdatePosts(prev =>!prev)
-        setShow(false)
+        setUpdatePosts((prev) => !prev);
+        setShow(false);
         toast.success("Uploaded Successfully");
-        
       } else {
-        setShow(false)
+        setShow(false);
 
         toast.error(res.data.error);
       }
     } catch (error) {
-      setShow(false)
+      setShow(false);
 
       toast.error("Error in Updating");
       console.error(error);
@@ -149,19 +150,18 @@ const UploadPost = ({setUpdatePosts}) => {
   };
 
   const handleFileChange = (e) => {
+    if (typeof document === "undefined") return; // Ensures code only runs in the client-side context
+
     if (e.target.files && e.target.files.length > 0) {
       const selectedFiles = Array.from(e.target.files);
-      const validImages = selectedFiles.filter(
-        (file) => file.type === "image/png" || file.type === "image/jpeg"
-      );
       const videoFile = selectedFiles.find((file) => file.type === "video/mp4");
-  
+
       if (videoFile) {
         const videoURL = URL.createObjectURL(videoFile);
-        const videoElement = document.createElement('video');
-  
+        const videoElement = document.createElement("video");
+
         videoElement.src = videoURL;
-  
+
         videoElement.onloadedmetadata = () => {
           const duration = videoElement.duration;
           if (duration <= 60) {
@@ -172,10 +172,10 @@ const UploadPost = ({setUpdatePosts}) => {
             URL.revokeObjectURL(videoURL); // Clean up the object URL
           }
         };
-  
+
         return;
       }
-  
+
       if (validImages.length > 0) {
         setIsVideo(false);
         setImages(validImages);
@@ -187,12 +187,15 @@ const UploadPost = ({setUpdatePosts}) => {
       }
     }
   };
-  
+
   const handleCropImage = async (e) => {
     e.preventDefault();
     try {
       if (croppedAreaPixels && images.length > 0) {
-        const croppedImageBase64 = await getCroppedImg(images[currentImageIndex], croppedAreaPixels);
+        const croppedImageBase64 = await getCroppedImg(
+          images[currentImageIndex],
+          croppedAreaPixels
+        );
         setCroppedImages((prev) => [...prev, croppedImageBase64]);
 
         if (currentImageIndex < images.length - 1) {
@@ -213,21 +216,30 @@ const UploadPost = ({setUpdatePosts}) => {
     setVideo("");
     setIsVideo(false);
     setSelected("");
-    
+
     onClose();
   };
 
-  
-
   return (
     <>
-      <ToastContainer toastStyle={{ backgroundColor: "#1d2028" }} position="bottom-center" />
+      <ToastContainer
+        toastStyle={{ backgroundColor: "#1d2028" }}
+        position="bottom-center"
+      />
 
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={false} isKeyboardDismissDisabled={true} className="z-0">
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        isDismissable={false}
+        isKeyboardDismissDisabled={true}
+        className="z-0"
+      >
         <ModalContent>
           {(onClose) => (
             <div className="flex flex-col justify-center">
-              <ModalHeader className="flex flex-col gap-1">Add Post</ModalHeader>
+              <ModalHeader className="flex flex-col gap-1">
+                Add Post
+              </ModalHeader>
               <ModalBody>
                 <input
                   ref={inputRef}
@@ -260,10 +272,18 @@ const UploadPost = ({setUpdatePosts}) => {
                 />
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={handleModalClose}>
+                <Button
+                  color="danger"
+                  variant="light"
+                  onPress={handleModalClose}
+                >
                   Close
                 </Button>
-                <Button color="default" onClick={handleSubmit} onPress={onClose}>
+                <Button
+                  color="default"
+                  onClick={handleSubmit}
+                  onPress={onClose}
+                >
                   Publish
                 </Button>
               </ModalFooter>
@@ -274,9 +294,11 @@ const UploadPost = ({setUpdatePosts}) => {
 
       <div className="w-full m-5 bg3 shadow-lg  h-20 gap-x-5 flex justify-between items-center p-4 rounded-lg">
         <Avatar isBordered color="default" src={user?.profileImg} />
-        { show && (<div>
-        <CircularProgress label="Uploading..." />
-        </div>)}
+        {show && (
+          <div>
+            <CircularProgress label="Uploading..." />
+          </div>
+        )}
         <Button className="btn-full" onPress={onOpen}>
           Add Post
         </Button>

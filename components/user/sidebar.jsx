@@ -7,7 +7,7 @@ import { IoMdChatbubbles } from "react-icons/io";
 import { PiPaintBrushFill } from "react-icons/pi";
 import { usePathname, useRouter } from "next/navigation";
 import ProtectedRoute from "../../components/user/ProtectedRoute";
-
+import '../style.css'
 const HomeSidebar = () => {
   const pathname = usePathname();
   const router = useRouter();

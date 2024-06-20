@@ -29,7 +29,7 @@ const DeleteCommentModal = ({setUpdateComment, commentId ,setUpdate}) => {
     const handleDelete = async () => {
         
       try {
-        const res = await axiosInstance.delete(`${url}/delete-comment?commentId=${commentId}`);
+        const res = await axiosInstance.delete(`/delete-comment?commentId=${commentId}`);
         if(res.status == 200){
             setUpdate(prev=>!prev)
             setUpdateComment(prev => !prev)

@@ -45,7 +45,7 @@ const CommentComponent = ({ setUpdateComment, postId ,userId}) => {
     const fetchComments = async () => {
       try {
         const res = await axiosInstance.get(
-          `http://localhost:4000/get-post-comment?postId=${postId}`
+          `/get-post-comment?postId=${postId}`
         );
         if (res.status === 200) {
           const showReplyState = {};
@@ -54,6 +54,7 @@ const CommentComponent = ({ setUpdateComment, postId ,userId}) => {
           });
           setShowReply(showReplyState);
           setComments(res.data.comments);
+          console.log("data fetched")
         } else {
           toast.error("Error in fetching comments");
         }
@@ -71,7 +72,7 @@ const CommentComponent = ({ setUpdateComment, postId ,userId}) => {
     }
     try {
       const res = await axiosInstance.post(
-        "http://localhost:4000/add-comment",
+        "/add-comment",
         { userId: currentUser._id, postId, comment: newComment }
       );
       if (res.status === 200) {
@@ -80,7 +81,7 @@ const CommentComponent = ({ setUpdateComment, postId ,userId}) => {
         socket.current.emit("comment", currentUser,userId);
 
         setNewComment("");
-        setUpdate(!update);
+        setUpdate(prev =>!prev);
       } else {
         toast.error("Error in posting comment");
       }
@@ -97,7 +98,7 @@ const CommentComponent = ({ setUpdateComment, postId ,userId}) => {
     }
     try {
       const res = await axiosInstance.post(
-        "http://localhost:4000/add-reply",
+        "/add-reply",
         {
           userId: currentUser._id,
           postId,

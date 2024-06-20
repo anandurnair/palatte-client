@@ -55,7 +55,7 @@ const PostList = ({ updatePosts, setUpdatePosts }) => {
     const fetchUserDetails = async () => {
       try {
         const res = await axiosInstance.get(
-          `http://localhost:4000/user-details?email=${user.email}`
+          `/user-details?email=${user.email}`
         );
         if (res.status === 200) {
           dispatch(updateUser(res.data.user));
@@ -78,7 +78,7 @@ const PostList = ({ updatePosts, setUpdatePosts }) => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await axiosInstance.get("http://localhost:4000/get-all-posts");
+        const res = await axiosInstance.get("/get-all-posts");
         if (res.status === 200) {
           const postsWithBookmarks = res.data.posts.map((post) => ({
             ...post,
@@ -139,15 +139,15 @@ const PostList = ({ updatePosts, setUpdatePosts }) => {
       if (newBookmarked) {
         toggleModal(postId, "save");
       } else {
-        await axiosInstance.post("http://localhost:4000/remove-save-post", {
-          userId: user._id,
+        await axiosInstance.post("/remove-save-post", {
+          userId: user?._id,
           postId: postId,
         });
         toast.success("Post removed from saved");
       }
 
       const res = await axiosInstance.get(
-        `http://localhost:4000/user-details?email=${user.email}`
+        `/user-details?email=${user.email}`
       );
       dispatch(updateUser(res.data.user));
     } catch (error) {
@@ -168,14 +168,14 @@ const PostList = ({ updatePosts, setUpdatePosts }) => {
       }));
 
       if (newLiked) {
-        await axiosInstance.post("http://localhost:4000/like-post", {
+        await axiosInstance.post("/like-post", {
           userId: user._id,
           postId: postId,
         });
         socket.current.emit("like", currentUser, postUser);
         console.log("LIked")
       } else {
-        await axiosInstance.post("http://localhost:4000/unlike-post", {
+        await axiosInstance.post("/unlike-post", {
           userId: user._id,
           postId: postId,
         });

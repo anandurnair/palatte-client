@@ -22,7 +22,7 @@ const ChatListComponent = ({
       try {
         if (current) {
           const res = await axiosInstance.get(
-            `${url}/getUserById?userId=${friendId}`
+            `/getUserById?userId=${friendId}`
           );
           setReceiver(res.data.user);
         }

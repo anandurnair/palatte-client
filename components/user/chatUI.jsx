@@ -1,33 +1,9 @@
-"use client";
-import React, { useState, useEffect, useRef } from "react";
+import { io } from "socket.io-client";
+import { useEffect, useRef, useState } from "react";
+import axiosInstance from "./axiosConfig";
 import ProtectedRoute from "../../components/user/ProtectedRoute";
 import { Card, CardHeader, CardBody, Avatar, Input } from "@nextui-org/react";
 import { format } from "timeago.js";
-import axiosInstance from "./axiosConfig";
-import { FaVideo, FaPhoneAlt } from "react-icons/fa";
-import { BsThreeDotsVertical } from "react-icons/bs";
-import { io } from "socket.io-client";
-
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure,
-} from "@nextui-org/react";
-import { TiTick } from "react-icons/ti";
-
-import {
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-  Button,
-} from "@nextui-org/react";
-import { FaCheckDouble } from "react-icons/fa6";
-
-import VideoCallComponent from "@/components/user/videoCallComponent";
 
 const ChatUI = ({
   setUpdate,
@@ -49,17 +25,19 @@ const ChatUI = ({
       socket.current = io(process.env.NEXT_PUBLIC_API_URL);
     }
 
-    socket.current.on("msgSeen", (data) => {
-      if (currentUser?._id === data?.senderId) {
-        const updatedMessages = messages.map((m) => {
-          if (m.sender === currentUser._id) {
-            return { ...m, status: "seen" };
-          }
-          return m;
-        });
-        setMessages(updatedMessages);
-      }
-    });
+    if (typeof window !== "undefined") {
+      socket.current.on("msgSeen", (data) => {
+        if (currentUser?._id === data?.senderId) {
+          const updatedMessages = messages.map((m) => {
+            if (m.sender === currentUser._id) {
+              return { ...m, status: "seen" };
+            }
+            return m;
+          });
+          setMessages(updatedMessages);
+        }
+      });
+    }
 
     return () => {
       if (socket.current) {
@@ -76,12 +54,14 @@ const ChatUI = ({
           conversationId: currentChat?._id,
           senderId: currentUser?._id,
         });
-        socket.current.emit("seen", {
-          receiverId: currentUser?._id,
-          senderId: user?._id,
-          conversationId: currentChat._id,
-        });
-        setUpdate((prev) => !prev);
+        if (typeof window !== "undefined") {
+          socket.current.emit("seen", {
+            receiverId: currentUser?._id,
+            senderId: user?._id,
+            conversationId: currentChat._id,
+          });
+          setUpdate((prev) => !prev);
+        }
       } catch (error) {
         console.error(error);
       }
@@ -113,12 +93,14 @@ const ChatUI = ({
     const receiverId = currentChat.members.find(
       (member) => member !== currentUser?._id
     );
-    socket.current.emit("sendMessage", {
-      senderId: currentUser?._id,
-      receiverId,
-      text: newMessage,
-      isGroup: false,
-    });
+    if (typeof window !== "undefined") {
+      socket.current.emit("sendMessage", {
+        senderId: currentUser?._id,
+        receiverId,
+        text: newMessage,
+        isGroup: false,
+      });
+    }
 
     try {
       const res = await axiosInstance.post(
@@ -140,7 +122,9 @@ const ChatUI = ({
 
   const handleVideoCall = async () => {
     const userId = user._id;
-    socket.current.emit("call", currentUser, user);
+    if (typeof window !== "undefined") {
+      socket.current.emit("call", currentUser, user);
+    }
 
     const members = [currentUser._id, userId];
     try {
@@ -256,107 +240,3 @@ const ChatUI = ({
 };
 
 export default ChatUI;
-
-const Message = ({
-  setUpdate,
-  messageId,
-  message,
-  isCurrentUser,
-  avatar,
-  time,
-  status,
-}) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
-  const handleDeleteMessage = async () => {
-    try {
-      await axiosInstance.delete(
-        `http://localhost:4000/delete-message?messageId=${messageId}`
-      );
-      setUpdate((prev) => !prev);
-    } catch (error) {
-      alert(error);
-    }
-  };
-
-  return (
-    <div
-      className={`flex ${isCurrentUser ? "justify-end" : "justify-start"} mb-2`}
-    >
-      {!isCurrentUser && (
-        <Avatar
-          isBordered
-          radius="full"
-          size="sm"
-          src={avatar}
-          className="mr-2"
-        />
-      )}
-      <Card
-        className={`max-w-xs ${
-          isCurrentUser ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"
-        }`}
-      >
-        <CardBody>
-          <p>{message}</p>
-          <div className="flex gap-3">
-            <p className="text-xs">{time}</p>
-            {isCurrentUser &&
-              (status === "seen" ? (
-                <FaCheckDouble size={15} />
-              ) : (
-                status === "delivered" && <TiTick size={15} />
-              ))}
-          </div>
-        </CardBody>
-      </Card>
-      {isCurrentUser ? (
-        <div className="flex gap-4">
-          <Dropdown>
-            <DropdownTrigger>
-              <Button variant="" isIconOnly>
-                <BsThreeDotsVertical size={20} />
-              </Button>
-            </DropdownTrigger>
-            <DropdownMenu aria-label="Static Actions">
-              <DropdownItem key="deleteMessage" onPress={onOpen}>
-                Delete message
-              </DropdownItem>
-              <DropdownItem key="close" className="text-danger" color="danger">
-                Close
-              </DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
-        </div>
-      ) : (
-        ""
-      )}
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalContent>
-          <>
-            <ModalHeader className="flex flex-col gap-1">
-              Confirm Delete
-            </ModalHeader>
-            <ModalBody>
-              <p>Are you sure you want to delete this message?</p>
-            </ModalBody>
-            <ModalFooter>
-              <Button color="danger" variant="light" onPress={onClose}>
-                Cancel
-              </Button>
-              <Button
-                color="primary"
-                onClick={() => {
-                  handleDeleteMessage();
-                  onClose();
-                }}
-              >
-                Delete
-              </Button>
-            </ModalFooter>
-          </>
-        </ModalContent>
-      </Modal>
-    </div>
-  );
-};

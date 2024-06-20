@@ -1,5 +1,6 @@
 "use client";
-import React, { useEffect, useState } from "react";
+
+import React, { useEffect, useState, useRef } from "react";
 import axiosInstance from "./axiosConfig";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -10,29 +11,14 @@ import EditPostModal from "../../components/user/userModals/editPostModal";
 import SaveModal from "./userModals/savePostModal";
 import ReportModal from "@/components/user/userModals/reportModal";
 import SimpleImageSlider from "react-simple-image-slider";
-
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  CardFooter,
-  Divider,
-  Image,
-} from "@nextui-org/react";
-import {
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-  Button,
-} from "@nextui-org/react";
+import { Card, CardHeader, CardBody, CardFooter, Divider, Image } from "@nextui-org/react";
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button } from "@nextui-org/react";
 import { BiLike, BiSolidLike } from "react-icons/bi";
 import { FaRegComment, FaRegBookmark, FaBookmark } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { Modal, useDisclosure } from "@nextui-org/react";
-import { useRouter } from "next/navigation";
 import { updateUser } from "@/redux/reducers/user";
-
+import { io } from "socket.io-client";
 
 const isVideo = (url) => {
   return /\.(mp4|webm|ogg)$/i.test(url);
@@ -41,7 +27,7 @@ const isVideo = (url) => {
 const PostDetail = ({ postId }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const current = useSelector((state) => state.user.currentUser);
-  const [currentUser,setCurrentUser] = useState(current)
+  const [currentUser, setCurrentUser] = useState(current);
   const dispatch = useDispatch();
   const [post, setPost] = useState();
   const [likes, setLikes] = useState(0);
@@ -50,16 +36,19 @@ const PostDetail = ({ postId }) => {
   const url = process.env.NEXT_PUBLIC_API_URL;
   const [modal, setModal] = useState("");
   const [update, setUpdate] = useState(false);
+  const socket = useRef(null);
+
+  useEffect(() => {
+    socket.current = io(process.env.NEXT_PUBLIC_API_URL);
+  }, []);
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await axiosInstance.get(
-          `${url}/get-post-details?postId=${postId}`
-        );
+        const res = await axiosInstance.get(`${url}/get-post-details?postId=${postId}`);
         if (res.status === 200) {
-          const userId = res.data.post.userId._id;
-          if (currentUser && currentUser._id === userId) {
+          const userId = res.data.post.userId?._id;
+          if (currentUser && currentUser?._id === userId) {
             setIsUser(true);
           }
           setPost(res.data.post);
@@ -74,12 +63,35 @@ const PostDetail = ({ postId }) => {
   }, [currentUser, postId, url, update]);
 
   const toggleLike = async () => {
-    try {
-      const newLikes = likes + (likes ? -1 : 1);
-      setLikes(newLikes);
+    if (!post || !currentUser) {
+      return;
+    }
 
-      await axiosInstance.post(`${url}/like-post?postId=${postId}`);
-      toast.success(likes ? "Post unliked" : "Post liked");
+    try {
+      const postUser = post.userId;
+      const currentLiked = post.likes.includes(currentUser._id);
+      const newLiked = !currentLiked;
+
+      if (newLiked) {
+        await axiosInstance.post("/like-post", {
+          userId: currentUser._id,
+          postId: postId,
+        });
+        socket.current.emit("like", currentUser, postUser);
+      } else {
+        await axiosInstance.post("/unlike-post", {
+          userId: currentUser._id,
+          postId: postId,
+        });
+      }
+
+      setLikes(newLiked ? likes + 1 : likes - 1);
+      setPost((prevPost) => ({
+        ...prevPost,
+        likes: newLiked
+          ? [...prevPost.likes, currentUser._id]
+          : prevPost.likes.filter((id) => id !== currentUser._id),
+      }));
     } catch (error) {
       console.error(error);
       toast.error("Error in liking or unliking post");
@@ -88,35 +100,27 @@ const PostDetail = ({ postId }) => {
 
   const toggleBookmark = async () => {
     try {
-      
       const newBookmarked = !bookmarked;
-      newBookmarked ? setModal("save") : "";
-      setBookmarked(!bookmarked)
+      setBookmarked(newBookmarked);
+
       if (newBookmarked) {
         setModal("save");
         onOpen();
       } else {
-        try {
-          await axiosInstance.post(`${url}/remove-save-post`, {
-            userId: currentUser._id,
-            postId: postId,
-          });
-          
-            toast.success("Post removed from Saved");
-          
-        } catch (error) {
-          toast.error(error);
-        }
+        await axiosInstance.post(`${url}/remove-save-post`, {
+          userId: currentUser._id,
+          postId: postId,
+        });
+
+        toast.success("Post removed from Saved");
       }
 
-      const res = await axiosInstance.get(
-        `${url}/user-details?email=${currentUser.email}`
-      );
+      const res = await axiosInstance.get(`${url}/user-details?email=${currentUser.email}`);
       dispatch(updateUser(res.data.user));
-      setCurrentUser(res.data.user)
+      setCurrentUser(res.data.user);
     } catch (error) {
       console.error(error);
-      toast.error("Error saving or removing post. Please try again."); // More specific message
+      toast.error("Error saving or removing post. Please try again.");
     }
   };
 
@@ -208,36 +212,35 @@ const PostDetail = ({ postId }) => {
         </CardHeader>
         <Divider />
         <CardBody className="flex items-center gap-y-5">
-        {post?.images ? (
-  // Render image content based on image type (video or single/multiple images)
-  isVideo(post?.images[0]) ? (
-    <video controls className="w-full h-full flex items-center object-cover rounded-xl">
-      <source src={post?.images[0]} type="video/mp4" />
-    </video>
-  ) : (
-    post?.images.length === 1 ? (
-      <Image
-        className="w-full flex items-center object-cover rounded-xl"
-        alt="Card background"
-        src={post?.images[0]}
-      />
-    ) : (
-      <SimpleImageSlider
-        width={380}
-        height={280}
-        images={post.images.map((img) => ({ url: img }))}
-        showBullets={true}
-        showNavs={true}
-      />
-    )
-  )
-) : (
-  // Display a loading indicator or placeholder while data is being fetched
-  <p>Loading post...</p>
-)}
+          {post?.images ? (
+            isVideo(post?.images[0]) ? (
+              <video
+                controls
+                className="w-full h-full flex items-center object-cover rounded-xl"
+              >
+                <source src={post?.images[0]} type="video/mp4" />
+              </video>
+            ) : post?.images.length === 1 ? (
+              <Image
+                className="w-full flex items-center object-cover rounded-xl"
+                alt="Card background"
+                src={post?.images[0]}
+              />
+            ) : (
+              <SimpleImageSlider
+                width={380}
+                height={280}
+                images={post.images.map((img) => ({ url: img }))}
+                showBullets={true}
+                showNavs={true}
+              />
+            )
+          ) : (
+            <p>Loading post...</p>
+          )}
           <div className="flex px-2 justify-between w-full">
             <div className="flex gap-x-5">
-              {likes ? (
+              {post?.likes.includes(currentUser?._id) ? (
                 <BiSolidLike onClick={toggleLike} size={25} />
               ) : (
                 <BiLike onClick={toggleLike} size={25} />
@@ -257,42 +260,44 @@ const PostDetail = ({ postId }) => {
               )}
             </div>
           </div>
-          <div className="w-full">
-            <p className="px-3 flex items-start justify-start">
-              <span className="mr-5 font-semibold">
-                {post?.userId?.username}
-              </span>
-              {post?.caption}
-            </p>
+          <div className="mt-4 w-full">
+            <h4 className="text-lg">{post?.title}</h4>
+            <p className="text-md">{post?.description}</p>
           </div>
         </CardBody>
         <Divider />
-        <CardFooter className="pt-10">
-          {post?.showComments && <CommentComponent postId={post._id} />}
+        <CardFooter>
+
+          {post?.showComments && (
+            <CommentComponent postId={postId} currentUser={currentUser} />
+          )}
         </CardFooter>
       </Card>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-        {modal === "save" && (
-          <SaveModal
-            setUpdate={setUpdate}
-            postId={post._id}
-            userId={currentUser?._id}
-          />
-        )}
-        {isUser && modal === "delete" && (
-          <DeletePostModal key="deleteModal" postId={postId} />
-        )}
-
-        {isUser && modal === "edit" && (
-          <EditPostModal
-            key="editModal"
-            postId={postId}
-            setUpdate={setUpdate}
-          />
-        )}
-        {!isUser && modal === "report" && (
-          <ReportModal postId={postId} userId={currentUser?._id} />
-        )}
+        <div>
+          {modal === "delete" && (
+            <DeletePostModal postId={postId} onOpenChange={onOpenChange} />
+          )}
+          {modal === "edit" && (
+            <EditPostModal
+              postId={postId}
+              onOpenChange={onOpenChange}
+              post={post}
+              setUpdate={setUpdate}
+              update={update}
+            />
+          )}
+          {modal === "save" && (
+            <SaveModal postId={postId} setUpdate={setUpdate} onOpenChange={onOpenChange}  userId={currentUser?._id}/>
+          )}
+          {modal === "report" && (
+            <ReportModal
+              reportedUser={post?.userId}
+              reportedPost={postId}
+              onOpenChange={onOpenChange}
+            />
+          )}
+        </div>
       </Modal>
     </div>
   );
