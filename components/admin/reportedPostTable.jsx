@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Table,
@@ -8,7 +8,6 @@ import {
   TableRow,
   TableCell,
   Input,
- 
   DropdownTrigger,
   Dropdown,
   DropdownMenu,
@@ -17,13 +16,19 @@ import {
   Post,
   Pagination,
 } from "@nextui-org/react";
-import {Image} from "@nextui-org/image";
-
-import axios from 'axios'
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure} from "@nextui-org/react";
-
+import { Image } from "@nextui-org/image";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+} from "@nextui-org/react";
 
 const statusColorMap = {
   active: "success",
@@ -31,71 +36,85 @@ const statusColorMap = {
   vacation: "warning",
 };
 
-
-const INITIAL_VISIBLE_COLUMNS = ["postImg","username","reason",'status','actions'];
+const INITIAL_VISIBLE_COLUMNS = [
+  "postImg",
+  "username",
+  "reason",
+  "status",
+  "actions",
+];
 
 export default function ReportedPostTable() {
-  const [blockEmail,setBlockEmail] = useState()
-  const {isOpen, onOpen, onOpenChange,onClose} = useDisclosure();
+  const [blockEmail, setBlockEmail] = useState();
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const msgs = useRef(null);
-  const [block,setBlock]=useState(false)
-  const [posts,setPosts] = useState([])
-  const [update,setUpdate] = useState(false)
-  useEffect(()=>{
-    const fetchData=async()=>{
+  const [block, setBlock] = useState(false);
+  const [posts, setPosts] = useState([]);
+  const [update, setUpdate] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
       try {
-        const res =await axios.get('http://localhost:4000/get-all-reportedPosts')
+        const res = await axios.get(
+          "http://localhost:4000/get-all-reportedPosts"
+        );
         if (res.status === 200) {
-          const data = res.data
-          console.log("reported posts : ",data.reportedPosts)
-          setPosts(data.reportedPosts)
+          const data = res.data;
+          console.log("reported posts : ", data.reportedPosts);
+          setPosts(data.reportedPosts);
         } else {
-          alert( data.error);  
+          alert(data.error);
         }
       } catch (error) {
-        console.log(error)
-        toast.error("Error in fetching reported posts")
+        console.log(error);
+        toast.error("Error in fetching reported posts");
       }
-     
-    }
-    fetchData()
-   
-  },[block,update])
-  const [filterValue, setFilterValue] = React.useState("");
-  const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
-  const [visibleColumns, setVisibleColumns] = React.useState(new Set(INITIAL_VISIBLE_COLUMNS));
-  const [statusFilter, setStatusFilter] = React.useState("all");
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [sortDescriptor, setSortDescriptor] = React.useState({
+    };
+    fetchData();
+  }, [block, update]);
+
+  const [filterValue, setFilterValue] = useState("");
+  const [selectedKeys, setSelectedKeys] = useState(new Set([]));
+  const [visibleColumns, setVisibleColumns] = useState(
+    new Set(INITIAL_VISIBLE_COLUMNS)
+  );
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [sortDescriptor, setSortDescriptor] = useState({
     column: "age",
     direction: "ascending",
   });
-  const [page, setPage] = React.useState(1);
+  const [page, setPage] = useState(1);
 
   const hasSearchFilter = Boolean(filterValue);
 
   const headerColumns = React.useMemo(() => {
     if (visibleColumns === "all") return columns;
 
-    return columns.filter((column) => Array.from(visibleColumns).includes(column.uid));
-  }, [visibleColumns,update]);
+    return columns.filter((column) =>
+      Array.from(visibleColumns).includes(column.uid)
+    );
+  }, [visibleColumns]);
 
   const filteredItems = React.useMemo(() => {
     let filteredPosts = [...posts];
 
     if (hasSearchFilter) {
       filteredPosts = filteredPosts.filter((user) =>
-        user.fullname.toLowerCase().includes(filterValue.toLowerCase()),
+        user.fullname.toLowerCase().includes(filterValue.toLowerCase())
       );
     }
-    if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
+    if (
+      statusFilter !== "all" &&
+      Array.from(statusFilter).length !== statusOptions.length
+    ) {
       filteredPosts = filteredPosts.filter((user) =>
-        Array.from(statusFilter).includes(user.status),
+        Array.from(statusFilter).includes(user.status)
       );
     }
 
     return filteredPosts;
-  }, [posts, filterValue, statusFilter,update]);
+  }, [posts, filterValue, statusFilter, hasSearchFilter]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -104,7 +123,7 @@ export default function ReportedPostTable() {
     const end = start + rowsPerPage;
 
     return filteredItems.slice(start, end);
-  }, [page, filteredItems, rowsPerPage,update]);
+  }, [page, filteredItems, rowsPerPage]);
 
   const sortedItems = React.useMemo(() => {
     return [...items].sort((a, b) => {
@@ -114,78 +133,90 @@ export default function ReportedPostTable() {
 
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
     });
-  }, [sortDescriptor, items,update]);
+  }, [sortDescriptor, items]);
 
-
-  const handleList=async()=>{
+  const handleList = async () => {
     onClose();
     try {
-      const res = await axios.patch(`http://localhost:4000/list-post?postId=${blockEmail}`);
+      const res = await axios.patch(
+        `http://localhost:4000/list-post?postId=${blockEmail}`
+      );
       const data = await res.json();
       if (res.ok) {
-        setUpdate(prev => !prev)
-        setBlock(prev=>!prev)
-        toast.success(data.message)
+        setUpdate((prev) => !prev);
+        setBlock((prev) => !prev);
+        toast.success(data.message);
       } else {
-        alert( data.error);  
+        alert(data.error);
       }
     } catch (error) {
-      toast.error(error)
+      toast.error(error);
     }
-   
-  }
+  };
 
-  const handleOpen = (postId) => {
-    setBlockEmail(postId)
-    onOpen();
-  }
+  const handleOpen = React.useCallback(
+    (postId) => {
+      setBlockEmail(postId);
+      onOpen();
+    },
+    [onOpen]
+  );
 
-  const renderCell = React.useCallback((post, columnKey) => {
-    const cellValue = post[columnKey];
+  const renderCell = React.useCallback(
+    (post, columnKey) => {
+      const cellValue = post[columnKey];
 
-    switch (columnKey) {
-      case "postImg":
-        return (
-          <Image
-          width={100}
-      alt="NextUI hero Image"
-      src={post.postImg[0]}
-    />
-        );
-      case "role":
-        return (
-          <div className="flex flex-col">
-            <p className="text-bold text-small capitalize">{cellValue}</p>
-            <p className="text-bold text-tiny capitalize text-default-400">{user.team}</p>
-          </div>
-        );
-      case "status":
-        return (
-          <Chip className="capitalize" color={statusColorMap[post.status]} size="sm" variant="flat">
-            {cellValue}
-          </Chip>
-        );
-      case "actions":
-        return (
-          <div className="relative flex justify-end items-center gap-2">
-            <Dropdown>
-              <DropdownTrigger>
-                <Button isIconOnly size="sm" variant="light">
-                  <VerticalDotsIcon className="text-default-300" />
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu>
-                {/* <DropdownItem>View</DropdownItem> */}
-                <DropdownItem onClick={()=>handleOpen(post.postId)}  aria-label="Block data">{ post.status === 'active' ? 'Unlist' : 'List'}</DropdownItem>
-                {/* <DropdownItem>Delete</DropdownItem> */}
-              </DropdownMenu>
-            </Dropdown>
-          </div>
-        );
-      default:
-        return cellValue;
-    }
-  }, [update]);
+      switch (columnKey) {
+        case "postImg":
+          return (
+            <Image width={100} alt="NextUI hero Image" src={post.postImg[0]} />
+          );
+        case "role":
+          return (
+            <div className="flex flex-col">
+              <p className="text-bold text-small capitalize">{cellValue}</p>
+              <p className="text-bold text-tiny capitalize text-default-400">
+                {user.team}
+              </p>
+            </div>
+          );
+        case "status":
+          return (
+            <Chip
+              className="capitalize"
+              color={statusColorMap[post.status]}
+              size="sm"
+              variant="flat"
+            >
+              {cellValue}
+            </Chip>
+          );
+        case "actions":
+          return (
+            <div className="relative flex justify-end items-center gap-2">
+              <Dropdown>
+                <DropdownTrigger>
+                  <Button isIconOnly size="sm" variant="light">
+                    <VerticalDotsIcon className="text-default-300" />
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu>
+                  <DropdownItem
+                    onClick={() => handleOpen(post.postId)}
+                    aria-label="Block data"
+                  >
+                    {post.status === "active" ? "Unlist" : "List"}
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+            </div>
+          );
+        default:
+          return cellValue;
+      }
+    },
+    [handleOpen]
+  );
 
   const onNextPage = React.useCallback(() => {
     if (page < pages) {
@@ -213,74 +244,21 @@ export default function ReportedPostTable() {
     }
   }, []);
 
-  const onClear = React.useCallback(()=>{
-    setFilterValue("")
-    setPage(1)
-  },[])
+  const onClear = React.useCallback(() => {
+    setFilterValue("");
+    setPage(1);
+  }, []);
 
   const topContent = React.useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
         <div className="flex justify-between gap-3 items-end">
-          {/* <Input
-            isClearable
-            className="w-full sm:max-w-[44%]"
-            placeholder="Search by name..."
-            startContent={<SearchIcon />}
-            value={filterValue}
-            onClear={() => onClear()}
-            onValueChange={onSearchChange}
-          /> */}
-          <div className="flex gap-3">
-            {/* <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
-                  Status
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Table Columns"
-                closeOnSelect={false}
-                selectedKeys={statusFilter}
-                selectionMode="multiple"
-                onSelectionChange={setStatusFilter}
-              >
-                {statusOptions.map((status) => (
-                  <DropdownItem key={status.uid} className="capitalize">
-                    {capitalize(status.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown> */}
-            {/* <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
-                  Columns
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Table Columns"
-                closeOnSelect={false}
-                selectedKeys={visibleColumns}
-                selectionMode="multiple"
-                onSelectionChange={setVisibleColumns}
-              >
-                {columns.map((column) => (
-                  <DropdownItem key={column.uid} className="capitalize">
-                    {capitalize(column.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown> */}
-            {/* <Button color="primary" endContent={<PlusIcon />}>
-              Add New
-            </Button> */}
-          </div>
+          <div className="flex gap-3"></div>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">Total {posts.length} posts</span>
+          <span className="text-default-400 text-small">
+            Total {posts.length} posts
+          </span>
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
             <select
@@ -303,7 +281,6 @@ export default function ReportedPostTable() {
     posts.length,
     onSearchChange,
     hasSearchFilter,
-    update
   ]);
 
   const bottomContent = React.useMemo(() => {
@@ -324,10 +301,20 @@ export default function ReportedPostTable() {
           onChange={setPage}
         />
         <div className="hidden sm:flex w-[30%] justify-end gap-2">
-          <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onPreviousPage}>
+          <Button
+            isDisabled={pages === 1}
+            size="sm"
+            variant="flat"
+            onPress={onPreviousPage}
+          >
             Previous
           </Button>
-          <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onNextPage}>
+          <Button
+            isDisabled={pages === 1}
+            size="sm"
+            variant="flat"
+            onPress={onNextPage}
+          >
             Next
           </Button>
         </div>
@@ -337,16 +324,19 @@ export default function ReportedPostTable() {
 
   return (
     <>
-        <ToastContainer  toastStyle={{ backgroundColor: "#1d2028" }} position="bottom-right" />
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+      <ToastContainer
+        toastStyle={{ backgroundColor: "#1d2028" }}
+        position="bottom-right"
+      />
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-1">List/Unlist Post</ModalHeader>
+              <ModalHeader className="flex flex-col gap-1">
+                List/Unlist Post
+              </ModalHeader>
               <ModalBody>
-                <p> 
-                Are you sure ?
-                </p>
+                <p>Are you sure ?</p>
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="light" onPress={onClose}>
@@ -360,70 +350,66 @@ export default function ReportedPostTable() {
           )}
         </ModalContent>
       </Modal>
-    <Table
-      aria-label="Example table with custom cells, pagination and sorting"
-      isHeaderSticky
-      bottomContent={bottomContent}
-      bottomContentPlacement="outside"
-      classNames={{
-        wrapper: "max-h-[382px]",
-      }}
-      selectedKeys={selectedKeys}
-      selectionMode="multiple"
-      sortDescriptor={sortDescriptor}
-      topContent={topContent}
-      topContentPlacement="outside"
-      onSelectionChange={setSelectedKeys}
-      onSortChange={setSortDescriptor}
-    >
-      <TableHeader columns={headerColumns}>
-        {(column) => (
-          <TableColumn
-            key={column.uid}
-            align={column.uid === "actions" ? "center" : "start"}
-            allowsSorting={column.sortable}
-          >
-            {column.name}
-          </TableColumn>
-        )}
-      </TableHeader>
-      <TableBody emptyContent={"No posts found"} items={sortedItems}>
-        {(item) => (
-          <TableRow key={item.postId}>
-            {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+      <Table
+        aria-label="Example table with custom cells, pagination and sorting"
+        isHeaderSticky
+        bottomContent={bottomContent}
+        bottomContentPlacement="outside"
+        classNames={{
+          wrapper: "max-h-[382px]",
+        }}
+        selectedKeys={selectedKeys}
+        selectionMode="multiple"
+        sortDescriptor={sortDescriptor}
+        topContent={topContent}
+        topContentPlacement="outside"
+        onSelectionChange={setSelectedKeys}
+        onSortChange={setSortDescriptor}
+      >
+        <TableHeader columns={headerColumns}>
+          {(column) => (
+            <TableColumn
+              key={column.uid}
+              align={column.uid === "actions" ? "center" : "start"}
+              allowsSorting={column.sortable}
+            >
+              {column.name}
+            </TableColumn>
+          )}
+        </TableHeader>
+        <TableBody emptyContent={"No posts found"} items={sortedItems}>
+          {(item) => (
+            <TableRow key={item.postId}>
+              {(columnKey) => (
+                <TableCell>{renderCell(item, columnKey)}</TableCell>
+              )}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
     </>
-    
   );
 }
 
-
-
 const columns = [
-    {name: "ID", uid: "_id", sortable: true},
-    {name: "POST", uid: "postImg", },
-    {name: "REPORTED USER", uid: "username",},
-    {name: "REASON", uid: "reason", },
-    {name: "STATUS", uid: "status"},
-    {name: "ACTIONS", uid: "actions"},
-  ];
-  
-  const statusOptions = [
-    {name: "Active", uid: "active"},
-    {name: "Paused", uid: "paused"},
-    {name: "Vacation", uid: "vacation"},
-  ];
-  
-  
-  
+  { name: "ID", uid: "_id", sortable: true },
+  { name: "POST", uid: "postImg" },
+  { name: "REPORTED USER", uid: "username" },
+  { name: "REASON", uid: "reason" },
+  { name: "STATUS", uid: "status" },
+  { name: "ACTIONS", uid: "actions" },
+];
+
+const statusOptions = [
+  { name: "Active", uid: "active" },
+  { name: "Paused", uid: "paused" },
+  { name: "Vacation", uid: "vacation" },
+];
 
 export function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
-export const PlusIcon = ({size = 24, width, height, ...props}) => (
+export const PlusIcon = ({ size = 24, width, height, ...props }) => (
   <svg
     aria-hidden="true"
     fill="none"
@@ -470,10 +456,10 @@ export const SearchIcon = (props) => (
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth="2"
-    />    
+    />
   </svg>
 );
-export const ChevronDownIcon = ({strokeWidth = 1.5, ...otherProps}) => (
+export const ChevronDownIcon = ({ strokeWidth = 1.5, ...otherProps }) => (
   <svg
     aria-hidden="true"
     fill="none"
@@ -494,7 +480,7 @@ export const ChevronDownIcon = ({strokeWidth = 1.5, ...otherProps}) => (
     />
   </svg>
 );
-export const VerticalDotsIcon = ({size = 24, width, height, ...props}) => (
+export const VerticalDotsIcon = ({ size = 24, width, height, ...props }) => (
   <svg
     aria-hidden="true"
     fill="none"
@@ -511,4 +497,3 @@ export const VerticalDotsIcon = ({size = 24, width, height, ...props}) => (
     />
   </svg>
 );
-

@@ -1,3 +1,4 @@
+'use client'
 import React, { useEffect, useState } from "react";
 import ProtectedRoute from "../../components/user/ProtectedRoute";
 import { Card, CardHeader, CardBody, Avatar, Badge,Chip } from "@nextui-org/react";

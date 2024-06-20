@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Table,
@@ -8,7 +8,6 @@ import {
   TableRow,
   TableCell,
   Input,
- 
   DropdownTrigger,
   Dropdown,
   DropdownMenu,
@@ -17,13 +16,20 @@ import {
   Post,
   Pagination,
 } from "@nextui-org/react";
-import {Image} from "@nextui-org/image";
+import { Image } from "@nextui-org/image";
 
-import axios from 'axios'
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure} from "@nextui-org/react";
-
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+} from "@nextui-org/react";
 
 const statusColorMap = {
   active: "success",
@@ -31,38 +37,46 @@ const statusColorMap = {
   vacation: "warning",
 };
 
-
-const INITIAL_VISIBLE_COLUMNS = ["postImg","username","comment","reason",'status','actions'];
+const INITIAL_VISIBLE_COLUMNS = [
+  "postImg",
+  "username",
+  "comment",
+  "reason",
+  "status",
+  "actions",
+];
 
 export default function ReportedCommentTable() {
-  const [blockComment,setBlockComment] = useState()
-  const {isOpen, onOpen, onOpenChange,onClose} = useDisclosure();
+  const [blockComment, setBlockComment] = useState();
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const msgs = useRef(null);
-  const [block,setBlock]=useState(false)
-  const [comments,setComments] = useState([])
-  useEffect(()=>{
-    const fetchData=async()=>{
+  const [block, setBlock] = useState(false);
+  const [comments, setComments] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
       try {
-        const res =await axios.get('http://localhost:4000/get-all-reported-comments')
+        const res = await axios.get(
+          "http://localhost:4000/get-all-reported-comments"
+        );
         if (res.status === 200) {
-          const data = res.data
-          console.log("reported posts : ",data.reportedComments)
-          setComments(data.reportedComments)
+          const data = res.data;
+          console.log("reported posts : ", data.reportedComments);
+          setComments(data.reportedComments);
         } else {
-          alert( data.error);  
+          alert(data.error);
         }
       } catch (error) {
-        console.log(error)
-        toast.error("Error in fetching reported posts")
+        console.log(error);
+        toast.error("Error in fetching reported posts");
       }
-     
-    }
-    fetchData()
-   
-  },[block])
+    };
+    fetchData();
+  }, [block]);
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
-  const [visibleColumns, setVisibleColumns] = React.useState(new Set(INITIAL_VISIBLE_COLUMNS));
+  const [visibleColumns, setVisibleColumns] = React.useState(
+    new Set(INITIAL_VISIBLE_COLUMNS)
+  );
   const [statusFilter, setStatusFilter] = React.useState("all");
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [sortDescriptor, setSortDescriptor] = React.useState({
@@ -76,20 +90,25 @@ export default function ReportedCommentTable() {
   const headerColumns = React.useMemo(() => {
     if (visibleColumns === "all") return columns;
 
-    return columns.filter((column) => Array.from(visibleColumns).includes(column.uid));
-  }, [visibleColumns]);
+    return columns.filter((column) =>
+      Array.from(visibleColumns).includes(column.uid)
+    );
+  }, [visibleColumns, hasSearchFilter]);
 
   const filteredItems = React.useMemo(() => {
     let filteredPosts = [...comments];
 
     if (hasSearchFilter) {
       filteredPosts = filteredPosts.filter((user) =>
-        user.fullname.toLowerCase().includes(filterValue.toLowerCase()),
+        user.fullname.toLowerCase().includes(filterValue.toLowerCase())
       );
     }
-    if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
+    if (
+      statusFilter !== "all" &&
+      Array.from(statusFilter).length !== statusOptions.length
+    ) {
       filteredPosts = filteredPosts.filter((user) =>
-        Array.from(statusFilter).includes(user.status),
+        Array.from(statusFilter).includes(user.status)
       );
     }
 
@@ -115,25 +134,24 @@ export default function ReportedCommentTable() {
     });
   }, [sortDescriptor, items]);
 
-
-  const handleDelete=async()=>{
-    onClose()
+  const handleDelete = async () => {
+    onClose();
     try {
-     await axios.delete(`http://localhost:4000/delete-comment?commentId=${blockComment}`);
-     
-        setBlock(prev=>!prev)
-        toast.success(data.message)
-     
+      await axios.delete(
+        `http://localhost:4000/delete-comment?commentId=${blockComment}`
+      );
+
+      setBlock((prev) => !prev);
+      toast.success(data.message);
     } catch (error) {
-      toast.error(error)
+      toast.error(error);
     }
-   
-  }
+  };
 
   const handleOpen = (commentId) => {
-    setBlockComment(commentId)
+    setBlockComment(commentId);
     onOpen();
-  }
+  };
 
   const renderCell = React.useCallback((comment, columnKey) => {
     const cellValue = comment[columnKey];
@@ -141,22 +159,25 @@ export default function ReportedCommentTable() {
     switch (columnKey) {
       case "postImg":
         return (
-          <Image
-          width={100}
-      alt="NextUI hero Image"
-      src={comment.postImg[0]}
-    />
+          <Image width={100} alt="NextUI hero Image" src={comment.postImg[0]} />
         );
       case "role":
         return (
           <div className="flex flex-col">
             <p className="text-bold text-small capitalize">{cellValue}</p>
-            <p className="text-bold text-tiny capitalize text-default-400">{user.team}</p>
+            <p className="text-bold text-tiny capitalize text-default-400">
+              {user.team}
+            </p>
           </div>
         );
       case "status":
         return (
-          <Chip className="capitalize" color={statusColorMap[comment.status]} size="sm" variant="flat">
+          <Chip
+            className="capitalize"
+            color={statusColorMap[comment.status]}
+            size="sm"
+            variant="flat"
+          >
             {cellValue}
           </Chip>
         );
@@ -171,7 +192,12 @@ export default function ReportedCommentTable() {
               </DropdownTrigger>
               <DropdownMenu>
                 {/* <DropdownItem>View</DropdownItem> */}
-                <DropdownItem onClick={()=>handleOpen(comment.commentId)}  aria-label="Block data">{ comment.status === 'active'?"Delete":''}</DropdownItem>
+                <DropdownItem
+                  onClick={() => handleOpen(comment.commentId)}
+                  aria-label="Block data"
+                >
+                  {comment.status === "active" ? "Delete" : ""}
+                </DropdownItem>
                 {/* <DropdownItem>Delete</DropdownItem> */}
               </DropdownMenu>
             </Dropdown>
@@ -180,7 +206,7 @@ export default function ReportedCommentTable() {
       default:
         return cellValue;
     }
-  }, []);
+  }, [handleOpen]);
 
   const onNextPage = React.useCallback(() => {
     if (page < pages) {
@@ -208,70 +234,16 @@ export default function ReportedCommentTable() {
     }
   }, []);
 
-  const onClear = React.useCallback(()=>{
-    setFilterValue("")
-    setPage(1)
-  },[])
+  const onClear = React.useCallback(() => {
+    setFilterValue("");
+    setPage(1);
+  }, []);
 
   const topContent = React.useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
         <div className="flex justify-between gap-3 items-end">
-          {/* <Input
-            isClearable
-            className="w-full sm:max-w-[44%]"
-            placeholder="Search by name..."
-            startContent={<SearchIcon />}
-            value={filterValue}
-            onClear={() => onClear()}
-            onValueChange={onSearchChange}
-          /> */}
           <div className="flex gap-3">
-            {/* <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
-                  Status
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Table Columns"
-                closeOnSelect={false}
-                selectedKeys={statusFilter}
-                selectionMode="multiple"
-                onSelectionChange={setStatusFilter}
-              >
-                {statusOptions.map((status) => (
-                  <DropdownItem key={status.uid} className="capitalize">
-                    {capitalize(status.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown> */}
-            {/* <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
-                  Columns
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Table Columns"
-                closeOnSelect={false}
-                selectedKeys={visibleColumns}
-                selectionMode="multiple"
-                onSelectionChange={setVisibleColumns}
-              >
-                {columns.map((column) => (
-                  <DropdownItem key={column.uid} className="capitalize">
-                    {capitalize(column.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown> */}
-            {/* <Button color="primary" endContent={<PlusIcon />}>
-              Add New
-            </Button> */}
           </div>
         </div>
         <div className="flex justify-between items-center">
@@ -290,23 +262,14 @@ export default function ReportedCommentTable() {
         </div>
       </div>
     );
-  }, [
-    filterValue,
-    statusFilter,
-    visibleColumns,
-    onRowsPerPageChange,
-    comments.length,
-    onSearchChange,
-    hasSearchFilter,
-  ]);
+  }, [comments.length, onRowsPerPageChange]); 
+  
 
   const bottomContent = React.useMemo(() => {
     return (
       <div className="py-2 px-2 flex justify-between items-center">
         <span className="w-[30%] text-small text-default-400">
-          {selectedKeys === "all"
-            ? "All items selected"
-            : `${selectedKeys.size} of ${filteredItems.length} selected`}
+          {selectedKeys === "all" ? "All items selected" : `${selectedKeys.size} of ${filteredItems.length} selected`}
         </span>
         <Pagination
           isCompact
@@ -327,20 +290,24 @@ export default function ReportedCommentTable() {
         </div>
       </div>
     );
-  }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
+  }, [selectedKeys, filteredItems.length, page, pages, onPreviousPage, onNextPage]); 
+  
 
   return (
     <>
-        <ToastContainer  toastStyle={{ backgroundColor: "#1d2028" }} position="bottom-right" />
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+      <ToastContainer
+        toastStyle={{ backgroundColor: "#1d2028" }}
+        position="bottom-right"
+      />
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-1">Delete comment</ModalHeader>
+              <ModalHeader className="flex flex-col gap-1">
+                Delete comment
+              </ModalHeader>
               <ModalBody>
-                <p> 
-                Are you sure you want to delete ?
-                </p>
+                <p>Are you sure you want to delete ?</p>
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="light" onPress={onClose}>
@@ -354,71 +321,67 @@ export default function ReportedCommentTable() {
           )}
         </ModalContent>
       </Modal>
-    <Table
-      aria-label="Example table with custom cells, pagination and sorting"
-      isHeaderSticky
-      bottomContent={bottomContent}
-      bottomContentPlacement="outside"
-      classNames={{
-        wrapper: "max-h-[382px]",
-      }}
-      selectedKeys={selectedKeys}
-      selectionMode="multiple"
-      sortDescriptor={sortDescriptor}
-      topContent={topContent}
-      topContentPlacement="outside"
-      onSelectionChange={setSelectedKeys}
-      onSortChange={setSortDescriptor}
-    >
-      <TableHeader columns={headerColumns}>
-        {(column) => (
-          <TableColumn
-            key={column.uid}
-            align={column.uid === "actions" ? "center" : "start"}
-            allowsSorting={column.sortable}
-          >
-            {column.name}
-          </TableColumn>
-        )}
-      </TableHeader>
-      <TableBody emptyContent={"No comments found"} items={sortedItems}>
-        {(item) => (
-          <TableRow key={item.postId}>
-            {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+      <Table
+        aria-label="Example table with custom cells, pagination and sorting"
+        isHeaderSticky
+        bottomContent={bottomContent}
+        bottomContentPlacement="outside"
+        classNames={{
+          wrapper: "max-h-[382px]",
+        }}
+        selectedKeys={selectedKeys}
+        selectionMode="multiple"
+        sortDescriptor={sortDescriptor}
+        topContent={topContent}
+        topContentPlacement="outside"
+        onSelectionChange={setSelectedKeys}
+        onSortChange={setSortDescriptor}
+      >
+        <TableHeader columns={headerColumns}>
+          {(column) => (
+            <TableColumn
+              key={column.uid}
+              align={column.uid === "actions" ? "center" : "start"}
+              allowsSorting={column.sortable}
+            >
+              {column.name}
+            </TableColumn>
+          )}
+        </TableHeader>
+        <TableBody emptyContent={"No comments found"} items={sortedItems}>
+          {(item) => (
+            <TableRow key={item.postId}>
+              {(columnKey) => (
+                <TableCell>{renderCell(item, columnKey)}</TableCell>
+              )}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
     </>
-    
   );
 }
 
-
-
 const columns = [
-    {name: "ID", uid: "_id", sortable: true},
-    {name: "POST", uid: "postImg", },
-    {name: "REPORTED USER", uid: "username",},
-    {name: "COMMENT", uid: "comment",},
-    {name: "REASON", uid: "reason", },
-    {name: "STATUS", uid: "status"},
-    {name: "ACTIONS", uid: "actions"},
-  ];
-  
-  const statusOptions = [
-    {name: "Active", uid: "active"},
-    {name: "Paused", uid: "paused"},
-    {name: "Vacation", uid: "vacation"},
-  ];
-  
-  
-  
+  { name: "ID", uid: "_id", sortable: true },
+  { name: "POST", uid: "postImg" },
+  { name: "REPORTED USER", uid: "username" },
+  { name: "COMMENT", uid: "comment" },
+  { name: "REASON", uid: "reason" },
+  { name: "STATUS", uid: "status" },
+  { name: "ACTIONS", uid: "actions" },
+];
+
+const statusOptions = [
+  { name: "Active", uid: "active" },
+  { name: "Paused", uid: "paused" },
+  { name: "Vacation", uid: "vacation" },
+];
 
 export function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
-export const PlusIcon = ({size = 24, width, height, ...props}) => (
+export const PlusIcon = ({ size = 24, width, height, ...props }) => (
   <svg
     aria-hidden="true"
     fill="none"
@@ -465,10 +428,10 @@ export const SearchIcon = (props) => (
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth="2"
-    />    
+    />
   </svg>
 );
-export const ChevronDownIcon = ({strokeWidth = 1.5, ...otherProps}) => (
+export const ChevronDownIcon = ({ strokeWidth = 1.5, ...otherProps }) => (
   <svg
     aria-hidden="true"
     fill="none"
@@ -489,7 +452,7 @@ export const ChevronDownIcon = ({strokeWidth = 1.5, ...otherProps}) => (
     />
   </svg>
 );
-export const VerticalDotsIcon = ({size = 24, width, height, ...props}) => (
+export const VerticalDotsIcon = ({ size = 24, width, height, ...props }) => (
   <svg
     aria-hidden="true"
     fill="none"
@@ -506,4 +469,3 @@ export const VerticalDotsIcon = ({size = 24, width, height, ...props}) => (
     />
   </svg>
 );
-

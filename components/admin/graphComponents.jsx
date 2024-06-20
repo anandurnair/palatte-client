@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   LineChart,
   BarChart,
@@ -11,7 +11,6 @@ import {
   Legend,
 } from "recharts";
 import { Select, SelectItem } from "@nextui-org/react";
-
 import axiosInstance from "../user/axiosConfig";
 
 const GraphComponent = () => {
@@ -20,44 +19,7 @@ const GraphComponent = () => {
   const [transactionFilter, setTransactionFilter] = useState(new Set(["yearly"]));
   const [serviceFilter, setServiceFilter] = useState(new Set(["yearly"]));
 
-  useEffect(() => {
-    const fetchServiceData = async () => {
-      try {
-        const res = await axiosInstance.get(`/get-service-counts`);
-        setServiceCounts(res.data.serviceOrderCount);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchServiceData();
-  }, [serviceFilter]);
-
-  useEffect(() => {
-    const fetchTransactionData = async () => {
-      try {
-        const filter = Array.from(transactionFilter).join("");
-        const res = await axiosInstance.get(`/get-transactions?filter=${filter}`);
-        const completedOrders = res.data.orders;
-        console.log("Orders  : ", completedOrders);
-
-        let aggregatedData;
-        if (filter === "monthly") {
-          aggregatedData = aggregateData(completedOrders, "month");
-        } else if (filter === "yearly") {
-          aggregatedData = aggregateData(completedOrders, "year");
-        } else if (filter === "weekly") {
-          aggregatedData = aggregateData(completedOrders, "week");
-        }
-
-        setTransactionData(aggregatedData);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchTransactionData();
-  }, [transactionFilter]);
-
-  const aggregateData = (orders, type) => {
+  const aggregateData1 = useCallback((orders, type) => {
     const result = [];
     if (type === "month") {
       const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -108,7 +70,7 @@ const GraphComponent = () => {
     }
 
     return result;
-  };
+  }, []);
 
   const getWeekNumber = (date) => {
     const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
@@ -116,6 +78,42 @@ const GraphComponent = () => {
     return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
   };
 
+  useEffect(() => {
+    const fetchServiceData = async () => {
+      try {
+        const res = await axiosInstance.get(`/get-service-counts`);
+        setServiceCounts(res.data.serviceOrderCount);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchServiceData();
+  }, [serviceFilter]);
+
+  useEffect(() => {
+    const fetchTransactionData = async () => {
+      try {
+        const filter = Array.from(transactionFilter).join("");
+        const res = await axiosInstance.get(`/get-transactions?filter=${filter}`);
+        const completedOrders = res.data.orders;
+        console.log("Orders  : ", completedOrders);
+
+        let aggregatedData;
+        if (filter === "monthly") {
+          aggregatedData = aggregateData1(completedOrders, "month");
+        } else if (filter === "yearly") {
+          aggregatedData = aggregateData1(completedOrders, "year");
+        } else if (filter === "weekly") {
+          aggregatedData = aggregateData1(completedOrders, "week");
+        }
+
+        setTransactionData(aggregatedData);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchTransactionData();
+  }, [transactionFilter, aggregateData1]);
   return (
     <div className="w-full h-auto bg-semiDark flex flex-col items-center gap-10 p-10 rounded-lg">
       <div className="w-full flex flex-col gap-2 items-center">

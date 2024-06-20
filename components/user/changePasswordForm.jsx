@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Input, Button, Link } from "@nextui-org/react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -9,38 +9,37 @@ import axiosInstance from "../user/axiosConfig";
 
 import ProtectedRoute from "../../components/user/ProtectedRoute";
 import { useSelector } from "react-redux";
-const changePasswordForm = () => {
-  const user = useSelector(state=>state.user.currentUser)
+
+const ChangePasswordForm = () => {
+  const user = useSelector((state) => state.user.currentUser);
   const router = useRouter();
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState();
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [confirmErr, setConfirmErr] = useState(false);
-  const [fillErr, setFillErr] = useState();
+  const [fillErr, setFillErr] = useState(false);
+
   const validatePassword = (value) => {
     const hasUpperCase = /[A-Z]/.test(value);
     const hasLowerCase = /[a-z]/.test(value);
     const hasNumber = /[0-9]/.test(value);
     const isLengthValid = value.length >= 8;
-
     return hasUpperCase && hasLowerCase && hasNumber && isLengthValid;
   };
-  const isInvalid = React.useMemo(() => {
-    if (newPassword === "") return false;
 
-    return validatePassword(newPassword) ? false : true;
+  const isInvalid = useMemo(() => {
+    if (newPassword === "") return false;
+    return !validatePassword(newPassword);
   }, [newPassword]);
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      e.preventDefault();
-
       const res = await axiosInstance.post(
         "http://localhost:4000/change-password",
         { email: user.email, oldPassword: currentPassword, newPassword }
       );
-
       if (res.status === 200) {
         toast.success(res.data.message);
         router.push("/profile");
@@ -52,28 +51,26 @@ const changePasswordForm = () => {
       toast.error("Invalid password");
     }
   };
+
   const check = (e) => {
     setConfirmPassword(e.target.value);
-    if (e.target.value !== newPassword) {
-      setConfirmErr(true);
-    } else {
-      setConfirmErr(false);
-    }
+    setConfirmErr(e.target.value !== newPassword);
   };
+
   const gototForgot = () => {
     router.push("/profile/forgotPassword");
   };
-  const fill = React.useMemo(() => {
-    if (currentPassword === "") return true;
 
-    return (currentPassword < 2) ? true : false;
+  const fill = useMemo(() => {
+    return currentPassword === "" || currentPassword.length < 2;
   }, [currentPassword]);
+
   return (
     <ProtectedRoute>
-        <ToastContainer
-          toastStyle={{ backgroundColor: "#20222b", color: "#fff" }}
-          position="bottom-right"
-        />
+      <ToastContainer
+        toastStyle={{ backgroundColor: "#20222b", color: "#fff" }}
+        position="bottom-right"
+      />
       <div className="w-full h-full flex justify-center items-center p-5">
         <div className="w-2/5 h-auto rounded-md bg-semi shadow-lg flex flex-col justify-center items-center px-14 py-10 gap-4">
           <h2 className="text-1xl font-semibold">Change Password</h2>
@@ -83,11 +80,9 @@ const changePasswordForm = () => {
             labelPlacement="inside"
             variant="underlined"
             size="lg"
-            onChange={(e) => {
-              setCurrentPassword(e.target.value);
-            }}
+            onChange={(e) => setCurrentPassword(e.target.value)}
             isInvalid={fill}
-            errorMessage={ "Enter the current Password"}
+            errorMessage="Enter the current Password"
           />
           <Input
             type="password"
@@ -106,11 +101,10 @@ const changePasswordForm = () => {
             labelPlacement="inside"
             variant="underlined"
             size="lg"
-            onChange={(e) => check(e)}
+            onChange={check}
             isInvalid={confirmErr}
             errorMessage="Please enter a valid password"
           />
-
           <Button
             color=""
             className="w-full h-12 lg btn"
@@ -120,7 +114,7 @@ const changePasswordForm = () => {
           >
             SUBMIT
           </Button>
-          <h2 className="underline cursor-pointer	" onClick={gototForgot}>
+          <h2 className="underline cursor-pointer" onClick={gototForgot}>
             Forgot password
           </h2>
         </div>
@@ -129,4 +123,4 @@ const changePasswordForm = () => {
   );
 };
 
-export default changePasswordForm;
+export default ChangePasswordForm;

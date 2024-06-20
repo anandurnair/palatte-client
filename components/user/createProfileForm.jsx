@@ -8,6 +8,15 @@ import CropModal from "./cropModal";
 import getCroppedImg from "../../helpers/croppedImage";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import {
+  Modal,
+  ModalContent,
+  Spinner,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+} from "@nextui-org/react";
 
 import {
   Input,
@@ -20,6 +29,8 @@ import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { updateUser } from "../../redux/reducers/user";
 const CreateProfileForm = () => {
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
   const inputRef = useRef(null);
   const dispatch = useDispatch();
   const router = useRouter();
@@ -143,7 +154,7 @@ const CreateProfileForm = () => {
 
         // Data posting logic
         const data = {
-          profilePic: base64Data, 
+          profilePic: base64Data,
           email,
           fullname,
           username,
@@ -182,6 +193,7 @@ const CreateProfileForm = () => {
       if (res.status === 200) {
         dispatch(updateUser(res.data.updatedUser));
         toast.success(res.data.message);
+        onOpen()
         router.push("/home");
       } else {
         toast.error(res.data.error || "Unknown error occurred");
@@ -307,6 +319,20 @@ const CreateProfileForm = () => {
           onCropImage={handleCropImage}
         />
       )}
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalBody>
+                <div className="w-full h-full flex flex-col justify-center items-center">
+                  <Spinner size="lg" />
+                </div>
+                <p>Loading, please wait...</p>
+              </ModalBody>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </ProtectedRoute>
   );
 };

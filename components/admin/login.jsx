@@ -10,7 +10,7 @@ const Login = () => {
           router.push('/admin/dashboard')
          }
 
-  },[])
+  },[router])
   const [username,setUsername] = useState()
   const [password , setPassword] = useState()
   const handleSubmit=async()=>{

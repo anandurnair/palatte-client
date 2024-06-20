@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import ChatListComponent from "@/components/user/chatList";
 import ChatUI from "@/components/user/chatUI";
 import { IoIosAdd } from "react-icons/io";
@@ -7,14 +7,20 @@ import { useSelector } from "react-redux";
 import axiosInstance from "@/components/user/axiosConfig";
 import { io } from "socket.io-client";
 import { Modal, useDisclosure } from "@nextui-org/react";
-import AddChatModal from "../../../../components/user/userModals/addChatMModal";
-import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button} from "@nextui-org/react";
+import AddChatModal from "@/components/user/userModals/addChatMModal";
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+  Button,
+} from "@nextui-org/react";
 import { IoMdMore } from "react-icons/io";
 import { useRouter } from "next/navigation";
 
 const InboxPage = () => {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const router = useRouter()
+  const router = useRouter();
   const currentUser = useSelector((state) => state.user.currentUser);
   const socket = useRef(null);
   const [newConversation, setNewConversation] = useState(null);
@@ -25,6 +31,7 @@ const InboxPage = () => {
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState();
   const [update, setUpdate] = useState(false);
+
   useEffect(() => {
     if (!socket.current) {
       socket.current = io(process.env.NEXT_PUBLIC_API_URL);
@@ -52,21 +59,12 @@ const InboxPage = () => {
   }, [currentUser, update]);
 
   useEffect(() => {
-    if (
-      arrivalMessage &&
-      currentChat?.members.includes(arrivalMessage.sender)
-    ) {
+    if (arrivalMessage && currentChat?.members.includes(arrivalMessage.sender)) {
       setMessages((prev) => [...prev, arrivalMessage]);
     }
   }, [arrivalMessage, currentChat]);
 
-  useEffect(() => {
-    if (newConversation) {
-      startConversation();
-    }
-  }, [newConversation, update]);
-
-  const startConversation = async () => {
+  const startConversation = useCallback(async () => {
     try {
       const res = await axiosInstance.post(
         `${process.env.NEXT_PUBLIC_API_URL}/conversation`,
@@ -80,7 +78,13 @@ const InboxPage = () => {
       console.error(error);
       onClose();
     }
-  };
+  }, [currentUser._id, newConversation, onClose]);
+
+  useEffect(() => {
+    if (newConversation) {
+      startConversation();
+    }
+  }, [newConversation, update, startConversation]);
 
   useEffect(() => {
     const fetchConversations = async () => {
@@ -120,25 +124,25 @@ const InboxPage = () => {
           <div className="w-full h-auto p-3 flex justify-between border-b-1 mb-3 border-neutral-700">
             <h1>Chat list</h1>
             <div className="flex">
-            <Button onPress={onOpen} isIconOnly variant="default">
-              <IoIosAdd size={30} className="cursor-pointer" />
-            </Button>
-            <Dropdown>
-      <DropdownTrigger>
-        <Button 
-          isIconOnly variant="default"
-        >
-         <IoMdMore size={30} className="cursor-pointer" />
-
-        </Button>
-      </DropdownTrigger>
-      <DropdownMenu aria-label="Static Actions">
-        <DropdownItem key="new" onClick={()=>router.push('/inbox/callHistory')}>Call history</DropdownItem>
-        
-      </DropdownMenu>
-    </Dropdown>
+              <Button onPress={onOpen} isIconOnly variant="default">
+                <IoIosAdd size={30} className="cursor-pointer" />
+              </Button>
+              <Dropdown>
+                <DropdownTrigger>
+                  <Button isIconOnly variant="default">
+                    <IoMdMore size={30} className="cursor-pointer" />
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu aria-label="Static Actions">
+                  <DropdownItem
+                    key="new"
+                    onClick={() => router.push("/inbox/callHistory")}
+                  >
+                    Call history
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
             </div>
-          
           </div>
           {conversation.map((c) => (
             <ChatListComponent

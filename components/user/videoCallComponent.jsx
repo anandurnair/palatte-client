@@ -1,3 +1,4 @@
+'use client'
 import React from 'react'
 import {ZegoUIKitPrebuilt} from '@zegocloud/zego-uikit-prebuilt'
 import axiosInstance from './axiosConfig'
