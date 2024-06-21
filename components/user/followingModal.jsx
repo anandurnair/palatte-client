@@ -40,7 +40,7 @@ const FollowingModal = ({ userId }) => {
       }
     };
     fetchFollowingData();
-  }, []);
+  }, [userId]);
   return (
     <>
       <ToastContainer

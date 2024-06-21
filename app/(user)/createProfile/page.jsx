@@ -3,7 +3,6 @@ import React, { useEffect } from 'react'
 import CreateProfileForm from '@/components/user/createProfileForm'
 import Loading from '../loading'
 import { Suspense } from "react";
-import {  useRouter } from "next/navigation";
 
 const CreateProfile = () => {
  

@@ -81,7 +81,7 @@ const FreelanceDetailsComponent = () => {
       }
     };
     fetchReviews();
-  }, []);
+  }, [serviceName,userId]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -252,8 +252,8 @@ const FreelanceDetailsComponent = () => {
                   {reviews
                     .slice()
                     .reverse()
-                    .map((review) => (
-                      <Card className="w-full p-2">
+                    .map((review,index) => (
+                      <Card className="w-full p-2" key={index}>
                         <CardHeader className="justify-between">
                           <div className="flex gap-5">
                             <Avatar

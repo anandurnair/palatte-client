@@ -69,7 +69,7 @@ const PostList = ({ updatePosts, setUpdatePosts }) => {
       }
     };
     fetchUserDetails();
-  }, [update]);
+  }, [update,dispatch,user]);
 
   const savedPosts = useMemo(() => user?.allSaved || [], [user?.allSaved]);
   const [modal, setModal] = useState("");
@@ -98,7 +98,7 @@ const PostList = ({ updatePosts, setUpdatePosts }) => {
     if (user) {
       fetchPosts();
     }
-  }, [update, updatePosts, updateComment]);
+  }, [update, updatePosts, updateComment,savedPosts,user]);
 
   const initializeLikesState = (posts) => {
     const initialLikes = {};

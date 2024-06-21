@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import ProtectedRoute from "../../user/ProtectedRoute";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { format as formatDeadline } from "date-fns";
 import { io } from "socket.io-client";
-import { loadStripe } from "@stripe/stripe-js";
 
 import {
   Tabs,
@@ -47,7 +46,7 @@ const OrdersComponent = () => {
   const [update, setUpdate] = useState(false);
   const socket = useRef(null);
   socket.current = io(process.env.NEXT_PUBLIC_API_URL);
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const res = await axiosInstance.get(
         `/get-freelance-orders?userId=${currentUser._id}`
@@ -57,11 +56,11 @@ const OrdersComponent = () => {
     } catch (error) {
       toast.error(error.message);
     }
-  };
+  }, [currentUser._id]);
 
   useEffect(() => {
     fetchData();
-  }, [update]);
+  }, [fetchData]);
 
   const getTimeAgo = (date) => {
     return format(new Date(date));
@@ -687,7 +686,7 @@ const CountdownTimer = ({ deadline, onTimeUp ,orderId}) => {
 
   return (
     <div>
-      {timerComponents.length ? timerComponents : <span>Time's up!</span>}
+      {timerComponents.length ? timerComponents : <span>Time is up!</span>}
     </div>
   );
 };

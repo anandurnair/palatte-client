@@ -32,7 +32,7 @@ const ChatListComponent = ({
       }
     };
     getUser();
-  }, [currentUser]);
+  }, [currentUser,conversation.members,current]);
 
   const handleClick = () => {
     setCurrentChat(conversation);

@@ -1,51 +1,37 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axiosInstance from "./axiosConfig";
 import { Tabs, Tab, CardHeader } from "@nextui-org/react";
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  useDisclosure,
-} from "@nextui-org/react";
 
-import { Card, CardBody, CardFooter, Image } from "@nextui-org/react";
+import { Card, CardBody, Image } from "@nextui-org/react";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
+
 const isVideo = (url) => {
   return /\.(mp4|webm|ogg)$/i.test(url);
 };
+
 const UserPosts = () => {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const router = useRouter();
   const [posts, setPosts] = useState([]);
-  const [selected, setSelected] = React.useState("myPosts");
+  const [selected, setSelected] = useState("myPosts");
   const user = useSelector((state) => state.user.currentUser);
   const [collections, setCollections] = useState([]);
   const [currentCollection, setCurrentCollection] = useState("");
   const [savedPosts, setSavedPosts] = useState([]);
+
   const handleCollection = (name) => {
     setCurrentCollection(name);
     const res = collections.filter((item) => item.name === name);
     setSavedPosts(res[0].posts.reverse());
   };
 
-  useEffect(() => {
-    if(user){
-
-      fetchSavedPosts();
-      fetchPosts();
-    }
-  }, [user]);
-  const fetchSavedPosts = async () => {
+  const fetchSavedPosts = useCallback(async () => {
     try {
       const res = await axiosInstance.get(
         `http://localhost:4000/get-all-saved-posts?userId=${user?._id}`
       );
-      if (res.status == 200) {
+      if (res.status === 200) {
         setCollections(res.data.savedPosts);
       } else {
         console.log("Cannot fetch posts");
@@ -55,14 +41,15 @@ const UserPosts = () => {
       console.log(error);
       alert(error);
     }
-  };
-  const fetchPosts = async () => {
+  }, [user]);
+
+  const fetchPosts = useCallback(async () => {
     try {
       if (user) {
         const res = await axiosInstance.get(
           `http://localhost:4000/get-user-posts?userId=${user?._id}`
         );
-        if (res.status == 200) {
+        if (res.status === 200) {
           setPosts(res.data.posts);
         } else {
           console.log("Cannot fetch posts");
@@ -72,7 +59,14 @@ const UserPosts = () => {
     } catch (error) {
       console.log(error);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      fetchSavedPosts();
+      fetchPosts();
+    }
+  }, [user, fetchSavedPosts, fetchPosts]);
 
   const handleClick = (postId) => {
     router.push(`/postDetails?postId=${postId}`);
@@ -197,45 +191,7 @@ const UserPosts = () => {
           </Tab>
         </Tabs>
       </div>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">
-                Modal Title
-              </ModalHeader>
-              <ModalBody>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Nullam pulvinar risus non risus hendrerit venenatis.
-                  Pellentesque sit amet hendrerit risus, sed porttitor quam.
-                </p>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Nullam pulvinar risus non risus hendrerit venenatis.
-                  Pellentesque sit amet hendrerit risus, sed porttitor quam.
-                </p>
-                <p>
-                  Magna exercitation reprehenderit magna aute tempor cupidatat
-                  consequat elit dolor adipisicing. Mollit dolor eiusmod sunt ex
-                  incididunt cillum quis. Velit duis sit officia eiusmod Lorem
-                  aliqua enim laboris do dolor eiusmod. Et mollit incididunt
-                  nisi consectetur esse laborum eiusmod pariatur proident Lorem
-                  eiusmod et. Culpa deserunt nostrud ad veniam.
-                </p>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Close
-                </Button>
-                <Button color="primary" onPress={onClose}>
-                  Action
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
+     
     </div>
   );
 };

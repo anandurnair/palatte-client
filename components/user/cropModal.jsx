@@ -1,4 +1,4 @@
-
+'use client'
 import Cropper, { Area } from 'react-easy-crop';
 
 function CropModal({ image, crop, setCroppedAreaPixels, onCropChange, onCropComplete, onClose, onCropImage}) {

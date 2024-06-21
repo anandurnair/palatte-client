@@ -6,6 +6,9 @@ import { Button } from "@nextui-org/react";
 import Loading from "../../loading";
 import { useRouter } from "next/navigation";
 import NotificationComponent from '@/components/user/NotificationCommponent'
+
+
+
 const Home = () => {
   const router = useRouter();
   const [updatePosts, setUpdatePosts] = useState(false);

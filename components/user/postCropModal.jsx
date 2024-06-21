@@ -1,3 +1,5 @@
+
+'use client'
 import Cropper, { Area } from "react-easy-crop";
 
 function CropModal({

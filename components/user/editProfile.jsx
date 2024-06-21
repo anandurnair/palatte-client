@@ -10,7 +10,8 @@ import CropModal from "./cropModal";
 import getCroppedImg from "../../helpers/croppedImage";
 import { useDispatch, useSelector } from "react-redux";
 import { updateUser } from "../../redux/reducers/user";
-import '../style.css'
+import '../style.css';
+
 const EditProfile = () => {
   const dispatch = useDispatch();
   const inputRef = useRef(null);

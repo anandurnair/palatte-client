@@ -33,7 +33,7 @@ const FollowersModal = ({userId}) => {
 
         }
         fetchFollowersData()
-    },[])
+    },[userId])
   return (
     <>
     <ToastContainer

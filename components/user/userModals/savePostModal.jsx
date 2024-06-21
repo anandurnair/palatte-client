@@ -42,7 +42,7 @@ const SaveModal = ({setUpdate, postId, userId }) => {
     };
 
     fetchCollectionNames();
-  }, []);
+  }, [userId]);
 
   const showInput = () => {
     setShow((prev) => !prev);
@@ -78,8 +78,8 @@ const SaveModal = ({setUpdate, postId, userId }) => {
               onValueChange={setSelected}
               color="default"
             >
-              {collectionNames.map((item) => (
-                <CustomRadio value={item}>
+              {collectionNames.map((item,index) => (
+                <CustomRadio key={index} value={item}>
                   {item}
                 </CustomRadio>
               ))}

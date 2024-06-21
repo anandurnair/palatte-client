@@ -1,6 +1,6 @@
 "use client";
 import axiosInstance from "../user/axiosConfig";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Avatar, Divider, Button, Image } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import ProtectedRoute from "../../components/user/ProtectedRoute";
@@ -27,16 +27,10 @@ const ProfileComponent = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const router = useRouter();
-  useEffect(() => {
-    if(user){
 
-      fetchUserDetails();
-    }
-  }, [user]);
-
-  const fetchUserDetails = async () => {
-    console.log("USer : ",user)
-    if ( user ) {
+  const fetchUserDetails = useCallback(async () => {
+    console.log("User: ", user);
+    if (user) {
       try {
         const res = await axiosInstance.get(
           `http://localhost:4000/user-details?email=${user?.email}`
@@ -45,7 +39,7 @@ const ProfileComponent = () => {
           setUserDetails(res.data.user);
           dispatch(updateUser(res.data.user));
         } else {
-          console.log("Eror in verififcation");
+          console.log("Error in verification");
           alert(res.data.error);
         }
       } catch (error) {
@@ -54,12 +48,16 @@ const ProfileComponent = () => {
         router.push("/");
       }
     }
-  };
+  }, [dispatch, router, user]);
+
+  useEffect(() => {
+    fetchUserDetails();
+  }, [fetchUserDetails]);
 
   return (
     <ProtectedRoute>
-      <div className="w-full h-auto flex flex-col items-center rounded-lg  my-5 mt-96 px-4 md:px-0">
-        <div className="w-full md:w-4/5 h-full bg-semi mt-3 rounded-lg p-10 bg3  md:p-20 z-10 shadow-2xl">
+      <div className="w-full h-auto flex flex-col items-center rounded-lg my-5 mt-96 px-4 md:px-0">
+        <div className="w-full md:w-4/5 h-full bg-semi mt-3 rounded-lg p-10 bg3 md:p-20 z-10 shadow-2xl">
           <div className="flex flex-col md:flex-row items-center">
             <div className="flex gap-4 items-center mb-4 md:mb-0">
               <Avatar
@@ -91,10 +89,20 @@ const ProfileComponent = () => {
                 <h2 className="mb-2 md:mb-0">
                   Posts <span>2</span>
                 </h2>
-                <Button className="cursor-pointer" variant="" onClick={() => setShowModal('followers')} onPress={onOpen}>
+                <Button
+                  className="cursor-pointer"
+                  variant=""
+                  onClick={() => setShowModal("followers")}
+                  onPress={onOpen}
+                >
                   Followers <span>{userDetails?.followers?.length}</span>
                 </Button>
-                <Button variant="" className="cursor-pointer" onClick={() => setShowModal('following')} onPress={onOpen}>
+                <Button
+                  variant=""
+                  className="cursor-pointer"
+                  onClick={() => setShowModal("following")}
+                  onPress={onOpen}
+                >
                   Following <span>{userDetails?.following.length}</span>
                 </Button>
               </div>
@@ -123,7 +131,11 @@ const ProfileComponent = () => {
         </div>
       </div>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-        {showModal === "followers" ? <FollowersModal userId={userDetails?._id} /> : <FollowingModal userId={userDetails?._id} />}
+        {showModal === "followers" ? (
+          <FollowersModal userId={userDetails?._id} />
+        ) : (
+          <FollowingModal userId={userDetails?._id} />
+        )}
       </Modal>
     </ProtectedRoute>
   );

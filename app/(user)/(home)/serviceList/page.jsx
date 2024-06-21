@@ -1,3 +1,4 @@
+'use client'
 import React from 'react'
 import ServiceListComponent from '../../../../components/user/serviceList/serviceListComponent'
 const ServiceListPage = () => {

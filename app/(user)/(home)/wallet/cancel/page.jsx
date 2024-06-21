@@ -2,7 +2,6 @@
 
 import React from 'react'
 import {Button} from "@nextui-org/react";
-import { useRouter } from 'next/navigation';
 const WalletCancelPage = () => {
   return (
     <div className=" purple-dark h-full bg-background text-foreground  flex flex-col justify-center overflow-scroll">
@@ -18,4 +17,4 @@ const WalletCancelPage = () => {
   )
 }
 
-export default WalletCancelPage
+export default WalletCancelPage;

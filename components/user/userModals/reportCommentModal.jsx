@@ -16,51 +16,45 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 
-const ReportCommentModal = ({commentId, postId, userId }) => {
+const ReportCommentModal = ({ commentId, postId, userId }) => {
   console.log("userId", userId);
   const url = process.env.NEXT_PUBLIC_API_URL;
   const [selected, setSelected] = useState("It's spam");
 
   const handleReport = async () => {
     try {
-    const res =   await axiosInstance.post(`${url}/report-comment`, {
+      const res = await axiosInstance.post(`${url}/report-comment`, {
         commentId,
         postId,
         userId,
         reason: selected,
       });
-      if(res.status == 200){
-
-          toast.success("Comment reported");
+      if (res.status === 200) {
+        toast.success("Comment reported");
       }
     } catch (error) {
       console.error(error);
       toast.error("Error in reporting");
     }
   };
+
   return (
     <ModalContent>
       {(onClose) => (
         <>
           <ModalHeader className="flex flex-col gap-1">Report Comment</ModalHeader>
           <ModalBody>
-            <p>Why are you reporting this comment ?</p>
+            <p>Why are you reporting this comment?</p>
             <div className="flex flex-col gap-5">
               <RadioGroup label="" value={selected} onValueChange={setSelected}>
-                <Radio value="It's spam">It's spam</Radio>
-                <Radio value="Nudity or sexual activity">
-                  Nudity or sexual activity
-                </Radio>
-                <Radio value="Hate speech or symbols">
-                  Hate speech or symbols
-                </Radio>
+                <Radio value="It's spam">It&apos;s spam</Radio>
+                <Radio value="Nudity or sexual activity">Nudity or sexual activity</Radio>
+                <Radio value="Hate speech or symbols">Hate speech or symbols</Radio>
                 <Radio value="False information">False information</Radio>
-                <Radio value="Bullying or harassment">
-                  Bullying or harassment
-                </Radio>
+                <Radio value="Bullying or harassment">Bullying or harassment</Radio>
               </RadioGroup>
               <p className="text-default-500 text-small">
-                Reason for report : {selected}
+                Reason for report: {selected}
               </p>
             </div>
           </ModalBody>

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import {
   Table,
   TableHeader,
@@ -13,11 +13,9 @@ import {
   DropdownMenu,
   DropdownItem,
   Chip,
-  Post,
   Pagination,
 } from "@nextui-org/react";
 import { Image } from "@nextui-org/image";
-
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -72,30 +70,30 @@ export default function ReportedCommentTable() {
     };
     fetchData();
   }, [block]);
-  const [filterValue, setFilterValue] = React.useState("");
-  const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
-  const [visibleColumns, setVisibleColumns] = React.useState(
+  const [filterValue, setFilterValue] = useState("");
+  const [selectedKeys, setSelectedKeys] = useState(new Set([]));
+  const [visibleColumns, setVisibleColumns] = useState(
     new Set(INITIAL_VISIBLE_COLUMNS)
   );
-  const [statusFilter, setStatusFilter] = React.useState("all");
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [sortDescriptor, setSortDescriptor] = React.useState({
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [sortDescriptor, setSortDescriptor] = useState({
     column: "age",
     direction: "ascending",
   });
-  const [page, setPage] = React.useState(1);
+  const [page, setPage] = useState(1);
 
   const hasSearchFilter = Boolean(filterValue);
 
-  const headerColumns = React.useMemo(() => {
+  const headerColumns = useMemo(() => {
     if (visibleColumns === "all") return columns;
 
     return columns.filter((column) =>
       Array.from(visibleColumns).includes(column.uid)
     );
-  }, [visibleColumns, hasSearchFilter]);
+  }, [visibleColumns]);
 
-  const filteredItems = React.useMemo(() => {
+  const filteredItems = useMemo(() => {
     let filteredPosts = [...comments];
 
     if (hasSearchFilter) {
@@ -113,18 +111,18 @@ export default function ReportedCommentTable() {
     }
 
     return filteredPosts;
-  }, [comments, filterValue, statusFilter]);
+  }, [comments, filterValue, statusFilter,hasSearchFilter]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
-  const items = React.useMemo(() => {
+  const items = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
 
     return filteredItems.slice(start, end);
   }, [page, filteredItems, rowsPerPage]);
 
-  const sortedItems = React.useMemo(() => {
+  const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => {
       const first = a[sortDescriptor.column];
       const second = b[sortDescriptor.column];
@@ -137,23 +135,26 @@ export default function ReportedCommentTable() {
   const handleDelete = async () => {
     onClose();
     try {
-      await axios.delete(
+      const res = await axios.delete(
         `http://localhost:4000/delete-comment?commentId=${blockComment}`
       );
-
-      setBlock((prev) => !prev);
-      toast.success(data.message);
+      if (res.status === 200) {
+        setBlock((prev) => !prev);
+        toast.success(res.data.message);
+      } else {
+        toast.error(res.data.error);
+      }
     } catch (error) {
       toast.error(error);
     }
   };
 
-  const handleOpen = (commentId) => {
+  const handleOpen = useCallback((commentId) => {
     setBlockComment(commentId);
     onOpen();
-  };
+  }, [onOpen]);
 
-  const renderCell = React.useCallback((comment, columnKey) => {
+  const renderCell = useCallback((comment, columnKey) => {
     const cellValue = comment[columnKey];
 
     switch (columnKey) {
@@ -166,7 +167,7 @@ export default function ReportedCommentTable() {
           <div className="flex flex-col">
             <p className="text-bold text-small capitalize">{cellValue}</p>
             <p className="text-bold text-tiny capitalize text-default-400">
-              {user.team}
+              {comment.team}
             </p>
           </div>
         );
@@ -191,14 +192,12 @@ export default function ReportedCommentTable() {
                 </Button>
               </DropdownTrigger>
               <DropdownMenu>
-                {/* <DropdownItem>View</DropdownItem> */}
                 <DropdownItem
                   onClick={() => handleOpen(comment.commentId)}
                   aria-label="Block data"
                 >
                   {comment.status === "active" ? "Delete" : ""}
                 </DropdownItem>
-                {/* <DropdownItem>Delete</DropdownItem> */}
               </DropdownMenu>
             </Dropdown>
           </div>
@@ -208,24 +207,24 @@ export default function ReportedCommentTable() {
     }
   }, [handleOpen]);
 
-  const onNextPage = React.useCallback(() => {
+  const onNextPage = useCallback(() => {
     if (page < pages) {
       setPage(page + 1);
     }
   }, [page, pages]);
 
-  const onPreviousPage = React.useCallback(() => {
+  const onPreviousPage = useCallback(() => {
     if (page > 1) {
       setPage(page - 1);
     }
   }, [page]);
 
-  const onRowsPerPageChange = React.useCallback((e) => {
+  const onRowsPerPageChange = useCallback((e) => {
     setRowsPerPage(Number(e.target.value));
     setPage(1);
   }, []);
 
-  const onSearchChange = React.useCallback((value) => {
+  const onSearchChange = useCallback((value) => {
     if (value) {
       setFilterValue(value);
       setPage(1);
@@ -234,12 +233,12 @@ export default function ReportedCommentTable() {
     }
   }, []);
 
-  const onClear = React.useCallback(() => {
+  const onClear = useCallback(() => {
     setFilterValue("");
     setPage(1);
   }, []);
 
-  const topContent = React.useMemo(() => {
+  const topContent = useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
         <div className="flex justify-between gap-3 items-end">
@@ -262,10 +261,9 @@ export default function ReportedCommentTable() {
         </div>
       </div>
     );
-  }, [comments.length, onRowsPerPageChange]); 
-  
+  }, [comments.length, onRowsPerPageChange]);
 
-  const bottomContent = React.useMemo(() => {
+  const bottomContent = useMemo(() => {
     return (
       <div className="py-2 px-2 flex justify-between items-center">
         <span className="w-[30%] text-small text-default-400">
@@ -284,73 +282,37 @@ export default function ReportedCommentTable() {
           <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onPreviousPage}>
             Previous
           </Button>
-          <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onNextPage}>
+          <Button isDisabled={page === pages} size="sm" variant="flat" onPress={onNextPage}>
             Next
           </Button>
         </div>
       </div>
     );
-  }, [selectedKeys, filteredItems.length, page, pages, onPreviousPage, onNextPage]); 
-  
+  }, [page, pages,selectedKeys, filteredItems.length, onPreviousPage, onNextPage]);
 
   return (
-    <>
-      <ToastContainer
-        toastStyle={{ backgroundColor: "#1d2028" }}
-        position="bottom-right"
-      />
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">
-                Delete comment
-              </ModalHeader>
-              <ModalBody>
-                <p>Are you sure you want to delete ?</p>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Cancel
-                </Button>
-                <Button color="default" onClick={handleDelete}>
-                  Delete
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
+    <div>
       <Table
-        aria-label="Example table with custom cells, pagination and sorting"
-        isHeaderSticky
-        bottomContent={bottomContent}
-        bottomContentPlacement="outside"
-        classNames={{
-          wrapper: "max-h-[382px]",
-        }}
-        selectedKeys={selectedKeys}
-        selectionMode="multiple"
-        sortDescriptor={sortDescriptor}
+        aria-label="Reported Comments Table"
         topContent={topContent}
-        topContentPlacement="outside"
-        onSelectionChange={setSelectedKeys}
-        onSortChange={setSortDescriptor}
+        bottomContent={bottomContent}
+        containerCss={{
+          borderRadius: "8px",
+          padding: "8px",
+          maxWidth: "100%",
+          boxShadow: "0 0 0 1px var(--nextui-colors-border)",
+        }}
       >
         <TableHeader columns={headerColumns}>
           {(column) => (
-            <TableColumn
-              key={column.uid}
-              align={column.uid === "actions" ? "center" : "start"}
-              allowsSorting={column.sortable}
-            >
+            <TableColumn key={column.uid} hideHeader={column.hideHeader} align={column.align}>
               {column.name}
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody emptyContent={"No comments found"} items={sortedItems}>
+        <TableBody items={sortedItems}>
           {(item) => (
-            <TableRow key={item.postId}>
+            <TableRow key={item.id}>
               {(columnKey) => (
                 <TableCell>{renderCell(item, columnKey)}</TableCell>
               )}
@@ -358,29 +320,36 @@ export default function ReportedCommentTable() {
           )}
         </TableBody>
       </Table>
-    </>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={false}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                Delete Comment
+              </ModalHeader>
+              <ModalBody>
+                <p>Are you sure you want to delete this comment?</p>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" onPress={handleDelete}>
+                  Delete
+                </Button>
+                <Button color="default" onPress={onClose}>
+                  Cancel
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+      <ToastContainer />
+    </div>
   );
 }
 
-const columns = [
-  { name: "ID", uid: "_id", sortable: true },
-  { name: "POST", uid: "postImg" },
-  { name: "REPORTED USER", uid: "username" },
-  { name: "COMMENT", uid: "comment" },
-  { name: "REASON", uid: "reason" },
-  { name: "STATUS", uid: "status" },
-  { name: "ACTIONS", uid: "actions" },
-];
 
-const statusOptions = [
-  { name: "Active", uid: "active" },
-  { name: "Paused", uid: "paused" },
-  { name: "Vacation", uid: "vacation" },
-];
 
-export function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
+
 export const PlusIcon = ({ size = 24, width, height, ...props }) => (
   <svg
     aria-hidden="true"

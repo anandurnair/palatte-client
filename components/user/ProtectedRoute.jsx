@@ -14,7 +14,7 @@ const ProtectedRoute = ({ children }) => {
     if (!token) {
       router.push("/");
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -39,7 +39,7 @@ const ProtectedRoute = ({ children }) => {
       fetchUserDetails();
 
     }
-  }, [pathname]);
+  }, [pathname,user,router]);
 
   return children;
 };

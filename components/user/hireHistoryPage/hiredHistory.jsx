@@ -56,7 +56,6 @@ import { logout, updateUser } from "@/redux/reducers/user";
 
 const HiredHistory = () => {
   const dispatch = useDispatch();
-
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [selectedOption, setSelectedOption] = useState("wallet");
   const currentUser = useSelector((state) => state.user.currentUser);
@@ -77,24 +76,21 @@ const HiredHistory = () => {
     "pk_test_51OMD9cSHHtMTvNEWFwltwJ7Ms44q8bgqFZSvmQRnBDsrDYUZi1hKe5AxS1qSyGYjAJzMeMfPCNnCdWevOrkaBpIH00ANhFQoJ7"
   );
 
-  useEffect(()=>{
+  useEffect(() => {
     const fetchUserDetails = async () => {
-      if(currentUser.email){
+      if (currentUser.email) {
         try {
           const res = await axiosInstance.get(
             `http://localhost:4000/user-details?email=${currentUser.email}`
           );
           dispatch(updateUser(res.data.user));
-          
         } catch (error) {
           dispatch(logout());
-          
         }
       }
-     
     };
-    fetchUserDetails()
-  },[update])
+    fetchUserDetails();
+  }, [update,currentUser,dispatch]);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -136,7 +132,7 @@ const HiredHistory = () => {
     return format(new Date(date));
   };
 
-  const handleChoosePayment = async() => {
+  const handleChoosePayment = async () => {
     if (selectedOption === "wallet") {
       setModal("walletPayment");
     } else {
@@ -147,13 +143,16 @@ const HiredHistory = () => {
         amount: selectedOrder?.plan?.price,
       };
       try {
-        const res = await axiosInstance.post("/service-payment-by-stripe", data);
-        const stripe = await stripePromise;
-        const { error } = await stripe.redirectToCheckout({ sessionId: res.data.id });
-        setUpdate((prev) => !prev);
-        socket.current.emit("payment", 
-          currentUser,selectedOrder?.freelancer
+        const res = await axiosInstance.post(
+          "/service-payment-by-stripe",
+          data
         );
+        const stripe = await stripePromise;
+        const { error } = await stripe.redirectToCheckout({
+          sessionId: res.data.id,
+        });
+        setUpdate((prev) => !prev);
+        socket.current.emit("payment", currentUser, selectedOrder?.freelancer);
         toast.success(res.data.message);
       } catch (error) {
         toast.error(error.message);
@@ -180,10 +179,8 @@ const HiredHistory = () => {
     try {
       const res = await axiosInstance.post("/service-payment-by-wallet", data);
       setUpdate((prev) => !prev);
-      console.log("Current user  :",selectedOrder.freelancer)
-      socket.current.emit("payment", 
-        currentUser,selectedOrder?.freelancer
-      );
+      console.log("Current user  :", selectedOrder.freelancer);
+      socket.current.emit("payment", currentUser, selectedOrder?.freelancer);
       toast.success(res.data.message);
     } catch (error) {
       toast.error(error.message);
@@ -196,9 +193,7 @@ const HiredHistory = () => {
         orderId: selectedOrder._id,
       });
       setUpdate((prev) => !prev);
-      socket.current.emit("approve", 
-        currentUser,selectedOrder?.freelancer
-      );
+      socket.current.emit("approve", currentUser, selectedOrder?.freelancer);
       toast.success(res.data.message);
     } catch (error) {
       toast.error(error.message);
@@ -206,6 +201,8 @@ const HiredHistory = () => {
   };
 
   const handleDownload = (imageUrl) => {
+    if (typeof document === "undefined") return; 
+
     const link = document.createElement("a");
     link.href = imageUrl;
     link.download = "art-image.jpg";
@@ -431,22 +428,28 @@ const HiredHistory = () => {
                                                 Choose
                                               </Button>
                                             </div>
-                                           {(currentUser?.wallet?.balance < selectedOrder?.plan?.price && selectedOption =="wallet")? <Button
-                                              color="primary"
-                                              variant="bordered"
-                                             isDisabled
-                                            >
-                                              Continue Payment
-                                            </Button> : <Button
-                                              color="primary"
-                                              variant="bordered"
-                                              onClick={() => {
-                                                setSelectedOrder(order);
-                                                handleChoosePayment();
-                                              }}
-                                            >
-                                              Continue Payment
-                                            </Button>}
+                                            {currentUser?.wallet?.balance <
+                                              selectedOrder?.plan?.price &&
+                                            selectedOption == "wallet" ? (
+                                              <Button
+                                                color="primary"
+                                                variant="bordered"
+                                                isDisabled
+                                              >
+                                                Continue Payment
+                                              </Button>
+                                            ) : (
+                                              <Button
+                                                color="primary"
+                                                variant="bordered"
+                                                onClick={() => {
+                                                  setSelectedOrder(order);
+                                                  handleChoosePayment();
+                                                }}
+                                              >
+                                                Continue Payment
+                                              </Button>
+                                            )}
                                           </>
                                         )}
                                       </div>
@@ -848,11 +851,15 @@ const HiredHistory = () => {
                       description={`Balance Rs.${currentUser?.wallet?.balance}.00 `}
                       value="wallet"
                     >
-                    <p>Wallet</p>  
-                         {currentUser?.wallet?.balance < selectedOrder?.plan?.price ?(
-                          <p className="text-red-600 text-xs">Insufficient balance</p>
-                         ) : ''}
-                     
+                      <p>Wallet</p>
+                      {currentUser?.wallet?.balance <
+                      selectedOrder?.plan?.price ? (
+                        <p className="text-red-600 text-xs">
+                          Insufficient balance
+                        </p>
+                      ) : (
+                        ""
+                      )}
                     </CustomRadio>
                     <CustomRadio value="stripe">Stripe</CustomRadio>
                   </RadioGroup>
@@ -868,16 +875,16 @@ const HiredHistory = () => {
                   >
                     Close
                   </Button>
-                  {(currentUser?.wallet?.balance < selectedOrder?.plan?.price && selectedOption =="wallet") ?(
-                      <Button variant="bordered" isDisabled onPress={onClose}>
+                  {currentUser?.wallet?.balance < selectedOrder?.plan?.price &&
+                  selectedOption == "wallet" ? (
+                    <Button variant="bordered" isDisabled onPress={onClose}>
                       Ok
                     </Button>
-                  ):(
+                  ) : (
                     <Button variant="bordered" onPress={onClose}>
                       Ok
                     </Button>
                   )}
-                
                 </ModalFooter>
               </>
             )}

@@ -4,17 +4,13 @@ import ProtectedRoute from "../../components/user/ProtectedRoute";
 import axiosInstance from "./axiosConfig";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Avatar, Divider, user } from "@nextui-org/react";
+import { Avatar, Divider } from "@nextui-org/react";
 import { useDispatch, useSelector } from "react-redux";
-import { Card, CardBody, CardFooter, Image } from "@nextui-org/react";
+import { Card, CardBody,Image } from "@nextui-org/react";
 import { updateUser } from "@/redux/reducers/user";
 import { IoMdMore } from "react-icons/io";
 import {
   Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   Button,
   useDisclosure,
 } from "@nextui-org/react";
@@ -38,9 +34,10 @@ const UserProfileComponent = ({ userId }) => {
   const [isFollowed, setIsFollowed] = useState(false);
   const currentUser = useSelector((state) => state.user.currentUser);
   const [userDetails, setUserDetails] = useState();
+
   useEffect(() => {
-    try {
-      const fetchUserData = async () => {
+    const fetchUserData = async () => {
+      try {
         const res = await axiosInstance.get(
           `/getUserById?userId=${userId}`
         );
@@ -51,13 +48,13 @@ const UserProfileComponent = ({ userId }) => {
           setPosts(res.data.posts);
           setUserDetails(user);
         }
-      };
+      } catch (error) {
+        toast.error(error);
+      }
+    };
 
-      fetchUserData();
-    } catch (error) {
-      toast.error(error);
-    }
-  }, []);
+    fetchUserData();
+  }, [currentUser.following, userId]);
 
   const hanldeFollow = async () => {
     try {
@@ -79,9 +76,11 @@ const UserProfileComponent = ({ userId }) => {
     }
     setIsFollowed((prev) => !prev);
   };
+
   const handlePressPost = (postId) => {
     router.push(`/postDetails?postId=${postId}`);
   };
+
   return (
     <ProtectedRoute>
       <ToastContainer
@@ -103,7 +102,6 @@ const UserProfileComponent = ({ userId }) => {
                   {userDetails?.username}
                 </h2>
                 <div className="flex gap-4">
-                  
                   <Button
                     variant="bordered"
                     className="btn"
@@ -115,12 +113,15 @@ const UserProfileComponent = ({ userId }) => {
                     message
                   </Button>
                   {userDetails?.freelance && (
-
-                  <Button variant="bordered" className="btn" onClick={()=>{
-                    router.push(`/freelancerDetails?userId=${userDetails._id}&&service=${service}`)
-                  }}>
-                    Hire
-                  </Button>
+                    <Button
+                      variant="bordered"
+                      className="btn"
+                      onClick={() => {
+                        router.push(`/freelancerDetails?userId=${userDetails._id}&&service=${service}`);
+                      }}
+                    >
+                      Hire
+                    </Button>
                   )}
                   <Dropdown>
                     <DropdownTrigger>

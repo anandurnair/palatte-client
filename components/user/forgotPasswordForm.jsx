@@ -1,9 +1,9 @@
-"use client";
-import React, { useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
-import axiosInstance from "../user/axiosConfig";
-import "react-toastify/dist/ReactToastify.css";
+'use client';
 
+import React, { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import axiosInstance from '../user/axiosConfig';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   Modal,
   ModalContent,
@@ -12,155 +12,135 @@ import {
   ModalFooter,
   Button,
   useDisclosure,
-  Checkbox,
   Input,
-  Link,
-} from "@nextui-org/react";
-import OTPInput, { ResendOTP } from "otp-input-react";
-import { useRouter, useSearchParams } from "next/navigation";
-import ProtectedRoute from "../../components/user/ProtectedRoute";
-import { useSelector } from "react-redux";
-import axios from "axios";
+} from '@nextui-org/react';
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
+
+const OTPInput = dynamic(() => import('otp-input-react').then(mod => mod.default), { ssr: false });
+const ResendOTP = dynamic(() => import('otp-input-react').then(mod => mod.ResendOTP), { ssr: false });
 
 const ForgotPasswordForm = () => {
-
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [OTP, setOTP] = useState("");
-  const [email, setEmail] = useState("");
+  const [OTP, setOTP] = useState('');
+  const [email, setEmail] = useState('');
   const router = useRouter();
   const [emailErr, setEmailErr] = useState(false);
-  const currentUser  = useSelector(state => state.user.currentUser)
+  const currentUser = useSelector(state => state.user.currentUser);
+
   const handleSubmit = async () => {
-    if (email.length == "") {
+    if (email.length === '') {
       setEmailErr(true);
       return;
     }
     try {
-      const res = await axiosInstance.post(
-        "http://localhost:4000/forgot-password",
-        {
-          email,
-        }
-      );
-
+      const res = await axiosInstance.post('http://localhost:4000/forgot-password', { email });
       if (res.status === 200) {
         toast.success(res.data.message);
-        onOpen(); // Open the modal after successful request
+        onOpen();
       } else {
         toast.error(res.data.error);
       }
     } catch (error) {
       console.error(error);
-      toast.error("An error occurred. Please try again later.");
+      toast.error('An error occurred. Please try again later.');
     }
   };
 
   const handleVerifyOTP = async () => {
-    console.log("OTP : ",OTP)
-    if(OTP.length !== 4){
-      toast.error("Fill the form")
-      return
+    console.log('OTP : ', OTP);
+    if (OTP.length !== 4) {
+      toast.error('Fill the form');
+      return;
     }
     try {
-      const res = await axiosInstance.post(
-        "http://localhost:4000/verify-password-otp",
-        {
-          email,
-          OTP,
-        }
-      );
+      const res = await axiosInstance.post('http://localhost:4000/verify-password-otp', { email, OTP });
       if (res.status === 200) {
         toast.success(res.data.message);
-        if(currentUser){
-          router.push("/profile/resetPassword");
-
-        }else{
+        if (currentUser) {
+          router.push('/profile/resetPassword');
+        } else {
           router.push(`/resetPassword?email=${email}`);
-
         }
       } else {
         toast.error(res.data.error);
       }
     } catch (error) {
       console.error(error);
-      toast.error("An error occurred. Please try again later.");
+      toast.error('An error occurred. Please try again later.');
     }
   };
+
   const handleEmail = (e) => {
     const emailValue = e.target.value;
     setEmail(emailValue);
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Regular expression for email validation
-
-    setEmailErr(!emailRegex.test(emailValue)); // Set email error based on regex test
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    setEmailErr(!emailRegex.test(emailValue));
   };
-  const handleResend = async() => {
-    const tempUser = {};
-    tempUser[email] = email
-    const res = await axios.post("http://localhost:4000/resendOTP", { tempUser });
+
+  const handleResend = async () => {
+    const tempUser = { email };
+    const res = await axios.post('http://localhost:4000/resendOTP', { tempUser });
     if (res.status === 200) {
-      toast.success("Resended successfully");
+      toast.success('Resended successfully');
     } else {
-      toast.error("Verification failed");
-      console.log("error");
+      toast.error('Verification failed');
+      console.log('error');
     }
-    console.log("Resend OTP clicked");
+    console.log('Resend OTP clicked');
   };
 
   return (
     <>
-     <ToastContainer />
-      <div className="w-full h-full flex justify-center items-center p-5">
-        <div className="w-2/5 h-auto bg rounded-md bg-semi shadow-lg flex flex-col justify-center items-center p-10 gap-y-6">
+      <ToastContainer />
+      <div className='w-full h-full flex justify-center items-center p-5'>
+        <div className='w-2/5 h-auto bg rounded-md bg-semi shadow-lg flex flex-col justify-center items-center p-10 gap-y-6'>
           <h2>Forgot Password</h2>
           <Input
-            type="email"
-            label="Enter your email address"
-            labelPlacement="inside"
-            variant="underlined"
-            size="lg"
+            type='email'
+            label='Enter your email address'
+            labelPlacement='inside'
+            variant='underlined'
+            size='lg'
             onChange={handleEmail}
             isInvalid={emailErr}
-            errorMessage="Please enter valid email"
+            errorMessage='Please enter valid email'
           />
           <Button
-            color="" // Use default color
-            className="w-full h-12 lg btn"
-            variant="bordered"
+            color=''
+            className='w-full h-12 lg btn'
+            variant='bordered'
             onClick={handleSubmit}
             disabled={emailErr}
           >
             Reset Password
           </Button>
         </div>
-        <Modal
-          isOpen={isOpen}
-          onOpenChange={onOpenChange}
-          placement="top-center"
-        >
+        <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement='top-center'>
           <ModalContent>
             {(onClose) => (
               <>
-                <ModalHeader className="flex flex-col gap-1">
-                  Verify OTP
-                </ModalHeader>
+                <ModalHeader className='flex flex-col gap-1'>Verify OTP</ModalHeader>
                 <ModalBody>
                   <OTPInput
                     value={OTP}
                     onChange={setOTP}
                     autoFocus
                     OTPLength={4}
-                    otpType="number"
+                    otpType='number'
                     disabled={false}
                     inputStyles={{
-                      width: "50px",
-                      height: "50px",
-                      backgroundColor: "#111",
+                      width: '50px',
+                      height: '50px',
+                      backgroundColor: '#111',
                     }}
                   />
                   <ResendOTP onResendClick={handleResend} maxTime={60} />
                 </ModalBody>
                 <ModalFooter>
-                  <Button color="danger" variant="flat" onPress={onClose}>
+                  <Button color='danger' variant='flat' onPress={onClose}>
                     Close
                   </Button>
                   <Button onPress={onClose} onClick={handleVerifyOTP}>
@@ -173,7 +153,6 @@ const ForgotPasswordForm = () => {
         </Modal>
       </div>
     </>
-     
   );
 };
 

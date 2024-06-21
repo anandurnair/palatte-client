@@ -1,7 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input, Button } from "@nextui-org/react";
-import OTPInput, { ResendOTP } from "otp-input-react";
+import dynamic from 'next/dynamic';
 import { useRouter } from "next/navigation";
 import "../style.css";
 import Link from "next/link";
@@ -11,14 +11,25 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+// Dynamically import OTPInput and ResendOTP
+const OTPInput = dynamic(() => import("otp-input-react").then(mod => mod.default), { ssr: false });
+const ResendOTP = dynamic(() => import("otp-input-react").then(mod => mod.ResendOTP), { ssr: false });
+
 const OTPform = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const [OTP, setOTP] = useState("");
+  const [isClient, setIsClient] = useState(false); // New state to check if client-side
   const tempUser = useSelector((state) => state.user.tempUser);
-  if(!tempUser){
-      router.push('/')
+  
+  useEffect(() => {
+    setIsClient(true); // Set to true once the component is mounted
+  }, []);
+
+  if (!tempUser) {
+    router.push('/');
   }
+
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
@@ -66,22 +77,25 @@ const OTPform = () => {
       <div className="w-full lg:w-1/3  flex flex-col justify-center items-center bg-neutral-900 shadow-large shadow-slate-400 rounded-lg p-10 lg:p-24 lg:m-24">
         <h2 className="text-2xl font-extrabold pb-10 tracking-wider text-teal-500">VERIFY OTP</h2>
         <div className="w-full flex flex-col justify-center items-center gap-y-5">
-          <OTPInput
-            value={OTP}
-            onChange={setOTP}
-            autoFocus
-            OTPLength={4}
-            otpType="number"
-            disabled={false}
-            inputStyles={{
-             width: "3rem",
-             height : "3rem",
-              backgroundColor: "#111",
-            }}
-            className="otp-input"
-          />
-          <ResendOTP onResendClick={handleResend} maxTime={60} className="gap-20" />
-
+          {isClient && (
+            <>
+              <OTPInput
+                value={OTP}
+                onChange={setOTP}
+                autoFocus
+                OTPLength={4}
+                otpType="number"
+                disabled={false}
+                inputStyles={{
+                  width: "3rem",
+                  height: "3rem",
+                  backgroundColor: "#111",
+                }}
+                className="otp-input"
+              />
+              <ResendOTP onResendClick={handleResend} maxTime={60} className="gap-20" />
+            </>
+          )}
           <Button
             color=""
             className="w-full h-12 lg:btn"

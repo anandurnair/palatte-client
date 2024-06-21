@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import dynamic from 'next/dynamic';
 import ProtectedRoute from "../../components/user/ProtectedRoute";
 import { Card, CardHeader, CardBody, Avatar, Input } from "@nextui-org/react";
 import { format } from "timeago.js";
@@ -9,25 +10,26 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { io } from "socket.io-client";
 
 import {
-Modal,
-ModalContent,
-ModalHeader,
-ModalBody,
-ModalFooter,
-useDisclosure,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
 } from "@nextui-org/react";
 import { TiTick } from "react-icons/ti";
 
 import {
-Dropdown,
-DropdownTrigger,
-DropdownMenu,
-DropdownItem,
-Button,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+  Button,
 } from "@nextui-org/react";
 import { FaCheckDouble } from "react-icons/fa6";
 
-import VideoCallComponent from "@/components/user/videoCallComponent";
+// Dynamically import the VideoCallComponent
+const VideoCallComponent = dynamic(() => import("@/components/user/videoCallComponent"), { ssr: false });
 
 const ChatUI = ({
   setUpdate,
@@ -281,7 +283,7 @@ const Message = ({
   const handleDeleteMessage = async () => {
     try {
       await axiosInstance.delete(
-        "  http://localhost:4000/delete-message?messageId=${messageId}"
+        `http://localhost:4000/delete-message?messageId=${messageId}`
       );
       setUpdate((prev) => !prev);
     } catch (error) {

@@ -1,13 +1,16 @@
 "use client";
-import React, { useState } from "react";
-import { Input, Button } from "@nextui-org/react";
+import React, { useState, Suspense } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { signupUser, updateUser } from "@/redux/reducers/user";
+import { signupUser } from "@/redux/reducers/user"; 
+// Lazy load Input and Button components
+const LazyInput = React.lazy(() => import("@nextui-org/react").then(module => ({ default: module.Input })));
+const LazyButton = React.lazy(() => import("@nextui-org/react").then(module => ({ default: module.Button })));
 
 const Signup = () => {
   const dispatch = useDispatch();
@@ -78,59 +81,59 @@ const Signup = () => {
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center bg-neutral-900 shadow-large shadow-slate-400 rounded-lg p-10 lg:p-20 lg:ml-32">
         <h2 className="text-2xl font-extrabold pb-10 tracking-wider text-teal-500">SIGN UP</h2>
         <div className="w-full flex flex-col gap-y-5">
-          <Input
-            name="fullName"
-            label="Full Name"
-            labelPlacement="inside"
-            variant="underlined"
-            errorMessage="Please enter a valid first name"
-            size="lg"
-            onChange={(e) => setFullname(e.target.value)}
-          />
-        
-          <Input
-            name="email"
-            type="email"
-            label="Email"
-            labelPlacement="inside"
-            variant="underlined"
-            errorMessage="Please enter a valid email"
-            size="lg"
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <Input
-            name="password"
-            label="Password"
-            labelPlacement="inside"
-            size="lg"
-            variant="underlined"
-            isInvalid={passwordErr}
-
-            errorMessage="Please enter a valid password"
-            onChange={handlePassword}
-            endContent={
-              <button
-                className="focus:outline-none"
-                type="button"
-                onClick={toggleVisibility}
-              >
-                {isVisible ? (
-                  <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                ) : (
-                  <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                )}
-              </button>
-            }
-            type={isVisible ? "text" : "password"}
-          />
-          <Button
-            color=""
-            onClick={handleSubmit}
-            className="w-full h-12 lg btn"
-            variant="bordered"
-          >
-            SIGN UP
-          </Button>
+          <Suspense fallback={<div className="w-full text-center">Loading...</div>}>
+            <LazyInput
+              name="fullName"
+              label="Full Name"
+              labelPlacement="inside"
+              variant="underlined"
+              errorMessage="Please enter a valid first name"
+              size="lg"
+              onChange={(e) => setFullname(e.target.value)}
+            />
+            <LazyInput
+              name="email"
+              type="email"
+              label="Email"
+              labelPlacement="inside"
+              variant="underlined"
+              errorMessage="Please enter a valid email"
+              size="lg"
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <LazyInput
+              name="password"
+              label="Password"
+              labelPlacement="inside"
+              size="lg"
+              variant="underlined"
+              isInvalid={passwordErr}
+              errorMessage="Please enter a valid password"
+              onChange={handlePassword}
+              endContent={
+                <button
+                  className="focus:outline-none"
+                  type="button"
+                  onClick={toggleVisibility}
+                >
+                  {isVisible ? (
+                    <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                  ) : (
+                    <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                  )}
+                </button>
+              }
+              type={isVisible ? "text" : "password"}
+            />
+            <LazyButton
+              color=""
+              onClick={handleSubmit}
+              className="w-full h-12 lg btn"
+              variant="bordered"
+            >
+              SIGN UP
+            </LazyButton>
+          </Suspense>
           <p className="text-center">
             Already have an account?{" "}
             <Link href="/" className="underline">

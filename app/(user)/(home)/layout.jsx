@@ -1,3 +1,4 @@
+'use client'
 import React from 'react'
 import HomeSidebar from '../../../components/user/sidebar'
 import Header from '../../../components/user/header'

@@ -1,24 +1,27 @@
 "use client";
-import React, { useState } from "react";
-import { Input, Button } from "@nextui-org/react";
+import React, { useState, Suspense } from "react";
 import Link from "next/link";
-import { signupUser, updateUser } from "@/redux/reducers/user";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch } from "react-redux";
+import { updateUser } from "@/redux/reducers/user"; // Assuming `signupUser` is not used in this component
+
+const LazyInput = React.lazy(() => import("@nextui-org/react").then((module) => ({ default: module.Input })));
+const LazyButton = React.lazy(() => import("@nextui-org/react").then((module) => ({ default: module.Button })));
 
 const Login = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const [isVisible, setIsVisible] = React.useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const [email, setEmail] = useState("");
   const [emailErr, setEmailErr] = useState(false);
   const [password, setPassword] = useState("");
   const [passwordErr, setPasswordErr] = useState(false);
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
     if (emailErr || passwordErr) {
       return;
     }
@@ -54,63 +57,71 @@ const Login = () => {
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   return (
-    <div className="w-full flex flex-col  lg:flex-row py-4">
-      <ToastContainer toastStyle={{ backgroundColor: "#1d2028" }} position="bottom-center" />
+    <div className="w-full flex flex-col lg:flex-row py-4">
+      <ToastContainer
+        toastStyle={{ backgroundColor: "#1d2028" }}
+        position="bottom-center"
+      />
       <div className="w-full lg:w-1/2 flex justify-center items-center py-28 px-4 lg:px-32">
         <div className="flex flex-col items-center gap-y-5">
           <h1 className="text-4xl font-extrabold tracking-wide text-center">
             Welcome to <span className="text-teal-500">Palatte</span>
           </h1>
           <p className="text-center px-4 mb-10 text-lg">
-            Palatte is the ultimate online haven for artists and crafters alike, where creativity knows no bounds. Connect, create, and share your masterpieces with a vibrant community of like-minded individuals.
+            Palatte is the ultimate online haven for artists and crafters alike,
+            where creativity knows no bounds. Connect, create, and share your
+            masterpieces with a vibrant community of like-minded individuals.
           </p>
         </div>
       </div>
-      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center bg-neutral-900 shadow-large shadow-slate-400 rounded-lg p-10 lg:p-24  lg:ml-32">
-        <h2 className="text-2xl font-extrabold pb-10 tracking-wider text-teal-500">LOGIN</h2>
-        <div className="w-full   flex flex-col  gap-y-5">
-          <Input
-            type="email"
-            label="Email"
-            labelPlacement="inside"
-            variant="underlined"
-            isInvalid={emailErr}
-            errorMessage="Please enter a valid email"
-            size="lg"
-            onChange={handleEmailChange}
-          />
-          <Input
-          
-            label="Password"
-            labelPlacement="inside"
-            size="lg"
-            variant="underlined"
-            isInvalid={passwordErr}
-            errorMessage="Please enter a valid password"
-            onChange={handlePasswordChange}
-            endContent={
-              <button
-                className="focus:outline-none"
-                type="button"
-                onClick={toggleVisibility}
-              >
-                {isVisible ? (
-                  <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                ) : (
-                  <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                )}
-              </button>
-            }
-            type={isVisible ? "text" : "password"}
-          />
-          <Button
-            color=""
-            onClick={handleSubmit}
-            className="w-full h-12 lg btn"
-            variant="bordered"
-          >
-            LOGIN
-          </Button>
+      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center bg-neutral-900 shadow-large shadow-slate-400 rounded-lg p-10 lg:p-24 lg:ml-32">
+        <h2 className="text-2xl font-extrabold pb-10 tracking-wider text-teal-500">
+          LOGIN
+        </h2>
+        <form className="w-full flex flex-col gap-y-5" onSubmit={handleSubmit}>
+          <Suspense fallback={<div className="w-full text-center">Loading...</div>}>
+            <LazyInput
+              type="email"
+              label="Email"
+              labelPlacement="inside"
+              variant="underlined"
+              isInvalid={emailErr}
+              errorMessage="Please enter a valid email"
+              size="lg"
+              onChange={handleEmailChange}
+            />
+            <LazyInput
+              label="Password"
+              labelPlacement="inside"
+              size="lg"
+              variant="underlined"
+              isInvalid={passwordErr}
+              errorMessage="Please enter a valid password"
+              onChange={handlePasswordChange}
+              endContent={
+                <button
+                  className="focus:outline-none"
+                  type="button"
+                  onClick={toggleVisibility}
+                >
+                  {isVisible ? (
+                    <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                  ) : (
+                    <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                  )}
+                </button>
+              }
+              type={isVisible ? "text" : "password"}
+            />
+            <LazyButton
+              color=""
+              type="submit"
+              className="w-full h-12 lg btn"
+              variant="bordered"
+            >
+              LOGIN
+            </LazyButton>
+          </Suspense>
           <p className="text-center">
             Create an account?{" "}
             <Link href="/signup" className="underline">
@@ -122,7 +133,7 @@ const Login = () => {
               Forgot your password?
             </Link>
           </p>
-        </div>
+        </form>
       </div>
     </div>
   );

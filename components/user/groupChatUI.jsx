@@ -4,13 +4,16 @@ import ProtectedRoute from "../../components/user/ProtectedRoute";
 import { Card, CardHeader, CardBody, Avatar, Input } from "@nextui-org/react";
 import { FaVideo, FaPhoneAlt } from "react-icons/fa";
 import { BsThreeDotsVertical } from "react-icons/bs";
+import dynamic from 'next/dynamic';
+
 import {
   Dropdown,
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
 } from "@nextui-org/react";
-import GroupVideoCall from '@/components/user/GroupVideoCall'
+const GroupVideoCall = dynamic(() => import('@/components/user/GroupVideoCall'), { ssr: false });
+
 import {
   Modal,
   ModalContent,
@@ -42,6 +45,7 @@ const ChatUI = ({
   const [users, setUsers] = useState([]);
   const [isVideoCall, setIsVideoCall] = useState(false);
   const fetchedUsers = useRef(new Set());
+
   useEffect(() => {
     const fetchUser = async (userId) => {
       try {
@@ -80,7 +84,7 @@ const ChatUI = ({
     };
 
     fetchAllUsers();
-  }, [messages]);
+  }, [messages, setMessages, fetchedUsers]); // Include fetchedUsers in dependencies since it is a ref
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -98,7 +102,7 @@ const ChatUI = ({
         setMessages((prev) => [...prev, arrivalMessage]);
       }
     }
-  }, [arrivalMessage, currentChat]);
+  }, [arrivalMessage, currentChat, messages, setMessages]); // Include messages and setMessages as dependencies
 
   const handleSend = async (e) => {
     e.preventDefault();
@@ -151,9 +155,6 @@ const ChatUI = ({
                 <h4 className="text-small font-semibold leading-none text-default-600">
                   {currentChat?.groupName}
                 </h4>
-                {/* <h5 className="text-small tracking-tight text-default-400">
-                  {currentChat?.username}
-                </h5> */}
               </div>
             </div>
             <div className="flex gap-4">
@@ -191,7 +192,7 @@ const ChatUI = ({
           <>
             <div className="w-full h-5/6 bg-lightDark p-4 overflow-y-auto">
               {messages.map((msg, index) => (
-                <div ref={scrollRef} key={index}>
+                <div key={index}>
                   <Message
                     messageId={msg._id}
                     username={msg.username}
@@ -203,6 +204,7 @@ const ChatUI = ({
                   />
                 </div>
               ))}
+              <div ref={scrollRef} />
             </div>
             <div className="w-full h-1/6 flex p-3 gap-2">
               <Input
@@ -322,15 +324,4 @@ const Message = ({
         </ModalContent>
       </Modal>
     </div>
-  );
-};
-
-// const DeletModal =()=>{
-//   const {isOpen, onOpen, onOpenChange} = useDisclosure();
-
-//   return (
-//       <>
-
-//       </>
-//   )
-// }
+  )}

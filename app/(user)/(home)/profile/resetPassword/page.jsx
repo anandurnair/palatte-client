@@ -1,3 +1,4 @@
+'use client'
 import React from 'react'
 import ResetPasswordForm from '../../../../../components/user/resetPasswordForm'
 const RestPassword = () => {

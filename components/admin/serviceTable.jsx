@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -45,9 +45,7 @@ const INITIAL_VISIBLE_COLUMNS = [
 ];
 
 export default function ServiceTable() {
-  const [blockService, setBlockService] = useState();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const msgs = useRef(null);
   const [block, setBlock] = useState(false);
   const [services, setServices] = useState([]);
   const [newService,setNewService] = useState()
@@ -88,11 +86,13 @@ export default function ServiceTable() {
 
   const headerColumns = React.useMemo(() => {
     if (visibleColumns === "all") return columns;
-
+  
     return columns.filter((column) =>
       Array.from(visibleColumns).includes(column.uid)
     );
   }, [visibleColumns]);
+  
+  
 
   const filteredItems = React.useMemo(() => {
     let filterdServices = [...services];
@@ -112,7 +112,7 @@ export default function ServiceTable() {
     }
 
     return filterdServices;
-  }, [services, filterValue, statusFilter]);
+  }, [services, filterValue,hasSearchFilter, statusFilter]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -151,11 +151,11 @@ export default function ServiceTable() {
 //     }
 //   };
 
-  const handleModal = (serviceId,name) => {
-    setModal(name)
-    setCurrentService(serviceId)
-    onOpen();
-  };
+const handleModal = React.useCallback((serviceId, name) => {
+  setModal(name);
+  setCurrentService(serviceId);
+  onOpen();
+}, [onOpen]);
   const handleAdd = async () => {
     try {
       onClose();
@@ -212,7 +212,7 @@ export default function ServiceTable() {
       default:
         return cellValue;
     }
-  }, []);
+  }, [handleModal]);
 
   const onNextPage = React.useCallback(() => {
     if (page < pages) {
@@ -326,12 +326,13 @@ export default function ServiceTable() {
     );
   }, [
     filterValue,
-    statusFilter,
-    visibleColumns,
+    
     onRowsPerPageChange,
     services.length,
     onSearchChange,
-    hasSearchFilter,
+    
+    handleModal,
+    onClear,
   ]);
 
   const bottomContent = React.useMemo(() => {
@@ -371,7 +372,7 @@ export default function ServiceTable() {
         </div>
       </div>
     );
-  }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
+  }, [selectedKeys, filteredItems.length,onNextPage,onPreviousPage,page,pages]);
 
   return (
     <>

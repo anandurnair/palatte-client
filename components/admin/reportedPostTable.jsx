@@ -273,16 +273,8 @@ export default function ReportedPostTable() {
         </div>
       </div>
     );
-  }, [
-    filterValue,
-    statusFilter,
-    visibleColumns,
-    onRowsPerPageChange,
-    posts.length,
-    onSearchChange,
-    hasSearchFilter,
-  ]);
-
+  }, [onRowsPerPageChange, posts.length]);
+  
   const bottomContent = React.useMemo(() => {
     return (
       <div className="py-2 px-2 flex justify-between items-center">
@@ -320,7 +312,8 @@ export default function ReportedPostTable() {
         </div>
       </div>
     );
-  }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
+  }, [selectedKeys, filteredItems.length, page, pages, onNextPage, onPreviousPage]);
+  
 
   return (
     <>

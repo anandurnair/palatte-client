@@ -43,7 +43,7 @@ const ReportModal = ({ postId, userId }) => {
             <p>Why are you reporting this post ? </p>
             <div className="flex flex-col gap-5">
               <RadioGroup label="" value={selected} onValueChange={setSelected}>
-                <Radio value="It's spam">It's spam</Radio>
+                <Radio value="It's spam">It&apos;s spam</Radio>
                 <Radio value="Nudity or sexual activity">
                   Nudity or sexual activity
                 </Radio>

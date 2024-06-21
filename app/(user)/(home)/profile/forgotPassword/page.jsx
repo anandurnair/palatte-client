@@ -1,3 +1,4 @@
+'use client'
 import React from 'react'
 import ForgotPasswordForm from '@/components/user/forgotPasswordForm'
 const ForgotPassword = () => {

@@ -1,3 +1,4 @@
+'use client'
 import React from 'react'
 import SearchComponent from '@/components/user/searchComponenet'
 const ExplorePage = () => {

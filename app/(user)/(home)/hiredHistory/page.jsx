@@ -1,3 +1,4 @@
+'use client'
 import React from 'react'
 import HiredHistory from '@/components/user/hireHistoryPage/hiredHistory'
 const HiredHistoryPage = () => {

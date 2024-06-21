@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import {
   Table,
   TableHeader,
@@ -8,7 +8,6 @@ import {
   TableRow,
   TableCell,
   Input,
- 
   DropdownTrigger,
   Dropdown,
   DropdownMenu,
@@ -19,8 +18,7 @@ import {
 } from "@nextui-org/react";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure} from "@nextui-org/react";
-
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure } from "@nextui-org/react";
 
 const statusColorMap = {
   active: "success",
@@ -28,128 +26,77 @@ const statusColorMap = {
   vacation: "warning",
 };
 
-
-const INITIAL_VISIBLE_COLUMNS = ["fullname", "username", "email", "phone",'status','actions'];
+const INITIAL_VISIBLE_COLUMNS = ["fullname", "username", "email", "phone", "status", "actions"];
 
 export default function UserTable() {
-  const [blockEmail,setBlockEmail] = useState()
-  const {isOpen, onOpen, onOpenChange,onClose} = useDisclosure();
-  const msgs = useRef(null);
-  const [block,setBlock]=useState(false)
-  const [users,setUsers] = useState([])
-  useEffect(()=>{
-    const fetchData=async()=>{
-      const res =await fetch('http://localhost:4000/getUsers')
-      const data = await res.json();
-      if (res.ok) {
-        setUsers(data.users)
-       
-      } else {
-        alert( data.error);  
-      }
-    }
-    fetchData()
-   
-  },[block])
-  const [filterValue, setFilterValue] = React.useState("");
-  const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
-  const [visibleColumns, setVisibleColumns] = React.useState(new Set(INITIAL_VISIBLE_COLUMNS));
-  const [statusFilter, setStatusFilter] = React.useState("all");
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [sortDescriptor, setSortDescriptor] = React.useState({
-    column: "age",
+  const [blockEmail, setBlockEmail] = useState();
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const [block, setBlock] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [filterValue, setFilterValue] = useState("");
+  const [selectedKeys, setSelectedKeys] = useState(new Set([]));
+  const [visibleColumns, setVisibleColumns] = useState(new Set(INITIAL_VISIBLE_COLUMNS));
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [sortDescriptor, setSortDescriptor] = useState({
+    column: "fullname",
     direction: "ascending",
   });
-  const [page, setPage] = React.useState(1);
+  const [page, setPage] = useState(1);
 
-  const hasSearchFilter = Boolean(filterValue);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch('http://localhost:4000/getUsers');
+        const data = await res.json();
+        if (res.ok) {
+          setUsers(data.users);
+        } else {
+          alert(data.error);
+        }
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    };
+    fetchData();
+  }, [block]);
 
-  const headerColumns = React.useMemo(() => {
-    if (visibleColumns === "all") return columns;
-
-    return columns.filter((column) => Array.from(visibleColumns).includes(column.uid));
-  }, [visibleColumns]);
-
-  const filteredItems = React.useMemo(() => {
-    let filteredUsers = [...users];
-
-    if (hasSearchFilter) {
-      filteredUsers = filteredUsers.filter((user) =>
-        user.fullname.toLowerCase().includes(filterValue.toLowerCase()),
-      );
-    }
-    if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
-      filteredUsers = filteredUsers.filter((user) =>
-        Array.from(statusFilter).includes(user.status),
-      );
-    }
-
-    return filteredUsers;
-  }, [users, filterValue, statusFilter]);
-
-  const pages = Math.ceil(filteredItems.length / rowsPerPage);
-
-  const items = React.useMemo(() => {
-    const start = (page - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
-
-    return filteredItems.slice(start, end);
-  }, [page, filteredItems, rowsPerPage]);
-
-  const sortedItems = React.useMemo(() => {
-    return [...items].sort((a, b) => {
-      const first = a[sortDescriptor.column];
-      const second = b[sortDescriptor.column];
-      const cmp = first < second ? -1 : first > second ? 1 : 0;
-
-      return sortDescriptor.direction === "descending" ? -cmp : cmp;
-    });
-  }, [sortDescriptor, items]);
-
-
-  const handleBlock=async()=>{
-    onClose()
+  const handleBlock = async () => {
+    onClose();
     const res = await fetch("http://localhost:4000/block-user", {
       method: "POST",
-      body: JSON.stringify({email:blockEmail}),
+      body: JSON.stringify({ email: blockEmail }),
       headers: {
-        "Content-Type": "application/json", 
+        "Content-Type": "application/json",
       },
     });
     const data = await res.json();
     if (res.ok) {
-      setBlock(prev=>!prev)
-      toast.success(data.message)
+      setBlock((prev) => !prev);
+      toast.success(data.message);
     } else {
-      alert( data.error);  
+      alert(data.error);
     }
-  }
+  };
 
   const handleOpen = (email) => {
-    setBlockEmail(email)
+    setBlockEmail(email);
     onOpen();
-  }
+  };
 
-  const renderCell = React.useCallback((user, columnKey) => {
+  const renderCell = (user, columnKey) => {
     const cellValue = user[columnKey];
 
     switch (columnKey) {
-      case "name":
+      case "fullname":
         return (
           <User
-            avatarProps={{radius: "lg", src: user.avatar}}
+            avatarProps={{ radius: "lg", src: user.avatar }}
             description={user.email}
             name={cellValue}
           >
             {user.email}
           </User>
-        );
-      case "role":
-        return (
-          <div className="flex flex-col">
-            <p className="text-bold text-small capitalize">{cellValue}</p>
-            <p className="text-bold text-tiny capitalize text-default-400">{user.team}</p>
-          </div>
         );
       case "status":
         return (
@@ -167,9 +114,9 @@ export default function UserTable() {
                 </Button>
               </DropdownTrigger>
               <DropdownMenu>
-                {/* <DropdownItem>View</DropdownItem> */}
-                <DropdownItem onClick={()=>handleOpen(user.email)}  aria-label="Block data">{ user.isBlocked?"Unblock":'Block'}</DropdownItem>
-                {/* <DropdownItem>Delete</DropdownItem> */}
+                <DropdownItem onClick={() => handleOpen(user.email)} aria-label="Block data">
+                  {user.isBlocked ? "Unblock" : 'Block'}
+                </DropdownItem>
               </DropdownMenu>
             </Dropdown>
           </div>
@@ -177,40 +124,70 @@ export default function UserTable() {
       default:
         return cellValue;
     }
-  }, []);
+  };
 
-  const onNextPage = React.useCallback(() => {
+  const filteredItems = useMemo(() => {
+    let filteredUsers = [...users];
+
+    if (filterValue) {
+      filteredUsers = filteredUsers.filter((user) =>
+        user.fullname.toLowerCase().includes(filterValue.toLowerCase())
+      );
+    }
+    if (statusFilter !== "all" && statusFilter.length !== statusOptions.length) {
+      filteredUsers = filteredUsers.filter((user) =>
+        statusFilter.includes(user.status)
+      );
+    }
+
+    return filteredUsers;
+  }, [users, filterValue, statusFilter]);
+
+  const sortedItems = useMemo(() => {
+    return [...filteredItems].sort((a, b) => {
+      const first = a[sortDescriptor.column];
+      const second = b[sortDescriptor.column];
+      const cmp = first < second ? -1 : first > second ? 1 : 0;
+      return sortDescriptor.direction === "descending" ? -cmp : cmp;
+    });
+  }, [filteredItems, sortDescriptor]);
+
+  const pages = Math.ceil(filteredItems.length / rowsPerPage);
+
+  const items = useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    return sortedItems.slice(start, end);
+  }, [page, rowsPerPage, sortedItems]);
+
+  const onNextPage = useCallback(() => {
     if (page < pages) {
       setPage(page + 1);
     }
   }, [page, pages]);
 
-  const onPreviousPage = React.useCallback(() => {
+  const onPreviousPage = useCallback(() => {
     if (page > 1) {
       setPage(page - 1);
     }
   }, [page]);
 
-  const onRowsPerPageChange = React.useCallback((e) => {
+  const onRowsPerPageChange = useCallback((e) => {
     setRowsPerPage(Number(e.target.value));
     setPage(1);
   }, []);
 
-  const onSearchChange = React.useCallback((value) => {
-    if (value) {
-      setFilterValue(value);
-      setPage(1);
-    } else {
-      setFilterValue("");
-    }
+  const onSearchChange = useCallback((value) => {
+    setFilterValue(value);
+    setPage(1);
   }, []);
 
-  const onClear = React.useCallback(()=>{
-    setFilterValue("")
-    setPage(1)
-  },[])
+  const onClear = useCallback(() => {
+    setFilterValue("");
+    setPage(1);
+  }, []);
 
-  const topContent = React.useMemo(() => {
+  const topContent = useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
         <div className="flex justify-between gap-3 items-end">
@@ -220,55 +197,11 @@ export default function UserTable() {
             placeholder="Search by name..."
             startContent={<SearchIcon />}
             value={filterValue}
-            onClear={() => onClear()}
+            onClear={onClear}
             onValueChange={onSearchChange}
           />
           <div className="flex gap-3">
-            {/* <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
-                  Status
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Table Columns"
-                closeOnSelect={false}
-                selectedKeys={statusFilter}
-                selectionMode="multiple"
-                onSelectionChange={setStatusFilter}
-              >
-                {statusOptions.map((status) => (
-                  <DropdownItem key={status.uid} className="capitalize">
-                    {capitalize(status.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown> */}
-            {/* <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
-                  Columns
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Table Columns"
-                closeOnSelect={false}
-                selectedKeys={visibleColumns}
-                selectionMode="multiple"
-                onSelectionChange={setVisibleColumns}
-              >
-                {columns.map((column) => (
-                  <DropdownItem key={column.uid} className="capitalize">
-                    {capitalize(column.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown> */}
-            {/* <Button color="primary" endContent={<PlusIcon />}>
-              Add New
-            </Button> */}
+            {/* Other dropdowns or buttons */}
           </div>
         </div>
         <div className="flex justify-between items-center">
@@ -287,17 +220,9 @@ export default function UserTable() {
         </div>
       </div>
     );
-  }, [
-    filterValue,
-    statusFilter,
-    visibleColumns,
-    onRowsPerPageChange,
-    users.length,
-    onSearchChange,
-    hasSearchFilter,
-  ]);
+  }, [filterValue, onClear, onSearchChange, onRowsPerPageChange, users.length]);
 
-  const bottomContent = React.useMemo(() => {
+  const bottomContent = useMemo(() => {
     return (
       <div className="py-2 px-2 flex justify-between items-center">
         <span className="w-[30%] text-small text-default-400">
@@ -324,8 +249,7 @@ export default function UserTable() {
         </div>
       </div>
     );
-  }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
-
+  }, [filteredItems.length, onNextPage, onPreviousPage, pages,page, selectedKeys]);
   return (
     <>
         <ToastContainer  toastStyle={{ backgroundColor: "#1d2028" }} position="bottom-right" />

@@ -1,3 +1,5 @@
+
+'use client'
 import React, { useState } from "react";
 import { RadioGroup, Input, Radio, cn } from "@nextui-org/react";
 import {
@@ -43,7 +45,7 @@ const SelectServiceModal = ({ services,setFreelancers,serviceName,setServiceName
               <RadioGroup label="" value={serviceName}
               onValueChange={setServiceName}>
                 {services.map((service) => (
-                  <CustomRadio value={service.serviceName}>
+                  <CustomRadio key={service?._id} value={service.serviceName}>
                     {service.serviceName}
                   </CustomRadio>
                 ))}

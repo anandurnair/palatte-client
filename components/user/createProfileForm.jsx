@@ -12,16 +12,16 @@ import {
   Modal,
   ModalContent,
   Spinner,
-  ModalHeader,
+  
   ModalBody,
-  ModalFooter,
   useDisclosure,
+  Image,Input,
+  Button,
+  Textarea,
 } from "@nextui-org/react";
 
 import {
-  Input,
-  Button,
-  Textarea,
+  
   // Corrected import
 } from "@nextui-org/react";
 import "../style.css";
@@ -244,7 +244,7 @@ const CreateProfileForm = () => {
               type="file"
             />
             <div className="bg-blue-400 w-32 h-32 border rounded-full">
-              <img
+              <Image
                 src={
                   croppedImage
                     ? croppedImage
@@ -339,8 +339,3 @@ const CreateProfileForm = () => {
 
 export default CreateProfileForm;
 
-const ListboxWrapper = ({ children }) => (
-  <div className="w-full border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100">
-    {children}
-  </div>
-);
