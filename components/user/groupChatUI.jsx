@@ -10,7 +10,8 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@nextui-org/react";
-import GroupVideoCall from '@/components/user/GroupVideoCall'
+import dynamic from 'next/dynamic';
+const GroupVideoCall = dynamic(() => import('@/components/user/GroupVideoCall'), { ssr: false });
 import {
   Modal,
   ModalContent,

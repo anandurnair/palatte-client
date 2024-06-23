@@ -17,7 +17,7 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import { TiTick } from "react-icons/ti";
-
+import dynamic from 'next/dynamic';
 import {
   Dropdown,
   DropdownTrigger,
@@ -27,8 +27,7 @@ import {
 } from "@nextui-org/react";
 import { FaCheckDouble } from "react-icons/fa6";
 
-import VideoCallComponent from "@/components/user/videoCallComponent";
-
+const VideoCallComponent = dynamic(() => import('@/components/user/videoCallComponent'), { ssr: false });
 const ChatUI = ({
   setUpdate,
   messages,

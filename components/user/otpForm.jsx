@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import { Input, Button } from "@nextui-org/react";
-import OTPInput, { ResendOTP } from "otp-input-react";
 import { useRouter } from "next/navigation";
 import "../style.css";
 import Link from "next/link";
@@ -10,7 +9,9 @@ import { updateUser, signupUser } from "@/redux/reducers/user";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import dynamic from 'next/dynamic';
+const OTPInput = dynamic(() => import('otp-input-react').then(mod => mod.OTPInput), { ssr: false });
+const ResendOTP = dynamic(() => import('otp-input-react').then(mod => mod.ResendOTP), { ssr: false });
 const OTPform = () => {
   const router = useRouter();
   const dispatch = useDispatch();

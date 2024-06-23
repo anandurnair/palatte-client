@@ -16,8 +16,9 @@ import {
   Input,
   Link,
 } from "@nextui-org/react";
-import OTPInput, { ResendOTP } from "otp-input-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import dynamic from 'next/dynamic';
+const OTPInput = dynamic(() => import('otp-input-react').then(mod => mod.OTPInput), { ssr: false });
+const ResendOTP = dynamic(() => import('otp-input-react').then(mod => mod.ResendOTP), { ssr: false });import { useRouter, useSearchParams } from "next/navigation";
 import ProtectedRoute from "../../components/user/ProtectedRoute";
 import { useSelector } from "react-redux";
 
