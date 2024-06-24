@@ -29,7 +29,7 @@ const FollowingModal = ({ userId }) => {
     const fetchFollowingData = async () => {
       try {
         const res = await axiosInstance.get(
-          `http://localhost:4000/get-following?userId=${userId}`
+          `/get-following?userId=${userId}`
         );
         if (res.status === 200) {
           console.log(res.data.following);

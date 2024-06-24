@@ -4,7 +4,7 @@ import { Card, CardHeader, CardBody, Avatar, Badge,Chip } from "@nextui-org/reac
 import axiosInstance from "./axiosConfig";
 import { useSelector } from "react-redux";
 const url = process.env.NEXT_PUBLIC_API_URL;
-
+import '../style.css'
 const ChatListComponent = ({
   conversation,
   currentUser,
@@ -78,7 +78,7 @@ const ChatListComponent = ({
 
           {conversation?.unreadCount === 0 ? (
   <p className="text-xs font-thin">click to chat</p>
-) : currentUser._id !== conversation.lastSenderId ? (
+) : currentUser?._id !== conversation.lastSenderId ? (
   <Chip size="sm" color="success"><p className="font-bold">{conversation.unreadCount}</p></Chip>
 ) : (
   <p className="text-xs font-thin">click to chat</p>

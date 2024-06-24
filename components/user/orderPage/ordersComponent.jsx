@@ -46,7 +46,7 @@ const OrdersComponent = () => {
   const [image, setImage] = useState("");
   const [update, setUpdate] = useState(false);
   const socket = useRef(null);
-  socket.current = io(process.env.NEXT_PUBLIC_API_URL);
+  socket.current = io(process.env.NEXT_PUBLIC_SOCKET_URI);
   const fetchData = async () => {
     try {
       const res = await axiosInstance.get(

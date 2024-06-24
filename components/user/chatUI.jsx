@@ -45,7 +45,7 @@ const ChatUI = ({
 
   useEffect(() => {
     if (!socket.current) {
-      socket.current = io(process.env.NEXT_PUBLIC_API_URL);
+      socket.current = io(process.env.NEXT_PUBLIC_SOCKET_URI);
     }
 
     socket.current.on("msgSeen", (data) => {
@@ -75,6 +75,7 @@ const ChatUI = ({
           conversationId: currentChat?._id,
           senderId: currentUser?._id,
         });
+        console.log("MEssage seen by : ",currentUser?._id)
         socket.current.emit("seen", {
           receiverId: currentUser?._id,
           senderId: user?._id,
@@ -270,7 +271,7 @@ const Message = ({
   const handleDeleteMessage = async () => {
     try {
       await axiosInstance.delete(
-        `http://localhost:4000/delete-message?messageId=${messageId}`
+        `${process.env.NEXT_PUBLIC_API_URL}/delete-message?messageId=${messageId}`
       );
       setUpdate((prev) => !prev);
     } catch (error) {

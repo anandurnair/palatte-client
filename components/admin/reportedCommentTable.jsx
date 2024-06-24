@@ -43,7 +43,7 @@ export default function ReportedCommentTable() {
   useEffect(()=>{
     const fetchData=async()=>{
       try {
-        const res =await axios.get('http://localhost:4000/get-all-reported-comments')
+        const res =await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/get-all-reported-comments`)
         if (res.status === 200) {
           const data = res.data
           console.log("reported posts : ",data.reportedComments)
@@ -119,7 +119,7 @@ export default function ReportedCommentTable() {
   const handleDelete=async()=>{
     onClose()
     try {
-     await axios.delete(`http://localhost:4000/delete-comment?commentId=${blockComment}`);
+     await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/delete-comment?commentId=${blockComment}`);
      
         setBlock(prev=>!prev)
         toast.success(data.message)

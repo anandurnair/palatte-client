@@ -35,7 +35,7 @@ const ProfileComponent = () => {
     if (user.email) {
       try {
         const res = await axiosInstance.get(
-          `http://localhost:4000/user-details?email=${user.email}`
+          `/user-details?email=${user.email}`
         );
         if (res.status === 200) {
           setUserDetails(res.data.user);

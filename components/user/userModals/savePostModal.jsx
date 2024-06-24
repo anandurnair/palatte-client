@@ -32,7 +32,7 @@ const SaveModal = ({setUpdate, postId, userId }) => {
     const fetchCollectionNames = async () => {
       try {
         const res = await axiosInstance.get(
-          `http://localhost:4000/get-collections?userId=${userId}`
+          `/get-collections?userId=${userId}`
         );
         console.log(res.data.collectionNames);
         setCollectionNames(res.data.collectionNames);

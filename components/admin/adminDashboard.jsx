@@ -13,7 +13,7 @@ const AdminDashboardComponent = () => {
   useEffect(() => {
     const fetchCounts = async () => {
       try {
-        const res = await axios.get("http://localhost:4000/list-counts");
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/list-counts`);
         setCounts(res.data);
       } catch (error) {
         alert(error);

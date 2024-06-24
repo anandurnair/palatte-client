@@ -24,7 +24,7 @@ const SearchComponenet = () => {
   const [isFollowed, setIsFollowed] = React.useState(false);
     const hanldeSearch =async()=>{
         try {
-            const res = await axiosInstance.post('http://localhost:4000/search-user',{username})
+            const res = await axiosInstance.post('/search-user',{username})
             if(res.status===200){
                 setUsers(res.data.users);
                 

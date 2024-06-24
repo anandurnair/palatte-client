@@ -22,7 +22,7 @@ const FollowersModal = ({userId}) => {
     useEffect(()=>{
         const fetchFollowersData=async()=>{
             try {
-                const res = await axiosInstance.get(`http://localhost:4000/get-followers?userId=${userId}`)
+                const res = await axiosInstance.get(`/get-followers?userId=${userId}`)
                 if(res.status === 200){
                     console.log(res.data.followers)
                     setFollowers(res.data.followers)

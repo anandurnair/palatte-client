@@ -240,7 +240,7 @@ const Message = ({
   const handleDeleteMessage = async () => {
     try {
       const res = await axiosInstance.delete(
-        `http://localhost:4000/delete-message?messageId=${messageId}`
+        `/delete-message?messageId=${messageId}`
       );
       setUpdate((prev) => !prev);
     } catch (error) {

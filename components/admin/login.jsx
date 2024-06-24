@@ -15,7 +15,7 @@ const Login = () => {
   const [password , setPassword] = useState()
   const handleSubmit=async()=>{
   
-    const res = await fetch("http://localhost:4000/admin-login", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin-login`, {
       method: "POST",
       body: JSON.stringify({ username, password }),
       headers: {

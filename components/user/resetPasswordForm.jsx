@@ -25,9 +25,9 @@ const   ResetPasswordForm =  () => {
       let res;
       if(currentUser){
 
-         res = await axiosInstance.post("http://localhost:4000/reset-password",{email : user.email, newPassword })
+         res = await axiosInstance.post("/reset-password",{email : user.email, newPassword })
       }else{
-        res = await axiosInstance.post("http://localhost:4000/reset-password",{email : paramEmail, newPassword })
+        res = await axiosInstance.post("/reset-password",{email : paramEmail, newPassword })
 
       }
       

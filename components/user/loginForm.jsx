@@ -10,6 +10,9 @@ import "react-toastify/dist/ReactToastify.css";
 import { useDispatch } from "react-redux";
 
 const Login = () => {
+  console.log("Process : ",process.env.NEXT_PUBLIC_SOCKET_URI
+)
+  console.log("Login page is workign")
   const router = useRouter();
   const dispatch = useDispatch();
   const [isVisible, setIsVisible] = React.useState(false);
@@ -23,7 +26,7 @@ const Login = () => {
       return;
     }
     try {
-      const res = await axios.post("http://localhost:4000/loginData", {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/loginData`, {
         email,
         password,
       });

@@ -17,8 +17,9 @@ import {
   Link,
 } from "@nextui-org/react";
 import dynamic from 'next/dynamic';
-const OTPInput = dynamic(() => import('otp-input-react').then(mod => mod.OTPInput), { ssr: false });
-const ResendOTP = dynamic(() => import('otp-input-react').then(mod => mod.ResendOTP), { ssr: false });import { useRouter, useSearchParams } from "next/navigation";
+const OTPInput = dynamic(() => import('otp-input-react').then(mod => mod.default || mod), { ssr: false });
+// const ResendOTP = dynamic(() => import('otp-input-react').then(mod => mod.ResendOTP), { ssr: false });
+import { useRouter, useSearchParams } from "next/navigation";
 import ProtectedRoute from "../../components/user/ProtectedRoute";
 import { useSelector } from "react-redux";
 
@@ -37,7 +38,7 @@ const ForgotPasswordForm = () => {
     }
     try {
       const res = await axiosInstance.post(
-        "http://localhost:4000/forgot-password",
+        "/forgot-password",
         {
           email,
         }
@@ -58,7 +59,7 @@ const ForgotPasswordForm = () => {
   const handleVerifyOTP = async () => {
     try {
       const res = await axiosInstance.post(
-        "http://localhost:4000/verify-password-otp",
+        "/verify-password-otp",
         {
           email,
           OTP,
@@ -135,7 +136,7 @@ const ForgotPasswordForm = () => {
                     value={OTP}
                     onChange={setOTP}
                     autoFocus
-                    OTPLength={6}
+                    OTPLength={4}
                     otpType="number"
                     disabled={false}
                     inputStyles={{
@@ -144,7 +145,8 @@ const ForgotPasswordForm = () => {
                       backgroundColor: "#111",
                     }}
                   />
-                  <ResendOTP onResendClick={handleResend} maxTime={60} />
+                            <Button variant="" onClick={()=>handleResend()} size="sm" maxTime={60} className="gap-20" >Resend</Button>
+
                 </ModalBody>
                 <ModalFooter>
                   <Button color="danger" variant="flat" onPress={onClose}>

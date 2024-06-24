@@ -44,7 +44,7 @@ export default function ReportedPostTable() {
   useEffect(()=>{
     const fetchData=async()=>{
       try {
-        const res =await axios.get('http://localhost:4000/get-all-reportedPosts')
+        const res =await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/get-all-reportedPosts`)
         if (res.status === 200) {
           const data = res.data
           console.log("reported posts : ",data.reportedPosts)
@@ -120,7 +120,7 @@ export default function ReportedPostTable() {
   const handleList=async()=>{
     onClose();
     try {
-      const res = await axios.patch(`http://localhost:4000/list-post?postId=${blockEmail}`);
+      const res = await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/list-post?postId=${blockEmail}`);
       const data = await res.json();
       if (res.ok) {
         setUpdate(prev => !prev)

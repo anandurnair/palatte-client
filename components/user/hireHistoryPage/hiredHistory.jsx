@@ -71,7 +71,7 @@ const HiredHistory = () => {
   const [editReview, setEditReview] = useState();
   const [editRating, setEditRating] = useState();
   const socket = useRef(null);
-  socket.current = io(process.env.NEXT_PUBLIC_API_URL);
+  socket.current = io(process.env.NEXT_PUBLIC_SOCKET_URI);
 
   const stripePromise = loadStripe(
     "pk_test_51OMD9cSHHtMTvNEWFwltwJ7Ms44q8bgqFZSvmQRnBDsrDYUZi1hKe5AxS1qSyGYjAJzMeMfPCNnCdWevOrkaBpIH00ANhFQoJ7"
@@ -82,7 +82,7 @@ const HiredHistory = () => {
       if(currentUser.email){
         try {
           const res = await axiosInstance.get(
-            `http://localhost:4000/user-details?email=${currentUser.email}`
+            `/user-details?email=${currentUser.email}`
           );
           dispatch(updateUser(res.data.user));
           

@@ -10,8 +10,8 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import dynamic from 'next/dynamic';
-const OTPInput = dynamic(() => import('otp-input-react').then(mod => mod.OTPInput), { ssr: false });
-const ResendOTP = dynamic(() => import('otp-input-react').then(mod => mod.ResendOTP), { ssr: false });
+const OTPInput = dynamic(() => import('otp-input-react').then(mod => mod.default || mod), { ssr: false });
+const ResendOTP = dynamic(() => import('otp-input-react').then(mod => mod.default || mod), { ssr: false });
 const OTPform = () => {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -22,7 +22,7 @@ const OTPform = () => {
     try {
       e.preventDefault();
 
-      const res = await axios.post("http://localhost:4000/otp", { OTP, tempUser });
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/otp`, { OTP, tempUser });
       if (res.status) {
         toast.success("Verified successfully");
 
@@ -38,7 +38,7 @@ const OTPform = () => {
   };
 
   const handleResend = async () => {
-    const res = await axios.post("http://localhost:4000/resendOTP", { tempUser });
+    const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/resendOTP`, { tempUser });
     if (res.status === 200) {
       toast.success("Resended successfully");
     } else {
@@ -79,7 +79,7 @@ const OTPform = () => {
             }}
             className="otp-input"
           />
-          <ResendOTP onResendClick={handleResend} maxTime={60} className="gap-20" />
+          <Button variant="" onClick={()=>handleResend()} size="sm" maxTime={60} className="gap-20" >Resend</Button>
 
           <Button
             color=""

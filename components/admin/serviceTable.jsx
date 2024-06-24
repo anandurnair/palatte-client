@@ -57,7 +57,7 @@ export default function ServiceTable() {
     try {
         const fetchData = async () => {
             console.log('Effect working');
-            const res = await axios.get("http://localhost:4000/getServices");
+            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/getServices`);
             if (res.status === 200) {
                 setServices(res.data.services);
             } else {
@@ -159,7 +159,7 @@ export default function ServiceTable() {
   const handleAdd = async () => {
     try {
       onClose();
-      const res = await axios.post("http://localhost:4000/addService", { serviceName: newService });
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/addService`, { serviceName: newService });
       if (res.status === 200) {
         setUpdate(prev => !prev)
         toast.success('Service added');
@@ -566,10 +566,9 @@ export const VerticalDotsIcon = ({ size = 24, width, height, ...props }) => (
 const DeleteModal =({serviceId,setUpdate})=>{
 
   const handleDelete=async()=>{
-    console.log('working')
     try {
-      await axios.delete(`http://localhost:4000/delete-service?serviceId=${serviceId}`);
-      toast.success("post deleted")
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/delete-service?serviceId=${serviceId}`);
+      toast.success("Service deleted")
       setUpdate(prev => !prev)
     } catch (error) {
       console.log(error)

@@ -51,7 +51,7 @@ useEffect(() => {
 
   // Set up socket connection
   useEffect(() => {
-    socket.current = io(process.env.NEXT_PUBLIC_API_URL);
+    socket.current = io(process.env.NEXT_PUBLIC_SOCKET_URI);
 
     socket.current.emit('addUser', currentUser?._id);
     socket.current.on('getMessage', (data) => {

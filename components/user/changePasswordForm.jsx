@@ -37,7 +37,7 @@ const changePasswordForm = () => {
       e.preventDefault();
 
       const res = await axiosInstance.post(
-        "http://localhost:4000/change-password",
+        `${process.env.NEXT_PUBLIC_API_URL}/change-password`,
         { email: user.email, oldPassword: currentPassword, newPassword }
       );
 

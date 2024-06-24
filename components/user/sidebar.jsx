@@ -172,6 +172,20 @@ const HomeSidebar = () => {
               >
                 Orders
               </Sidebar.Item>
+              <Sidebar.Item
+                onClick={() => {
+                  handleItemClick();
+                  router.push("/hiredHistory");
+                }}
+                icon={MdWorkHistory}
+                className={`bg-5 rounded-lg p-4 shadow-lg text-gray-200 ${
+                  result === "Hired History/"
+                    ? "bg-neutral-800 transform scale-110 transition-transform duration-300"
+                    : "bg-semiDark"
+                }`}
+              >
+                Hirings
+              </Sidebar.Item>
             </Sidebar.ItemGroup>
           </Sidebar>
         </div>

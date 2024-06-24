@@ -32,8 +32,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { Modal, useDisclosure } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { updateUser } from "@/redux/reducers/user";
-
-
+import '../style.css'
 const isVideo = (url) => {
   return /\.(mp4|webm|ogg)$/i.test(url);
 };
@@ -41,7 +40,7 @@ const isVideo = (url) => {
 const PostDetail = ({ postId }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const current = useSelector((state) => state.user.currentUser);
-  const [currentUser,setCurrentUser] = useState(current)
+  const [currentUser, setCurrentUser] = useState(current);
   const dispatch = useDispatch();
   const [post, setPost] = useState();
   const [likes, setLikes] = useState(0);
@@ -88,10 +87,9 @@ const PostDetail = ({ postId }) => {
 
   const toggleBookmark = async () => {
     try {
-      
       const newBookmarked = !bookmarked;
       newBookmarked ? setModal("save") : "";
-      setBookmarked(!bookmarked)
+      setBookmarked(!bookmarked);
       if (newBookmarked) {
         setModal("save");
         onOpen();
@@ -101,9 +99,8 @@ const PostDetail = ({ postId }) => {
             userId: currentUser._id,
             postId: postId,
           });
-          
-            toast.success("Post removed from Saved");
-          
+
+          toast.success("Post removed from Saved");
         } catch (error) {
           toast.error(error);
         }
@@ -113,7 +110,7 @@ const PostDetail = ({ postId }) => {
         `${url}/user-details?email=${currentUser.email}`
       );
       dispatch(updateUser(res.data.user));
-      setCurrentUser(res.data.user)
+      setCurrentUser(res.data.user);
     } catch (error) {
       console.error(error);
       toast.error("Error saving or removing post. Please try again."); // More specific message
@@ -133,12 +130,12 @@ const PostDetail = ({ postId }) => {
   };
 
   return (
-    <div className="w-full overflow-y-scroll flex flex-col items-center rounded-lg my-5">
+    <div className="w-full pl-52 overflow-y-auto  rounded-lg my-5">
       <ToastContainer
         toastStyle={{ backgroundColor: "#20222b", color: "#fff" }}
         position="bottom-right"
       />
-      <Card className="w-3/5 bg-semi mt-3 rounded-lg">
+      <Card className="w-3/5   bg-semi mt-3 rounded-lg">
         <CardHeader className="flex justify-between">
           <div className="flex gap-3">
             {post && (
@@ -207,34 +204,35 @@ const PostDetail = ({ postId }) => {
           </div>
         </CardHeader>
         <Divider />
-        <CardBody className="flex items-center gap-y-5">
-        {post?.images ? (
-  // Render image content based on image type (video or single/multiple images)
-  isVideo(post?.images[0]) ? (
-    <video controls className="w-full h-full flex items-center object-cover rounded-xl">
-      <source src={post?.images[0]} type="video/mp4" />
-    </video>
-  ) : (
-    post?.images.length === 1 ? (
-      <Image
-        className="w-full flex items-center object-cover rounded-xl"
-        alt="Card background"
-        src={post?.images[0]}
-      />
-    ) : (
-      <SimpleImageSlider
-        width={380}
-        height={280}
-        images={post.images.map((img) => ({ url: img }))}
-        showBullets={true}
-        showNavs={true}
-      />
-    )
-  )
-) : (
-  // Display a loading indicator or placeholder while data is being fetched
-  <p>Loading post...</p>
-)}
+        <CardBody className=" flex items-center gap-y-5">
+          {post?.images ? (
+            // Render image content based on image type (video or single/multiple images)
+            isVideo(post?.images[0]) ? (
+              <video
+                controls
+                className="w-full h-full flex items-center object-cover rounded-xl"
+              >
+                <source src={post?.images[0]} type="video/mp4" />
+              </video>
+            ) : post?.images.length === 1 ? (
+              <Image
+                className="w-full flex items-center object-cover rounded-xl"
+                alt="Card background"
+                src={post?.images[0]}
+              />
+            ) : (
+              <SimpleImageSlider
+                width={380}
+                height={280}
+                images={post.images.map((img) => ({ url: img }))}
+                showBullets={true}
+                showNavs={true}
+              />
+            )
+          ) : (
+            // Display a loading indicator or placeholder while data is being fetched
+            <p>Loading post...</p>
+          )}
           <div className="flex px-2 justify-between w-full">
             <div className="flex gap-x-5">
               {likes ? (
@@ -267,7 +265,7 @@ const PostDetail = ({ postId }) => {
           </div>
         </CardBody>
         <Divider />
-        <CardFooter className="pt-10">
+        <CardFooter className="overflow-y-auto pt-10">
           {post?.showComments && <CommentComponent postId={post._id} />}
         </CardFooter>
       </Card>

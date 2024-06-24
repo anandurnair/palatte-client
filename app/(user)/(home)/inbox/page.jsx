@@ -27,7 +27,7 @@ const InboxPage = () => {
   const [update, setUpdate] = useState(false);
   useEffect(() => {
     if (!socket.current) {
-      socket.current = io(process.env.NEXT_PUBLIC_API_URL);
+      socket.current = io(process.env.NEXT_PUBLIC_SOCKET_URI);
       socket.current.emit("addUser", currentUser?._id);
       socket.current.on("getMessage", (data) => {
         setArrivalMessage({

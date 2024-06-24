@@ -39,7 +39,7 @@ export default function UserTable() {
   const [users,setUsers] = useState([])
   useEffect(()=>{
     const fetchData=async()=>{
-      const res =await fetch('http://localhost:4000/getUsers')
+      const res =await fetch(`${process.env.NEXT_PUBLIC_API_URL}/getUsers`)
       const data = await res.json();
       if (res.ok) {
         setUsers(data.users)
@@ -109,7 +109,7 @@ export default function UserTable() {
 
   const handleBlock=async()=>{
     onClose()
-    const res = await fetch("http://localhost:4000/block-user", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/block-user`, {
       method: "POST",
       body: JSON.stringify({email:blockEmail}),
       headers: {

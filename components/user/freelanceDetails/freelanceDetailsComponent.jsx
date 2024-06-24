@@ -56,7 +56,7 @@ const FreelanceDetailsComponent = () => {
   const [averageRating, setAverageRating] = useState(0);
   const socket = useRef(null);
   const [update,setUpdate] = useState(false)
-  socket.current = io(process.env.NEXT_PUBLIC_API_URL);
+  socket.current = io(process.env.NEXT_PUBLIC_SOCKET_URI);
 
   const handleSelectPlan = (plan) => {
     setModal("order");

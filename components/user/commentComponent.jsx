@@ -39,13 +39,13 @@ const CommentComponent = ({ setUpdateComment, postId ,userId}) => {
   const currentUser = useSelector((state) => state.user.currentUser);
   const [modal, setModal] = useState("");
   const [update, setUpdate] = useState(false);
-  socket.current = io(process.env.NEXT_PUBLIC_API_URL);
+  socket.current = io(process.env.NEXT_PUBLIC_SOCKET_URI);
 
   useEffect(() => {
     const fetchComments = async () => {
       try {
         const res = await axiosInstance.get(
-          `http://localhost:4000/get-post-comment?postId=${postId}`
+          `/get-post-comment?postId=${postId}`
         );
         if (res.status === 200) {
           const showReplyState = {};
@@ -71,7 +71,7 @@ const CommentComponent = ({ setUpdateComment, postId ,userId}) => {
     }
     try {
       const res = await axiosInstance.post(
-        "http://localhost:4000/add-comment",
+        "/add-comment",
         { userId: currentUser._id, postId, comment: newComment }
       );
       if (res.status === 200) {
@@ -97,7 +97,7 @@ const CommentComponent = ({ setUpdateComment, postId ,userId}) => {
     }
     try {
       const res = await axiosInstance.post(
-        "http://localhost:4000/add-reply",
+        "/add-reply",
         {
           userId: currentUser._id,
           postId,

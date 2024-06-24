@@ -45,7 +45,7 @@ const Signup = () => {
       }
       e.preventDefault();
       
-      const res = await axios.post("http://localhost:4000/signupData", {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/signupData`, {
         fullname,
         email,
         password,

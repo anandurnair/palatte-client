@@ -42,7 +42,7 @@ const UserProfileComponent = ({ userId }) => {
     try {
       const fetchUserData = async () => {
         const res = await axiosInstance.get(
-          `http://localhost:4000/getUserById?userId=${userId}`
+          `/getUserById?userId=${userId}`
         );
         if (res.status === 200) {
           const user = res.data.user;
@@ -62,7 +62,7 @@ const UserProfileComponent = ({ userId }) => {
   const hanldeFollow = async () => {
     try {
       const res = await axiosInstance.post(
-        "http://localhost:4000/follow-user",
+        "/follow-user",
         { currentUserId: currentUser._id, userId }
       );
       if (res.status === 200) {

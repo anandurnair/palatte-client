@@ -45,7 +45,7 @@ const SelectFreelancerComponent = () => {
     const fetchServices = async () => {
       try {
         const res = await axiosInstance.get(
-          "http://localhost:4000/getServices"
+          "/getServices"
         );
 
         setServices(res.data.services);

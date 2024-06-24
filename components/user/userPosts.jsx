@@ -40,7 +40,7 @@ const UserPosts = () => {
   const fetchSavedPosts = async () => {
     try {
       const res = await axiosInstance.get(
-        `http://localhost:4000/get-all-saved-posts?userId=${user?._id}`
+        `/get-all-saved-posts?userId=${user?._id}`
       );
       if (res.status == 200) {
         setCollections(res.data.savedPosts);
@@ -57,7 +57,7 @@ const UserPosts = () => {
     try {
       if (user) {
         const res = await axiosInstance.get(
-          `http://localhost:4000/get-user-posts?userId=${user?._id}`
+          `/get-user-posts?userId=${user?._id}`
         );
         if (res.status == 200) {
           setPosts(res.data.posts);

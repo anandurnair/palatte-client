@@ -54,7 +54,7 @@ const CreateProfileForm = () => {
     const fetchData = async () => {
       try {
         const res = await axiosInstance.get(
-          "http://localhost:4000/getServices"
+          "/getServices"
         );
         if (res.status === 200) {
           setServices(res.data.services);
@@ -186,7 +186,7 @@ const CreateProfileForm = () => {
     try {
       console.log("data : ",data)
       const res = await axiosInstance.post(
-        "http://localhost:4000/create-profile",
+        "/create-profile",
         data
       );
 

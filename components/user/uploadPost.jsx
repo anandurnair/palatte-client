@@ -20,7 +20,7 @@ import { updateAllPosts } from "@/redux/reducers/post";
 import SimpleImageSlider from "react-simple-image-slider";
 import {CircularProgress} from "@nextui-org/react";
 import {Progress} from "@nextui-org/react";
-
+import '../style.css'
 const UploadPost = ({setUpdatePosts}) => {
   const inputRef = useRef(null);
   const dispatch = useDispatch();
@@ -105,7 +105,7 @@ const UploadPost = ({setUpdatePosts}) => {
   async function postToDatabase(data) {
     try {
       setShow(true)
-      const res = await axiosInstance.post("http://localhost:4000/add-post", data);
+      const res = await axiosInstance.post("/add-post", data);
 
       if (res.status === 200) {
         dispatch(updateAllPosts(res.data.posts));

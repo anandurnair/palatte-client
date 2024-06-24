@@ -25,7 +25,7 @@ const NotificationComponent = () => {
 
     fetchNotifications();
     
-    socket.current = io(process.env.NEXT_PUBLIC_API_URL);
+    socket.current = io(process.env.NEXT_PUBLIC_SOCKET_URI);
 
     socket.current.on("notification", (toUser, text, fromUser) => {
       if (currentUser?._id === toUser?._id && currentUser?._id !== fromUser?._id) {
