@@ -104,8 +104,13 @@ const UploadPost = ({setUpdatePosts}) => {
 
   async function postToDatabase(data) {
     try {
+      console.log("Data : ",data)
+      if(data.images.length === 0){
+        toast.error("Select a post");
+        return;
+      }
       setShow(true)
-      const res = await axiosInstance.post("/add-post", data);
+      const res = await axiosInstance.post("/add-post",  data );
 
       if (res.status === 200) {
         dispatch(updateAllPosts(res.data.posts));
@@ -125,7 +130,7 @@ const UploadPost = ({setUpdatePosts}) => {
     } catch (error) {
       setShow(false)
 
-      toast.error("Error in Updating");
+      toast.error("Error in upload");
       console.error(error);
     }
   }

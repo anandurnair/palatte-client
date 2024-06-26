@@ -17,7 +17,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { loadStripe } from "@stripe/stripe-js";
 import axiosInstance from "../axiosConfig";
 import { useDispatch, useSelector } from "react-redux";
-import { updateUser } from "@/redux/reducers/user";
 
 const WalletComponent = () => {
   const dispatch = useDispatch();
@@ -27,13 +26,15 @@ const WalletComponent = () => {
   const [wallet, setWallet] = useState();
   const [update, setUpdate] = useState(false);
   const stripePromise = loadStripe(
-    "pk_test_51OMD9cSHHtMTvNEWFwltwJ7Ms44q8bgqFZSvmQRnBDsrDYUZi1hKe5AxS1qSyGYjAJzMeMfPCNnCdWevOrkaBpIH00ANhFQoJ7"
+    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
   );
 
   useEffect(() => {
     const fetchWalletData = async () => {
       try {
-        const res = await axiosInstance.get(`/get-wallet-by-userId?userId=${currentUser._id}`);
+        const res = await axiosInstance.get(
+          `/get-wallet-by-userId?userId=${currentUser._id}`
+        );
         setWallet(res.data.wallet);
         console.log("wallet :", res.data.wallet);
       } catch (error) {
@@ -46,7 +47,7 @@ const WalletComponent = () => {
   const handleAddMoney = async () => {
     try {
       const amount = parseFloat(addAmount);
-      console.log("amount ",amount)
+      console.log("amount ", amount);
       if (isNaN(amount) || amount <= 0) {
         toast.error("Please enter a valid amount");
         return;
@@ -58,7 +59,9 @@ const WalletComponent = () => {
       });
 
       const stripe = await stripePromise;
-      const { error } = await stripe.redirectToCheckout({ sessionId: res.data.id });
+      const { error } = await stripe.redirectToCheckout({
+        sessionId: res.data.id,
+      });
 
       if (error) {
         toast.error(error.message);
@@ -106,24 +109,41 @@ const WalletComponent = () => {
             {wallet?.transactions.length === 0 ? (
               <p>No transactions yet</p>
             ) : (
-              wallet?.transactions.slice().reverse().map((transaction, index) => (
-                <div key={index} className={`w-full py-2 px-10 ${transaction.type == 'credit' ? 'text-green-600' : 'text-red-600'}`}>
-                  <div className="w-full flex justify-between ">
-                    <p className="text-lg text-neutral-300">{transaction.payer?.fullname ?? 'Bank'}</p>
-                    <div className="flex justify-center items-center">
-                      <MdCurrencyRupee size={20} />
-                      <p className="text-lg font-semibold"> {transaction?.amount}.00</p>
+              wallet?.transactions
+                .slice()
+                .reverse()
+                .map((transaction, index) => (
+                  <div
+                    key={index}
+                    className={`w-full py-2 px-10 ${
+                      transaction.type == "credit"
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    <div className="w-full flex justify-between ">
+                      <p className="text-lg text-neutral-300">
+                        {transaction.payer?.fullname ?? "Bank"}
+                      </p>
+                      <div className="flex justify-center items-center">
+                        <MdCurrencyRupee size={20} />
+                        <p className="text-lg font-semibold">
+                          {" "}
+                          {transaction?.amount}.00
+                        </p>
+                      </div>
                     </div>
+                    <div className="w-full flex justify-between ">
+                      <p className="text-neutral-400 text-sm">
+                        {transaction?.type}
+                      </p>
+                      <p className="text-sm text-neutral-400">
+                        {transaction?.date}
+                      </p>
+                    </div>
+                    <Divider className="my-4" />
                   </div>
-                  <div className="w-full flex justify-between ">
-                    <p className="text-neutral-400 text-sm">
-                      {transaction?.type}
-                    </p>
-                    <p className="text-sm text-neutral-400">{transaction?.date}</p>
-                  </div>
-                  <Divider className="my-4" />
-                </div>
-              ))
+                ))
             )}
           </div>
         </div>

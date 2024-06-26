@@ -32,7 +32,7 @@ const ProfileComponent = () => {
   }, []);
 
   const fetchUserDetails = async () => {
-    if (user.email) {
+    if (user?.email) {
       try {
         const res = await axiosInstance.get(
           `/user-details?email=${user.email}`

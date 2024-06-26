@@ -34,6 +34,10 @@ const changePasswordForm = () => {
 
   const handleSubmit = async (e) => {
     try {
+      if(currentPassword === '' || newPassword === '' || currentPassword === '' ){
+        toast.error("Fill the form");
+        return;
+      }
       e.preventDefault();
 
       const res = await axiosInstance.post(

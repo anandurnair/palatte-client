@@ -4,7 +4,6 @@ import { Input, Button,Link } from "@nextui-org/react";
 import axios from 'axios'
 import { useRouter, useSearchParams } from 'next/navigation';
 import axiosInstance from '../user/axiosConfig'
-import ProtectedRoute from "../../components/user/ProtectedRoute";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
@@ -18,16 +17,33 @@ const   ResetPasswordForm =  () => {
   const router = useRouter()
   const user = useSelector(state => state.user.currentUser);
 
-    const [newPassword,setPassword] =useState()
-    const [confirmPassword,setConfirmPassword]= useState()
+    const [newPassword,setPassword] =useState('')
+    const [confirmPassword,setConfirmPassword]= useState('')
 
     const handleSubmit=async()=>{
+      if(newPassword === '' || confirmPassword === ""){
+        toast.error('Fill the form');
+        return;
+      }
+      if(newPassword !== confirmPassword){
+        toast.error("Passwords are not matching");
+        return;
+      }
+      const validatePassword = (password) => {
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+        return regex.test(password);
+      };
+
+      if (!validatePassword(newPassword)) {
+        toast.error("Password must be at least 6 characters long and include at least one uppercase letter, one lowercase letter, and one number.");
+        return;
+      }
       let res;
       if(currentUser){
 
-         res = await axiosInstance.post("/reset-password",{email : user.email, newPassword })
+         res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/reset-password`,{email : user.email, newPassword })
       }else{
-        res = await axiosInstance.post("/reset-password",{email : paramEmail, newPassword })
+        res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/reset-password`,{email : paramEmail, newPassword })
 
       }
       

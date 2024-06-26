@@ -80,7 +80,7 @@ const CommentComponent = ({ setUpdateComment, postId ,userId}) => {
         socket.current.emit("comment", currentUser,userId);
 
         setNewComment("");
-        setUpdate(!update);
+        setUpdate(prev =>!prev);
       } else {
         toast.error("Error in posting comment");
       }
@@ -96,6 +96,8 @@ const CommentComponent = ({ setUpdateComment, postId ,userId}) => {
       return;
     }
     try {
+      
+
       const res = await axiosInstance.post(
         "/add-reply",
         {

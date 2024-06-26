@@ -122,7 +122,7 @@ const Login = () => {
           </p>
           <p className="text-teal-500 text-center">
             <Link href="/forgotPassword" className="underline">
-              Forgot your password?
+              Forgot password?
             </Link>
           </p>
         </div>

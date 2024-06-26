@@ -1,25 +1,17 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import axiosInstance from "./axiosConfig";
-import { Tabs, Tab, CardHeader } from "@nextui-org/react";
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  useDisclosure,
-} from "@nextui-org/react";
+import { Tabs, Tab,  } from "@nextui-org/react";
 
-import { Card, CardBody, CardFooter, Image } from "@nextui-org/react";
+
+import { Card, CardBody, Image } from "@nextui-org/react";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
+import ProtectedRoute from "./ProtectedRoute";
 const isVideo = (url) => {
   return /\.(mp4|webm|ogg)$/i.test(url);
 };
 const UserPosts = () => {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const router = useRouter();
   const [posts, setPosts] = useState([]);
   const [selected, setSelected] = React.useState("myPosts");
@@ -38,6 +30,7 @@ const UserPosts = () => {
     fetchPosts();
   }, [user]);
   const fetchSavedPosts = async () => {
+    if(!user) return
     try {
       const res = await axiosInstance.get(
         `/get-all-saved-posts?userId=${user?._id}`
@@ -54,6 +47,7 @@ const UserPosts = () => {
     }
   };
   const fetchPosts = async () => {
+    if(!user) return
     try {
       if (user) {
         const res = await axiosInstance.get(
@@ -76,7 +70,8 @@ const UserPosts = () => {
   };
 
   return (
-    <div
+    <ProtectedRoute>
+       <div
       id="myPosts"
       className="w-full min-h-96 flex flex-col items-center rounded-lg px-4 md:px-0"
     >
@@ -194,46 +189,10 @@ const UserPosts = () => {
           </Tab>
         </Tabs>
       </div>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">
-                Modal Title
-              </ModalHeader>
-              <ModalBody>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Nullam pulvinar risus non risus hendrerit venenatis.
-                  Pellentesque sit amet hendrerit risus, sed porttitor quam.
-                </p>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Nullam pulvinar risus non risus hendrerit venenatis.
-                  Pellentesque sit amet hendrerit risus, sed porttitor quam.
-                </p>
-                <p>
-                  Magna exercitation reprehenderit magna aute tempor cupidatat
-                  consequat elit dolor adipisicing. Mollit dolor eiusmod sunt ex
-                  incididunt cillum quis. Velit duis sit officia eiusmod Lorem
-                  aliqua enim laboris do dolor eiusmod. Et mollit incididunt
-                  nisi consectetur esse laborum eiusmod pariatur proident Lorem
-                  eiusmod et. Culpa deserunt nostrud ad veniam.
-                </p>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Close
-                </Button>
-                <Button color="primary" onPress={onClose}>
-                  Action
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
+      
     </div>
+    </ProtectedRoute>
+   
   );
 };
 

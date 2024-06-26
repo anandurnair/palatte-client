@@ -146,9 +146,7 @@ const PostList = ({ updatePosts, setUpdatePosts }) => {
         toast.success("Post removed from saved");
       }
 
-      const res = await axiosInstance.get(
-        `/user-details?email=${user.email}`
-      );
+      const res = await axiosInstance.get(`/user-details?email=${user.email}`);
       dispatch(updateUser(res.data.user));
     } catch (error) {
       console.error(error);
@@ -173,13 +171,13 @@ const PostList = ({ updatePosts, setUpdatePosts }) => {
           postId: postId,
         });
         socket.current.emit("like", currentUser, postUser);
-        console.log("LIked")
+        console.log("LIked");
       } else {
         await axiosInstance.post("/unlike-post", {
           userId: user._id,
           postId: postId,
         });
-        console.log("Unliked")
+        console.log("Unliked");
       }
 
       const updatedPosts = [...posts];
@@ -202,7 +200,9 @@ const PostList = ({ updatePosts, setUpdatePosts }) => {
       )
     );
   };
-
+  const hanldeGoToPost = (postId) => {
+    router.push(`/postDetails?postId=${postId}`);
+  };
   return (
     <>
       <ToastContainer
@@ -245,12 +245,7 @@ const PostList = ({ updatePosts, setUpdatePosts }) => {
                       </DropdownTrigger>
                       {currentUserId === post?.userId?._id ? (
                         <DropdownMenu aria-label="Static Actions">
-                          <DropdownItem
-                            key="new"
-                            onPress={() =>
-                              router.push(`/postDetails?postId=${post._id}`)
-                            }
-                          >
+                          <DropdownItem key="new" onClick={()=>hanldeGoToPost(post?._id)}>
                             Go to Post
                           </DropdownItem>
                           <DropdownItem
@@ -403,7 +398,11 @@ const PostList = ({ updatePosts, setUpdatePosts }) => {
                   <DeletePostModal postId={post._id} setUpdate={setUpdate} />
                 )}
                 {modal === "save" && (
-                  <SaveModal setUpdate={setUpdate} postId={post._id} userId={user._id} />
+                  <SaveModal
+                    setUpdate={setUpdate}
+                    postId={post._id}
+                    userId={user._id}
+                  />
                 )}
               </Modal>
             </div>

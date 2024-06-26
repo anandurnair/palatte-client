@@ -17,6 +17,7 @@ const ProtectedRoute = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    if(!user) return;
     const fetchUserDetails = async () => {
       try {
         const res = await axiosInstance.get(

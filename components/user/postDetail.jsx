@@ -1,11 +1,16 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import dynamic from 'next/dynamic';
 import axiosInstance from "./axiosConfig";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CommentComponent from "../../components/user/commentComponent";
 import { IoMdMore } from "react-icons/io";
-import DeletePostModal from "./userModals/deletePostModal";
+// import DeletePostModal from "./userModals/deletePostModal";
+const DeletePostModal = dynamic(() => import('./userModals/deletePostModal'), {
+  ssr: false,
+});
+
 import EditPostModal from "../../components/user/userModals/editPostModal";
 import SaveModal from "./userModals/savePostModal";
 import ReportModal from "@/components/user/userModals/reportModal";
@@ -33,6 +38,7 @@ import { Modal, useDisclosure } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { updateUser } from "@/redux/reducers/user";
 import '../style.css'
+
 const isVideo = (url) => {
   return /\.(mp4|webm|ogg)$/i.test(url);
 };
@@ -66,7 +72,7 @@ const PostDetail = ({ postId }) => {
           setBookmarked(currentUser?.allSaved?.includes(postId));
         }
       } catch (error) {
-        toast.error(error.message);
+        // toast.error(error.message);
       }
     };
     fetchPost();
@@ -278,7 +284,7 @@ const PostDetail = ({ postId }) => {
           />
         )}
         {isUser && modal === "delete" && (
-          <DeletePostModal key="deleteModal" postId={postId} />
+          <DeletePostModal key="deleteModal" postId={postId} setUpdate={setUpdate} />
         )}
 
         {isUser && modal === "edit" && (
