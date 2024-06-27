@@ -108,6 +108,7 @@ const UploadPost = ({setUpdatePosts}) => {
       if(data.images.length === 0){
         toast.error("Select a post");
         return;
+        
       }
       setShow(true)
       const res = await axiosInstance.post("/add-post",  data );

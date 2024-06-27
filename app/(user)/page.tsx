@@ -5,6 +5,7 @@ import Login from '../../components/user/loginForm';
 
 export default function Home() {
   const router = useRouter();
+  console.log("API :",process.env.NEXT_PUBLIC_API_URL)
   useEffect(() => {
     const user = localStorage.getItem('currentUser');
     if (user) {

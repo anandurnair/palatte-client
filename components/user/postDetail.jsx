@@ -113,7 +113,7 @@ const PostDetail = ({ postId }) => {
       }
 
       const res = await axiosInstance.get(
-        `${url}/user-details?email=${currentUser.email}`
+        `/user-details?email=${currentUser.email}`
       );
       dispatch(updateUser(res.data.user));
       setCurrentUser(res.data.user);

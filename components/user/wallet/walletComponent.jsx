@@ -26,7 +26,7 @@ const WalletComponent = () => {
   const [wallet, setWallet] = useState();
   const [update, setUpdate] = useState(false);
   const stripePromise = loadStripe(
-    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+   "sk_test_51OMD9cSHHtMTvNEWQ8sbS6SsgnPFQHZOJ6zPZnqwC8Ndl2acpSQt425AjrpqVbzVHfgAxIHj2WxWr3LXw6jS15g600KEomNLfV"
   );
 
   useEffect(() => {
