@@ -26,7 +26,7 @@ const WalletComponent = () => {
   const [wallet, setWallet] = useState();
   const [update, setUpdate] = useState(false);
   const stripePromise = loadStripe(
-   "sk_test_51OMD9cSHHtMTvNEWQ8sbS6SsgnPFQHZOJ6zPZnqwC8Ndl2acpSQt425AjrpqVbzVHfgAxIHj2WxWr3LXw6jS15g600KEomNLfV"
+   "pk_test_51OMD9cSHHtMTvNEWFwltwJ7Ms44q8bgqFZSvmQRnBDsrDYUZi1hKe5AxS1qSyGYjAJzMeMfPCNnCdWevOrkaBpIH00ANhFQoJ7"
   );
 
   useEffect(() => {
@@ -72,6 +72,23 @@ const WalletComponent = () => {
       toast.error(error.message);
     }
   };
+
+
+  
+  // Function to format the date to "25 Jun 2024 05:20 PM"
+  function formatDate(d) {
+  const date = new Date(d);
+    const options = { 
+        day: '2-digit', 
+        month: 'short', 
+        year: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        hour12: true 
+    };
+    
+    return date.toLocaleString('en-US', options).replace(',', '');
+}
 
   return (
     <ProtectedRoute>
@@ -138,7 +155,7 @@ const WalletComponent = () => {
                         {transaction?.type}
                       </p>
                       <p className="text-sm text-neutral-400">
-                        {transaction?.date}
+                        {formatDate(transaction?.date)}
                       </p>
                     </div>
                     <Divider className="my-4" />

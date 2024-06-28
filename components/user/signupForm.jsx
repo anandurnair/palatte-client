@@ -39,7 +39,7 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     try {
-      if (fullname === "" || email === "" || password === "") {
+      if (fullname === "" || email === "" || password === "" || passwordErr  ) {
         toast.error("Fill the form correctly");
         return;
       }

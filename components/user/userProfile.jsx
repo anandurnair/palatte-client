@@ -37,6 +37,9 @@ const UserProfileComponent = ({ userId }) => {
   const [posts, setPosts] = useState([]);
   const [isFollowed, setIsFollowed] = useState(false);
   const currentUser = useSelector((state) => state.user.currentUser);
+  if(userId == currentUser?._id){
+    router.push('/profile')
+  }
   const [userDetails, setUserDetails] = useState();
   useEffect(() => {
     try {

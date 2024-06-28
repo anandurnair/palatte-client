@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useEffect, useState } from "react";
 import {
   LineChart,
@@ -142,7 +144,7 @@ const GraphComponent = () => {
 
       <div className="w-full flex flex-col items-center">
         <h1>Service Order Count</h1>
-        <Select
+        {/* <Select
           label="Select"
           selectedKeys={serviceFilter}
           className="max-w-xs"
@@ -151,7 +153,7 @@ const GraphComponent = () => {
           <SelectItem key="yearly">Yearly</SelectItem>
           <SelectItem key="monthly">Monthly</SelectItem>
           <SelectItem key="weekly">Weekly</SelectItem>
-        </Select>
+        </Select> */}
         <BarChart width={1000} height={300} data={serviceCounts}>
           <CartesianGrid />
           <XAxis dataKey="serviceName" />

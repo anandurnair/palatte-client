@@ -217,7 +217,7 @@ const CustomCheckbox = ({ user, statusColor, value }) => {
         <User
           avatarProps={{ size: "md", src: user.avatar }}
           description={
-            <Link isExternal href={`http://localhost:3000/userProfile?userId=${user.userId}`}>
+            <Link isExternal href={`https://www.palatte.anandu.site/userProfile?userId=${user.userId}`}>
               @{user.username}
             </Link>
           }
