@@ -25,10 +25,11 @@ const ProfileComponent = () => {
   const user = useSelector((state) => state.user.currentUser);
   const [showModal, setShowModal] = useState();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
+  const [postCount,setPostCount] = useState(0)
   const router = useRouter();
   useEffect(() => {
     fetchUserDetails();
+    fetchPosts()
   }, []);
 
   const fetchUserDetails = async () => {
@@ -51,6 +52,25 @@ const ProfileComponent = () => {
       }
     }
   };
+  const fetchPosts = async () => {
+    if(!user) return
+    try {
+      if (user) {
+        const res = await axiosInstance.get(
+          `/get-user-posts?userId=${user?._id}`
+        );
+        if (res.status == 200) {
+          setPostCount(res.data.posts.length);
+        } else {
+          console.log("Cannot fetch posts");
+          console.log(res.data.error);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
 
   return (
     <ProtectedRoute>
@@ -85,7 +105,7 @@ const ProfileComponent = () => {
               </div>
               <div className="w-full h-1/2 flex flex-col md:flex-row justify-between items-center font-semibold mt-4 md:mt-0">
                 <h2 className="mb-2 md:mb-0">
-                  Posts <span>2</span>
+                  Posts <span>{postCount}</span>
                 </h2>
                 <Button className="cursor-pointer" variant="" onClick={() => setShowModal('followers')} onPress={onOpen}>
                   Followers <span>{userDetails?.followers?.length}</span>

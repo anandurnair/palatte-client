@@ -46,6 +46,7 @@ const FollowersModal = ({userId}) => {
         <>
           <ModalHeader className="flex flex-col gap-1">Followers</ModalHeader>
           <ModalBody>
+            {followers.length == 0 && <p>No followers</p>}
           {followers.map((user)=>(
         <Card className="w-full" key={user._id}>
         <CardHeader className="justify-between">

@@ -230,7 +230,7 @@ const PostList = ({ updatePosts, setUpdatePosts }) => {
                       />
                     )}
                     <div className="flex flex-col">
-                      <p className="text-md">{post.userId?.username}</p>
+                      <p className="text-md cursor-pointer" onClick={()=>  router.push(`/userProfile?userId=${post.userId?._id}`)}>{post.userId?.username}</p>
                       <p className="text-small text-default-500">
                         {post.uploadedDate}
                       </p>

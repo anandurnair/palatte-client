@@ -38,7 +38,7 @@ const FollowingModal = ({ userId }) => {
       } catch (error) {
         toast.error(error);
       }
-    };
+    };  
     fetchFollowingData();
   }, []);
   return (
@@ -52,6 +52,7 @@ const FollowingModal = ({ userId }) => {
           <>
             <ModalHeader className="flex flex-col gap-1">Following</ModalHeader>
             <ModalBody>
+            {following.length == 0 && <p>No following</p>}
               {following.map((user) => (
                 <Card className="w-full" key={user._id}>
                   <CardHeader className="justify-between">

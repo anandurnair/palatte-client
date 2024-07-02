@@ -11,10 +11,7 @@ import { updateUser } from "@/redux/reducers/user";
 import { IoMdMore } from "react-icons/io";
 import {
   Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
+
   Button,
   useDisclosure,
 } from "@nextui-org/react";

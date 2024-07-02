@@ -282,7 +282,10 @@ const HiredHistory = () => {
               <Card>
                 <CardBody className="h-auto">
                   <div className="w-full h-full flex">
+                  {allOrders.length == 0 && <h3>No hirings</h3>}
+
                     <Accordion variant="light" selectionMode="multiple">
+                    
                       {allOrders
                         .slice()
                         .reverse()
@@ -533,6 +536,8 @@ const HiredHistory = () => {
               <Card>
                 <CardBody className="h-auto">
                   <div className="w-full h-full flex">
+                  {allOrders.length == 0 &&( <h3>No hirings</h3>)}
+
                     <Accordion variant="light" selectionMode="multiple">
                       {allOrders
                         .slice()

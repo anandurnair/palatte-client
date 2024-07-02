@@ -159,6 +159,7 @@ const OrdersComponent = () => {
               <Card>
                 <CardBody className="h-auto">
                   <div className="w-full h-full flex">
+                    {allOrders.length == 0 && <p>No orders</p>}
                     <Accordion selectionMode="multiple">
                       {allOrders.slice().reverse().map(
                         (order, index) =>
@@ -393,6 +394,7 @@ const OrdersComponent = () => {
               <Card>
                 <CardBody className="h-auto">
                   <div className="w-full h-full flex">
+                    {allOrders.length == 0 && <p>No orders</p>}
                     <Accordion selectionMode="multiple">
                       {allOrders
                         .slice()

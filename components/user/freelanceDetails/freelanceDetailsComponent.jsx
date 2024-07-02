@@ -232,7 +232,7 @@ const FreelanceDetailsComponent = () => {
           <div className="w-full h-auto px-10 py flex flex-col justify-center ">
             <h2 className="text-2xl font-bold">Reviews</h2>
             <div className="w-full py-5  flex justify-between">
-              <h2>{reviews.length} reviews</h2>
+             {reviews.length !== 0 && (<h2>{reviews.length} reviews</h2>)} 
               <div className="flex gap-5">
                 <Rating
                   value={averageRating}

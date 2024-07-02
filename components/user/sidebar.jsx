@@ -7,7 +7,8 @@ import { IoMdChatbubbles } from "react-icons/io";
 import { PiPaintBrushFill } from "react-icons/pi";
 import { usePathname, useRouter } from "next/navigation";
 import ProtectedRoute from "../../components/user/ProtectedRoute";
-
+import { BsPersonFillCheck } from "react-icons/bs";
+import '../style.css'
 const HomeSidebar = () => {
   const pathname = usePathname();
   const router = useRouter();
@@ -177,7 +178,7 @@ const HomeSidebar = () => {
                   handleItemClick();
                   router.push("/hiredHistory");
                 }}
-                icon={MdWorkHistory}
+                icon={BsPersonFillCheck}
                 className={`bg-5 rounded-lg p-4 shadow-lg text-gray-200 ${
                   result === "Hired History/"
                     ? "bg-neutral-800 transform scale-110 transition-transform duration-300"

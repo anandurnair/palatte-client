@@ -38,7 +38,6 @@ const CreateProfileForm = () => {
   const [place, setPlace] = useState("");
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
-  const [isFreelance, setFreelance] = useState("no");
   const [image, setImage] = useState();
   const [crop, setCrop] = useState({ x: 0, y: 0, width: 100, height: 100 });
   const [croppedImage, setCroppedImage] = useState();
