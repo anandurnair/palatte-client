@@ -71,7 +71,7 @@ const UserProfileComponent = ({ userId }) => {
     <ProtectedRoute>
       <ToastContainer toastStyle={{ backgroundColor: "#1d2028" }} position="bottom-center" />
       <div className="w-full h-full  flex flex-col items-center rounded-lg my-5">
-        <div className="w-full mt-32   md:w-4/5 h-auto bg-semi mt:mt-3 rounded-lg p-10 md:p-20 z-10 shadow-2xl overflow-auto">
+        <div className="w-full    md:w-4/5 h-auto bg-semi mt:mt-3 rounded-lg p-10 md:p-20 z-10 shadow-2xl overflow-auto">
           <div className="flex flex-col md:flex-row">
             <div className="flex gap-4 items-center">
               <Avatar src={userDetails?.profileImg} className="rounded-full  w-20 h-20 md:w-28 md:h-28 ml-16 md:ml-0" />
