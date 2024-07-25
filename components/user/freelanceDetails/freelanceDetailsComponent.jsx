@@ -136,12 +136,12 @@ const FreelanceDetailsComponent = () => {
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
   return (
-    <div className="w-full h-full flex items-center rounded-lg px-5 my-5 gap-x-4">
+    <div className="w-full h-full flex flex-col md:flex-row items-center  rounded-lg md:px-5 my-5 gap-x-4 overflow-y-auto">
       <ToastContainer
         toastStyle={{ backgroundColor: "#20222b", color: "#fff" }}
         position="bottom-right"
       />
-      <div className="w-4/6 h-full  rounded-lg  z-10 shadow-2xl flex flex-col gap-y-2 ">
+      <div className="md:w-4/6 h-full  rounded-lg  z-10 shadow-2xl flex flex-col gap-y-2 ">
         <div className="w-full h-auto">
           <Card className="w-full px-5 py-2">
             <CardHeader className="justify-between">
@@ -161,7 +161,7 @@ const FreelanceDetailsComponent = () => {
                   </h5>
                 </div>
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-3 flex-col md:flex-row">
                 {currentUser?._id === userId ? (
                   <>
                     <Button
@@ -224,13 +224,13 @@ const FreelanceDetailsComponent = () => {
         <div className="w-full overflow-auto">
           <div className="w-full h-auto p-10 flex flex-col">
             <div className="h-auto w-full flex flex-col gap-y-5">
-              <h2 className="text-2xl font-bold">{serviceDetails?.title}</h2>
-              <h2 className="text-lg">{serviceDetails?.description}</h2>
+              <h2 className="text-lg md:text-2xl font-bold">{serviceDetails?.title}</h2>
+              <h2 className="md:text-lg">{serviceDetails?.description}</h2>
             </div>
           </div>
 
           <div className="w-full h-auto px-10 py flex flex-col justify-center ">
-            <h2 className="text-2xl font-bold">Reviews</h2>
+            <h2 className="md:text-2xl font-bold">Reviews</h2>
             <div className="w-full py-5  flex justify-between">
              {reviews.length !== 0 && (<h2>{reviews.length} reviews</h2>)} 
               <div className="flex gap-5">
@@ -292,7 +292,7 @@ const FreelanceDetailsComponent = () => {
         </div>
       </div>
 
-      <div className="w-2/6 h-full   rounded-lg  z-10 shadow-2xl flex items-center justify-center">
+      <div className="md:w-2/6 h-full   rounded-lg  z-10 shadow-2xl mt-4  md:mt-2 flex items-center justify-center">
         <div className="flex h-full w-full gap-4 flex-col">
           <h2 className="text-neutral-400">Choose plan</h2>
           <Tabs aria-label="Options" placement="top">

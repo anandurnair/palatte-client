@@ -97,7 +97,7 @@ const WalletComponent = () => {
         position="bottom-center"
       />
       <div className="w-full h-auto flex flex-col items-center rounded-lg my-5">
-        <div className="w-3/5 h-auto bg-semi flex flex-col items-center rounded-lg z-10 shadow-2xl">
+        <div className="md:w-3/5 h-auto bg-semi mt-32 md:mt-0 flex flex-col items-center rounded-lg z-10 shadow-2xl">
           <Card className="w-full py-2">
             <CardBody className="w-full flex items-center justify-center">
               <p className="text-2xl font-semibold">Wallet</p>

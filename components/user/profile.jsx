@@ -4,18 +4,13 @@ import React, { useEffect, useState } from "react";
 import { Avatar, Divider, Button, Image } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import ProtectedRoute from "../../components/user/ProtectedRoute";
-import { Chip } from "@nextui-org/react";
 import {
   Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
+
   useDisclosure,
 } from "@nextui-org/react";
 import FollowersModal from '@/components/user/followersModal'
 import FollowingModal from '@/components/user/followingModal'
-import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, updateUser } from "@/redux/reducers/user";
 
@@ -74,7 +69,7 @@ const ProfileComponent = () => {
 
   return (
     <ProtectedRoute>
-      <div className="w-full h-auto flex flex-col items-center rounded-lg  my-5 mt-96 px-4 md:px-0">
+      <div className="w-full md:h-auto md:pt-0 flex flex-col items-center rounded-lg  my-5 md:mt-0 px-4 md:px-0">
         <div className="w-full md:w-4/5 h-full bg-semi mt-3 rounded-lg p-10 bg3  md:p-20 z-10 shadow-2xl">
           <div className="flex flex-col md:flex-row items-center">
             <div className="flex gap-4 items-center mb-4 md:mb-0">
@@ -88,7 +83,7 @@ const ProfileComponent = () => {
                 <h2 className="text-2xl font-semibold mb-4 md:mb-0">
                   {userDetails?.username}
                 </h2>
-                <div className="flex gap-4">
+                <div className="flex flex-col md:flex-row gap-4">
                   <Button
                     variant="bordered"
                     onClick={() => router.push("/profile/editProfile")}

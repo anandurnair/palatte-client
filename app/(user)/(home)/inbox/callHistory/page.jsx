@@ -46,9 +46,10 @@ const CallHistoryPage = () => {
 
   return (
     <div className="purple-dark h-full bg-background text-foreground flex gap-x-4 overflow-y-scroll">
-      <div className="h-full bg-semi w-2/6 shadow-lg rounded-lg p-4">
+      <div className="h-full bg-semi w-full md:w-2/6 shadow-lg rounded-lg p-4">
         <h2 className="font-semibold text-lg">Call history</h2>
         <div className="w-full mt-4 h-full overflow-y-auto">
+          {calls.length === 0 && <p>No calls </p>}
           {calls.slice().reverse().map(call => (
             <Card key={call._id} className="mt-2">
               <CardHeader className="justify-between">

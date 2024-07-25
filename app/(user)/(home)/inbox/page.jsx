@@ -8,13 +8,19 @@ import axiosInstance from "@/components/user/axiosConfig";
 import { io } from "socket.io-client";
 import { Modal, useDisclosure } from "@nextui-org/react";
 import AddChatModal from "../../../../components/user/userModals/addChatMModal";
-import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button} from "@nextui-org/react";
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+  Button,
+} from "@nextui-org/react";
 import { IoMdMore } from "react-icons/io";
 import { useRouter } from "next/navigation";
 
 const InboxPage = () => {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const router = useRouter()
+  const router = useRouter();
   const currentUser = useSelector((state) => state.user.currentUser);
   const socket = useRef(null);
   const [newConversation, setNewConversation] = useState(null);
@@ -116,29 +122,29 @@ const InboxPage = () => {
   return (
     <>
       <div className="purple-dark h-full bg-background text-foreground flex gap-x-4 overflow-y-scroll">
-        <div className="h-full bg-semi w-2/6 shadow-lg rounded-lg p-4 overflow-y-auto">
+        <div className="h-full bg-semi w-full md:w-2/6 shadow-lg rounded-lg p-4 overflow-y-auto">
           <div className="w-full h-auto p-3 flex justify-between border-b-1 mb-3 border-neutral-700">
             <h1>Chat list</h1>
             <div className="flex">
-            <Button onPress={onOpen} isIconOnly variant="default">
-              <IoIosAdd size={30} className="cursor-pointer" />
-            </Button>
-            <Dropdown>
-      <DropdownTrigger>
-        <Button 
-          isIconOnly variant="default"
-        >
-         <IoMdMore size={30} className="cursor-pointer" />
-
-        </Button>
-      </DropdownTrigger>
-      <DropdownMenu aria-label="Static Actions">
-        <DropdownItem key="new" onClick={()=>router.push('/inbox/callHistory')}>Call history</DropdownItem>
-        
-      </DropdownMenu>
-    </Dropdown>
+              <Button onPress={onOpen} isIconOnly variant="default">
+                <IoIosAdd size={30} className="cursor-pointer" />
+              </Button>
+              <Dropdown>
+                <DropdownTrigger>
+                  <Button isIconOnly variant="default">
+                    <IoMdMore size={30} className="cursor-pointer" />
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu aria-label="Static Actions">
+                  <DropdownItem
+                    key="new"
+                    onClick={() => router.push("/inbox/callHistory")}
+                  >
+                    Call history
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
             </div>
-          
           </div>
           {conversation.map((c) => (
             <ChatListComponent
@@ -152,7 +158,7 @@ const InboxPage = () => {
             />
           ))}
         </div>
-        <div className="w-full rounded-md shadow-lg flex flex-col gap-y-1 justify-center items-center overflow-y-scroll mr-4 bg-semi">
+        <div className="w-full rounded-md hidden md:block shadow-lg flex flex-col gap-y-1 justify-center items-center overflow-y-scroll mr-4 bg-semi">
           {currentChat ? (
             <ChatUI
               setUpdate={setUpdate}

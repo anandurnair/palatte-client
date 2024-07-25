@@ -152,7 +152,7 @@ const OrdersComponent = () => {
         toastStyle={{ backgroundColor: "#1d2028" }}
         position="bottom-center"
       />
-      <div className="w-full h-full flex flex-col items-center rounded-lg px-20 my-5">
+      <div className="w-full h-full flex flex-col items-center rounded-lg px-1 md:px-20 my-5">
         <div className="w-full overflow-y-auto">
           <Tabs aria-label="Options" placement="top" className="w-full">
             <Tab key="latest-order" title="New Orders" className="w-full">

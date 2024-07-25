@@ -99,9 +99,9 @@ const SelectFreelancerComponent = () => {
         toastStyle={{ backgroundColor: "#20222b", color: "#fff" }}
         position="bottom-right"
       />
-      <div className="w-full h-full flex flex-col items-center rounded-lg mb-5 gap-y-5 mr-4">
+      <div className="w-full h-full flex flex-col items-center rounded-lg mb-5 gap-y-5 px-2 md:px-0 mr-4">
         <>
-          <div className="w-full h-auto bg-semi py-2 px-4 rounded-lg flex border-2 border-neutral-800 justify-between items-center">
+          <div className="w-full h-auto bg-semi py-2 px-4 rounded-lg flex flex-col md:flex-row gap-y-3 border-2 border-neutral-800 justify-between items-center">
             <h2>
               Selected service : {serviceName ?? "No services selected"}
             </h2>
@@ -128,7 +128,7 @@ const SelectFreelancerComponent = () => {
               Select a service
             </Button>
           </div>
-          <div className="w-full h-auto py-2 px-4 rounded-lg flex gap-2">
+          <div className="w-full h-auto py-2 md:px-4 rounded-lg flex gap-2">
             <Select
               label="Sort by rating"
               className="w-40"
@@ -140,12 +140,13 @@ const SelectFreelancerComponent = () => {
               <SelectItem key={"lowToHigh"}>Low to high</SelectItem>
             </Select>
           </div>
-          <div className="w-full h-auto py-2 px-4 rounded-lg flex gap-2">
+          <div className="w-full overflow-y-auto">
+          <div className="w-full h-auto py-2 md:px-4 rounded-lg flex flex-col md:flex-row gap-2 ">
             {sortedFreelancers.length === 0 && (
               <p className="text-center">No freelancers found</p>
             )}
             {sortedFreelancers.map((freelance) => (
-              <Card className="min-w-[340px] p-3" key={freelance._id}>
+              <Card className=" p-3" key={freelance._id}>
                 <CardHeader
                   className="justify-between cursor-pointer"
                   onClick={() => {
@@ -218,6 +219,8 @@ const SelectFreelancerComponent = () => {
               </Card>
             ))}
           </div>
+          </div>
+         
           <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
             {modal === "select" && (
               <SelectServiceModal

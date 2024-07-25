@@ -46,7 +46,7 @@ const SearchComponenet = () => {
         position="bottom-right"
       />
       <div className="w-full h-full  flex flex-col items-center rounded-lg my-5 gap-y-5">
-        <div className="flex w-2/5 gap-3">
+        <div className="flex px-3 md:w-2/5 gap-3">
             <Input
               radius="full"
               type="text"
@@ -59,7 +59,7 @@ const SearchComponenet = () => {
               search
             </Button>
         </div>
-        <div className="w-6/12  h-auto p-5 flex gap-y-4 items-center flex-col px-10 rounded-lg">
+        <div className="md:w-6/12 w-full  h-auto p-5 flex gap-y-4 items-center flex-col md:px-10 rounded-lg">
             {users.length === 0 ? <h2>No Users found</h2> : ''}
           { users.map(user =>(
             <div className="w-full"  key={user._id} onClick={() => handleClick(user._id)}>

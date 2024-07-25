@@ -71,7 +71,7 @@ const   ResetPasswordForm =  () => {
         position="bottom-center"
       />    <div className='w-full h-full flex justify-center items-center p-5'>
 
-        <div className='w-2/5 h-auto  rounded-md bg-semi shadow-lg flex flex-col justify-center items-center px-14 py-10 gap-4'>
+        <div className='md:w-2/5 h-auto  rounded-md bg-semi shadow-lg flex flex-col justify-center items-center md:px-14 py-10 gap-4'>
             <h2>Reset password</h2>
             <Input
             type="password"

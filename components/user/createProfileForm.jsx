@@ -228,10 +228,10 @@ const CreateProfileForm = () => {
         toastStyle={{ backgroundColor: "#1d2028" }}
         position="bottom-right"
       />
-      <div className="w-full h-auto flex justify-center items-center p-5">
-        <div className="w-2/5 h-auto  rounded-md bg-semi shadow-lg flex flex-col justify-center items-center p-10">
-          <div className="h-full w-full flex flex-col items-center px-16 gap-y-6">
-            <h2 className="text-2xl font-bold">Create Profile</h2>
+      <div className="w-full h-auto flex justify-center items-center md:p-5">
+        <div className="md:w-2/5 h-auto  rounded-md bg-semi shadow-lg flex flex-col justify-center items-center md:p-10">
+          <div className="h-full w-full flex flex-col items-center md:px-16 gap-y-6 p-5">
+            <h2 className="md:text-2xl text-lg font-bold">Create Profile</h2>
 
             <input
               ref={inputRef}

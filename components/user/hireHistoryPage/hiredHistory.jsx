@@ -271,7 +271,7 @@ const HiredHistory = () => {
 
   return (
     <ProtectedRoute>
-      <div className="w-full h-full flex flex-col items-center rounded-lg px-20 my-5">
+      <div className="w-full h-full flex flex-col items-center rounded-lg px-1 md:px-20 my-5">
         <ToastContainer
           toastStyle={{ backgroundColor: "#1d2028" }}
           position="bottom-center"

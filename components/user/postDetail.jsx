@@ -44,6 +44,8 @@ const isVideo = (url) => {
 };
 
 const PostDetail = ({ postId }) => {
+  const router = useRouter();
+
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const current = useSelector((state) => state.user.currentUser);
   const [currentUser, setCurrentUser] = useState(current);
@@ -134,14 +136,16 @@ const PostDetail = ({ postId }) => {
     setModal(key);
     onOpen();
   };
-
+  const hanldeGoToUser = (userId) => {
+   router.push(`/userProfile?userId=${userId}`);
+  };
   return (
-    <div className="w-full pl-52 overflow-y-auto  rounded-lg my-5">
+    <div className="w-full md:pl-52 overflow-y-auto  rounded-lg my-5">
       <ToastContainer
         toastStyle={{ backgroundColor: "#20222b", color: "#fff" }}
         position="bottom-right"
       />
-      <Card className="w-3/5   bg-semi mt-3 rounded-lg">
+      <Card className="md:w-3/5   bg-semi mt-3 rounded-lg">
         <CardHeader className="flex justify-between">
           <div className="flex gap-3">
             {post && (
@@ -154,7 +158,7 @@ const PostDetail = ({ postId }) => {
               />
             )}
             <div className="flex flex-col">
-              <p className="text-md">{post?.userId?.username}</p>
+              <p className="text-md cursor-pointer"  onClick={()=>hanldeGoToUser(post?.userId?._id)}>{post?.userId?.username}</p>
               <p className="text-small text-default-500">
                 {post?.uploadedDate}
               </p>

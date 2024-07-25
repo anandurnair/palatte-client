@@ -133,9 +133,9 @@ const EditProfile = () => {
   return (
     <ProtectedRoute>
       <ToastContainer toastStyle={{ backgroundColor: "#1d2028" }} position="bottom-right" />
-      <div className="w-full h-auto flex justify-center items-center p-5">
-        <div className="mt-36 w-3/5 h-auto rounded-md bg-semi shadow-lg flex flex-col justify-center items-center p-10">
-          <div className="h-full w-full flex flex-col items-center px-16 gap-y-6">
+      <div className="w-full h-auto flex justify-center items-center md:p-5">
+        <div className="mt-36 w-full md:w-3/5 h-auto rounded-md bg-semi shadow-lg flex flex-col justify-center items-center md:p-10">
+          <div className="h-full w-full flex flex-col items-center px-2 md:px-16 gap-y-6">
             <h2 className="text-2xl font-bold pt-16">Edit Profile</h2>
             <Avatar src={croppedImage} className="rounded-full w-20 h-20" />
             <Input

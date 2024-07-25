@@ -1,16 +1,28 @@
-import React from 'react'
+'use client'
+import React, { useState } from 'react'
 import HomeSidebar from '../../../components/user/sidebar'
 import Header from '../../../components/user/header'
-const HomeLayout = ({children}) => {
-  return (
-    <div className='purple-dark bg-background text-foreground  w-full h-lvh flex '>
-      <HomeSidebar/>
-      <div className='w-full flex flex-col'>
-        <Header/>
-      {children}
-      </div>
-    </div>
-  )
-}
+import ProtectedRoute from '@/components/user/ProtectedRoute'
+const Home = ({children}) => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-export default HomeLayout
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  return (
+    <ProtectedRoute>
+      <div className="purple-dark bg-background text-foreground w-full flex flex-row overflow-hidden">
+        <HomeSidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+        <div className="flex-1 flex flex-col">
+          <Header toggleSidebar={toggleSidebar} />
+         
+            {children}
+         
+        </div>
+      </div>
+    </ProtectedRoute>
+  );
+};
+
+export default Home;

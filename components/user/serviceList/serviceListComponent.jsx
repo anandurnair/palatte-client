@@ -130,7 +130,7 @@ const ServiceList = () => {
         toastStyle={{ backgroundColor: "#20222b", color: "#fff" }}
         position="bottom-right"
       />
-      <div className="w-full h-full  flex flex-col items-center rounded-lg mb-5 gap-y-5 px-20  mr-4">
+      <div className="w-full h-full  flex flex-col items-center rounded-lg mb-5 gap-y-5 px-2 md:px-20  mr-4">
         <>
           <div className="w-full h-auto bg-semi py-2 px-8 rounded-lg flex border-2 border-neutral-800 justify-between items-center">
             <h2>Service List</h2>

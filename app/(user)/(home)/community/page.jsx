@@ -123,7 +123,7 @@ useEffect(() => {
   return (
     <>
       <div className='purple-dark h-full bg-background text-foreground flex gap-x-4 overflow-y-scroll'>
-        <div className='h-full bg-semi w-2/6 shadow-lg rounded-lg p-4 overflow-y-auto'>
+        <div className='h-full bg-semi w-full md:w-2/6 shadow-lg rounded-lg p-4 overflow-y-auto'>
           <div className='w-full h-auto p-3 flex justify-between border-b-1 mb-3 border-neutral-700'>
             <h1>Groups</h1>
             <Button onPress={onOpen} isIconOnly variant='default'>
@@ -158,7 +158,7 @@ useEffect(() => {
         </div>
       ))}
         </div>
-        <div className='w-full rounded-md shadow-lg flex flex-col gap-y-1 justify-center items-center overflow-y-scroll mr-4 bg-semi'>
+        <div className='w-full rounded-md hidden md:block shadow-lg flex flex-col gap-y-1 justify-center items-center overflow-y-scroll mr-4 bg-semi'>
           {currentChat ? (
             <GroupChatUI
             

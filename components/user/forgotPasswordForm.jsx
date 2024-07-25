@@ -98,7 +98,7 @@ const ForgotPasswordForm = () => {
     <>
      <ToastContainer />
       <div className="w-full h-full flex justify-center items-center p-5">
-        <div className="w-2/5 h-auto bg rounded-md bg-semi shadow-lg flex flex-col justify-center items-center p-10 gap-y-6">
+        <div className="md:w-2/5 h-auto bg rounded-md bg-semi shadow-lg flex flex-col justify-center items-center md:p-10 gap-y-6">
           <h2>Forgot Password</h2>
           <Input
             type="email"

@@ -171,13 +171,11 @@ const PostList = ({ updatePosts, setUpdatePosts }) => {
           postId: postId,
         });
         socket.current.emit("like", currentUser, postUser);
-        console.log("LIked");
       } else {
         await axiosInstance.post("/unlike-post", {
           userId: user._id,
           postId: postId,
         });
-        console.log("Unliked");
       }
 
       const updatedPosts = [...posts];
@@ -200,9 +198,11 @@ const PostList = ({ updatePosts, setUpdatePosts }) => {
       )
     );
   };
+
   const hanldeGoToPost = (postId) => {
     router.push(`/postDetails?postId=${postId}`);
   };
+
   return (
     <>
       <ToastContainer
@@ -215,14 +215,14 @@ const PostList = ({ updatePosts, setUpdatePosts }) => {
           !post.unListed && (
             <div
               key={post._id}
-              className="w-full h-auto gap-x-5 flex justify-evenly items-center rounded-lg mb-10 shadow-lg"
+              className="w-full h-auto gap-x-5 flex justify-center items-center rounded-lg mb-10 shadow-lg"
             >
               <Card className="w-full bg3">
                 <CardHeader className="flex justify-between">
                   <div className="flex gap-3">
                     {post.userId && (
                       <Image
-                        alt="nextui logo"
+                        alt="user profile"
                         height={40}
                         radius="sm"
                         src={post.userId.profileImg}
@@ -230,7 +230,14 @@ const PostList = ({ updatePosts, setUpdatePosts }) => {
                       />
                     )}
                     <div className="flex flex-col">
-                      <p className="text-md cursor-pointer" onClick={()=>  router.push(`/userProfile?userId=${post.userId?._id}`)}>{post.userId?.username}</p>
+                      <p
+                        className="text-md cursor-pointer"
+                        onClick={() =>
+                          router.push(`/userProfile?userId=${post.userId?._id}`)
+                        }
+                      >
+                        {post.userId?.username}
+                      </p>
                       <p className="text-small text-default-500">
                         {post.uploadedDate}
                       </p>
@@ -245,7 +252,10 @@ const PostList = ({ updatePosts, setUpdatePosts }) => {
                       </DropdownTrigger>
                       {currentUserId === post?.userId?._id ? (
                         <DropdownMenu aria-label="Static Actions">
-                          <DropdownItem key="new" onClick={()=>hanldeGoToPost(post?._id)}>
+                          <DropdownItem
+                            key="new"
+                            onClick={() => hanldeGoToPost(post?._id)}
+                          >
                             Go to Post
                           </DropdownItem>
                           <DropdownItem
@@ -297,33 +307,28 @@ const PostList = ({ updatePosts, setUpdatePosts }) => {
                   </div>
                 </CardHeader>
                 <Divider />
-                <CardBody className="flex items-center gap-y-5">
+                <CardBody className="flex flex-col items-center gap-y-5">
                   {isVideo(post.images) ? (
-                    <video
-                      width="750"
-                      height="500"
-                      className="w-full flex items-center object-cover rounded-xl"
-                      controls
-                    >
+                    <video className="w-full object-cover rounded-xl" controls>
                       <source src={post.images} type="video/mp4" />
                     </video>
                   ) : post.images.length === 1 ? (
                     <Image
-                      className="w-full flex items-center object-cover rounded-xl"
-                      alt="Card background"
+                      className="w-full object-cover rounded-xl"
+                      alt="Post content"
                       src={post.images[0]}
                     />
                   ) : (
                     <SimpleImageSlider
-                      width={380}
-                      height={280}
+                      width={window.innerWidth < 768 ? 320 : 380} // Adjust width for smaller screens
+                      height={window.innerWidth < 768 ? 240 : 280} // Adjust height for smaller screens
                       images={post.images.map((img) => ({ url: img }))}
                       showBullets={true}
                       showNavs={true}
                     />
                   )}
                   <div className="flex px-2 justify-between w-full">
-                    <div className="flex gap-x-5">
+                    <div className="flex gap-x-5 items-center">
                       {likes[post._id] ? (
                         <BiSolidLike
                           className="cursor-pointer"
@@ -337,13 +342,13 @@ const PostList = ({ updatePosts, setUpdatePosts }) => {
                           size={25}
                         />
                       )}
-                      {post.likes.length} {/* Display likes count */}
+                      <span>{post.likes.length}</span>
                       <FaRegComment
                         className="cursor-pointer"
                         size={25}
                         onClick={() => toggleCommentVisibility(post._id)}
                       />
-                      {post.commentCount}
+                      <span>{post.commentCount}</span>
                     </div>
                     <div className="cursor-pointer">
                       {post.bookmarked ? (
@@ -359,8 +364,8 @@ const PostList = ({ updatePosts, setUpdatePosts }) => {
                       )}
                     </div>
                   </div>
-                  <div className="w-full">
-                    <p className="px-3 flex items-start justify-start">
+                  <div className="w-full px-3">
+                    <p className="flex items-start justify-start">
                       <span className="mr-5 font-semibold">
                         {post.userId?.username}
                       </span>
