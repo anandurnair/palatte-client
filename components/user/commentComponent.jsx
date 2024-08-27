@@ -339,6 +339,7 @@ const CommentComponent = ({ setUpdateComment, postId ,userId}) => {
                         <CardBody className="px-3 py-0 text-small">
                           <p>{reply.comment}</p>
                         </CardBody>
+                        
                       </Card>
                     ))}
                   </div>

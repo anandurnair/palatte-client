@@ -1,9 +1,13 @@
 import axios from "axios";
 
-const BASE_URL = 'https://www.palatte.anandu.site/api/'
+// const BASE_URL = 'https://www.palatte.anandu.site/api/'
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL
+
 
 const axiosInstance = axios.create({
-  baseURL: 'https://www.palatte.anandu.site/api/',
+  // baseURL: 'https://www.palatte.anandu.site/api/',
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+
 
   headers: {
       'Content-Type': 'application/json'

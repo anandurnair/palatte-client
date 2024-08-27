@@ -21,6 +21,26 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [passwordErr, setPasswordErr] = useState(false);
 
+
+  const handleEasyLogin = async() => {
+    try {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/loginData`, {
+       email: "nairanandur@gmail.com",
+       password: "Anandur@2002",
+      });
+      if (res.status === 200) {
+        dispatch(updateUser(res.data.user));
+        toast.success("Login successfully");
+        localStorage.setItem("token", JSON.stringify(res.data.token));
+        router.push("/home");
+      } else {
+        toast.error(res.data.error);
+      }
+    } catch (err) {
+      console.log(err);
+      toast.error("Invalid User");
+    }
+  }
   const handleSubmit = async (e) => {
     if (emailErr || passwordErr) {
       return;
@@ -113,6 +133,14 @@ const Login = () => {
             variant="bordered"
           >
             LOGIN
+          </Button>
+          <Button
+            color=""
+            onClick={handleEasyLogin}
+            className="w-full h-12 lg btn"
+            variant="bordered"
+          >
+          EASY LOGIN
           </Button>
           <p className="text-center">
             Create an account?{" "}

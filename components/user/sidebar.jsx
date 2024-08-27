@@ -32,7 +32,7 @@ const HomeSidebar = ({ sidebarOpen, toggleSidebar }) => {
       <div
         className={`w-auto h-full p-4 ${sidebarOpen ? "block" : "hidden"} md:block`}
       >
-        <div className="w-full h-full bg3 rounded-lg overflow-hidden relative">
+        <div className="w-full h-screen bg3 rounded-lg overflow-hidden relative">
           <Sidebar aria-label="Sidebar with content separator example" theme={ownTheme} className="overflow-hidden">
             <Sidebar.Logo onClick={() => router.push("/home")} className="pl-10">
               <h2 className="text-2xl cursor-pointer">

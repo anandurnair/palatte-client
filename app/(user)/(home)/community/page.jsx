@@ -158,7 +158,7 @@ useEffect(() => {
         </div>
       ))}
         </div>
-        <div className='w-full rounded-md hidden md:block shadow-lg flex flex-col gap-y-1 justify-center items-center overflow-y-scroll mr-4 bg-semi'>
+        <div className='w-full rounded-md md:block shadow-lg flex flex-col gap-y-1 justify-center items-center overflow-y-scroll mr-4 bg-semi'>
           {currentChat ? (
             <GroupChatUI
             
@@ -172,7 +172,7 @@ useEffect(() => {
               setUpdate={setUpdate}
             />
           ) : (
-            <span className='text-lg text-neutral-500'>
+            <span className='text-lg text-center text-neutral-500'>
               Open a conversation to start a chat
             </span>
           )}

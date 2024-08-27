@@ -67,6 +67,25 @@ const ProfileComponent = () => {
   };
 
 
+  const handlePasswordChange = () => {
+    if(user?.email === 'nairanandur@gmail.com'){
+      alert("You can't change password")
+      
+    }else{
+
+      router.push("/profile/changePassword")
+    }
+  };
+
+  const handleEditProfile = () => {
+    if(user?.email === 'nairanandur@gmail.com'){
+      alert("You can't edit profile")
+    }else{
+
+      router.push("/profile/editProfile")
+    }
+  }
+
   return (
     <ProtectedRoute>
       <div className="w-full md:h-auto md:pt-0 flex flex-col items-center rounded-lg  my-5 md:mt-0 px-4 md:px-0">
@@ -86,13 +105,13 @@ const ProfileComponent = () => {
                 <div className="flex flex-col md:flex-row gap-4">
                   <Button
                     variant="bordered"
-                    onClick={() => router.push("/profile/editProfile")}
+                    onClick={handleEditProfile}
                   >
                     Edit Profile
                   </Button>
                   <Button
                     variant="bordered"
-                    onClick={() => router.push("/profile/changePassword")}
+                    onClick={handlePasswordChange}
                   >
                     Change Password
                   </Button>
